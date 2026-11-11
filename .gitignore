@@ -1,0 +1,35 @@
+# 只提交本项目自己的代码与文档；外部参考工程各自带 .git，不纳入
+0x808/
+FamiStudio/
+Gridline/
+furnace/
+grauw/
+libmidi/
+libvgm/
+nanotracker/
+tks/
+studio/
+
+# 构建产物
+cli/build/
+*/build/
+build/
+
+# 中间产物与临时文件
+.work/
+*.o
+*.obj
+*.a
+*.exe
+
+# 测试用的 VGM 是商业游戏的原声，不随仓库分发（见 vgm/README.md）
+vgm/*
+!vgm/README.md
+
+# 生成的试听大文件（WAV 每首 10MB，用 listen/README.md 里的命令重新生成）
+listen/*.wav
+listen/song*.json
+
+# 系统
+.DS_Store
+Thumbs.db

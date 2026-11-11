@@ -1,0 +1,418 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OPNVoice = exports.OPNSlotParam = void 0;
+const opm_voice_1 = require("./opm-voice");
+const opl_voice_1 = require("./opl-voice");
+const ym_voice_1 = require("./ym-voice");
+const pad3 = (e) => ("   " + e).slice(-3);
+const pad0x3 = (e) => "$" + ("000" + e.toString(16).toUpperCase()).slice(-3);
+class OPNSlotParam {
+    __type = "OPNSlotParam";
+    dt;
+    ml;
+    tl;
+    ks;
+    ar;
+    am;
+    dr;
+    sr;
+    sl;
+    rr;
+    ssg;
+    constructor(init) {
+        this.dt = init?.dt ?? 0;
+        this.ml = init?.ml ?? 0;
+        this.tl = init?.tl ?? 0;
+        this.ks = init?.ks ?? 0;
+        this.ar = init?.ar ?? 0;
+        this.am = init?.am ?? 0;
+        this.dr = init?.dr ?? 0;
+        this.sr = init?.sr ?? 0;
+        this.sl = init?.sl ?? 0;
+        this.rr = init?.rr ?? 0;
+        this.ssg = init?.ssg ?? 0;
+    }
+    toOPL(key) {
+        function _AR(a) {
+            switch (a) {
+                case 31:
+                    return 15;
+                case 0:
+                    return 0;
+                default:
+                    return Math.max(1, Math.min(15, (a * 28) >> 6));
+            }
+        }
+        function _DR(a) {
+            switch (a) {
+                case 31:
+                    return 15;
+                case 0:
+                    return 0;
+                default:
+                    return Math.max(1, Math.min(15, (a * 28) >> 6));
+            }
+        }
+        function _RR(a) {
+            return a == 0 ? 1 : a;
+        }
+        return new opl_voice_1.OPLSlotParam({
+            am: this.am,
+            pm: 0,
+            eg: key ? 0 : 1,
+            kr: this.ks >> 1,
+            ml: this.ml,
+            kl: 0,
+            tl: Math.min(63, this.tl),
+            ar: _AR(this.ar),
+            dr: _DR(this.dr),
+            sl: this.sl,
+            rr: key ? _DR(this.sr) : _RR(this.rr),
+            ws: 0,
+        });
+    }
+    toOPM() {
+        return new opm_voice_1.OPMSlotParam({
+            dt1: this.dt,
+            ml: this.ml,
+            tl: this.tl,
+            ks: this.ks,
+            ar: this.ar,
+            am: this.am,
+            dr: this.dr,
+            sr: this.sr,
+            rr: this.rr,
+        });
+    }
+}
+exports.OPNSlotParam = OPNSlotParam;
+class OPNVoice extends ym_voice_1.YMVoice {
+    fb;
+    con;
+    ams;
+    pms;
+    // slots[0...3] corresponds to slot 1, 2, 3, 4. (not 1, 3, 2, 4.)
+    slots;
+    constructor(init) {
+        super("OPNVoice");
+        this.fb = init?.fb ?? 0;
+        this.con = init?.con ?? 0;
+        this.ams = init?.ams ?? 0;
+        this.pms = init?.pms ?? 0;
+        this.slots = [
+            new OPNSlotParam(init?.slots?.[0]),
+            new OPNSlotParam(init?.slots?.[1]),
+            new OPNSlotParam(init?.slots?.[2]),
+            new OPNSlotParam(init?.slots?.[3]),
+        ];
+    }
+    /**
+     *     |D7|D6|D5|D4|D3|D2|D1|D0|
+     * 00: |--|   DT   |     ML    | # slot1 (M1)
+     * 01: |--|   DT   |     ML    | # slot3 (M2)
+     * 02: |--|   DT   |     ML    | # slot2 (C1)
+     * 03: |--|   DT   |     ML    | # slot4 (C2)
+     * 04: |--|         TL         | # slot1 (M1)
+     * 05: |--|         TL         | # slot3 (M2)
+     * 06: |--|         TL         | # slot2 (C1)
+     * 07: |--|         TL         | # slot4 (C2)
+     * 08: |--------|      AR      | # slot1 (M1)
+     * 09: |--------|      AR      | # slot3 (M2)
+     * 0A: |--------|      AR      | # slot2 (C1)
+     * 0B: |--------|      AR      | # slot4 (C2)
+     * 0C: |AM|-----|      DR      | # slot1 (M1)
+     * 0D: |AM|-----|      DR      | # slot3 (M2)
+     * 0E: |AM|-----|      DR      | # slot2 (C1)
+     * 0F: |AM|-----|      DR      | # slot4 (C2)
+     * 10: |--------|      SR      | # slot1 (M1)
+     * 11: |--------|      SR      | # slot3 (M2)
+     * 12: |--------|      SR      | # slot2 (C1)
+     * 13: |--------|      SR      | # slot4 (C2)
+     * 14: |     SL    |    RR     | # slot1 (M1)
+     * 15: |     SL    |    RR     | # slot3 (M2)
+     * 16: |     SL    |    RR     | # slot2 (C1)
+     * 17: |     SL    |    RR     | # slot4 (C2)
+     * 18: |-----------|   SSG-EG  | # slot1 (M1)
+     * 19: |-----------|   SSG-EG  | # slot3 (M2)
+     * 1A: |-----------|   SSG-EG  | # slot2 (C1)
+     * 1B: |-----------|   SSG-EG  | # slot4 (C2)
+     * 1C: |-----|   FB   |  CON   |
+     * 1D: |--|--| AMS |--|  PMS   |
+     *     |D7|D6|D5|D4|D3|D2|D1|D0|
+     */
+    static decode(d) {
+        const slots = [];
+        for (let i = 0; i < 4; i++) {
+            slots[i] = new OPNSlotParam({
+                dt: (d[0 + i] >> 4) & 7,
+                ml: d[0 + i] & 15,
+                tl: d[4 + i] & 127,
+                ks: (d[8 + i] >> 6) & 3,
+                ar: d[8 + i] & 31,
+                am: (d[12 + i] >> 7) & 1,
+                dr: d[12 + i] & 31,
+                sr: d[16 + i] & 31,
+                sl: (d[20 + i] >> 4) & 15,
+                rr: d[20 + i] & 15,
+                ssg: d[24 + i] & 15,
+            });
+        }
+        return new OPNVoice({
+            fb: (d[28] >> 3) & 7,
+            con: d[28] & 7,
+            ams: (d[29] >> 4) & 3,
+            pms: d[29] & 7,
+            slots: [slots[0], slots[2], slots[1], slots[3]],
+        });
+    }
+    encode() {
+        const s = this.slots;
+        return [
+            (s[0].dt << 4) | s[0].ml,
+            (s[2].dt << 4) | s[2].ml,
+            (s[1].dt << 4) | s[1].ml,
+            (s[3].dt << 4) | s[3].ml,
+            s[0].tl,
+            s[2].tl,
+            s[1].tl,
+            s[3].tl,
+            s[0].ar,
+            s[2].ar,
+            s[1].ar,
+            s[3].ar,
+            (s[0].am << 7) | s[0].dr,
+            (s[2].am << 7) | s[2].dr,
+            (s[1].am << 7) | s[1].dr,
+            (s[3].am << 7) | s[3].dr,
+            s[0].sr,
+            s[2].sr,
+            s[1].sr,
+            s[3].sr,
+            (s[0].sl << 4) | s[0].rr,
+            (s[2].sl << 4) | s[2].rr,
+            (s[1].sl << 4) | s[1].rr,
+            (s[3].sl << 4) | s[3].rr,
+            s[0].ssg,
+            s[2].ssg,
+            s[1].ssg,
+            s[3].ssg,
+            (this.fb << 3) | this.con,
+            (this.ams << 4) | this.pms,
+        ];
+    }
+    static fromJSON(str) {
+        const obj = JSON.parse(str);
+        if (obj.__type == null || obj.__type === "OPNVoice") {
+            return new OPNVoice(obj);
+        }
+        throw new Error(`Type mismatch: ${obj.__type}`);
+    }
+    toOPM() {
+        return new opm_voice_1.OPMVoice({
+            fb: this.fb,
+            con: this.con,
+            ams: this.ams,
+            pms: this.pms,
+            slots: [this.slots[0].toOPM(), this.slots[1].toOPM(), this.slots[2].toOPM(), this.slots[3].toOPM()],
+        });
+    }
+    /**
+     * @param keyOn: if true, the resulting parameter is for key-on. otherwise for key-off.
+     * @returns OPL voice parameters for simulating OPN voice with dual OPL channels.
+     * Use `toOPL()[0]` for single OPL channel.
+     */
+    toOPL(keyOn = true) {
+        const ss = [
+            this.slots[0].toOPL(keyOn),
+            this.slots[1].toOPL(keyOn),
+            this.slots[2].toOPL(keyOn),
+            this.slots[3].toOPL(keyOn),
+        ];
+        switch (this.con) {
+            case 0:
+                return [
+                    new opl_voice_1.OPLVoice({
+                        fb: this.fb,
+                        con: 0,
+                        slots: [
+                            ss[0],
+                            new opl_voice_1.OPLSlotParam({ ...ss[3], ml: ss[1].ml, tl: Math.min(63, Math.max(0, ss[1].tl - 2) + ss[3].tl) }),
+                        ],
+                    }),
+                    new opl_voice_1.OPLVoice({
+                        fb: 0,
+                        con: 0,
+                        slots: [ss[2], ss[3]],
+                    }),
+                ];
+            case 1:
+                return [
+                    new opl_voice_1.OPLVoice({
+                        fb: this.fb,
+                        con: 0,
+                        slots: [
+                            ss[0],
+                            new opl_voice_1.OPLSlotParam({ ...ss[3], ml: ss[2].ml, tl: Math.min(63, Math.max(0, ss[2].tl - 2) + ss[3].tl) }),
+                        ],
+                    }),
+                    new opl_voice_1.OPLVoice({
+                        fb: 0,
+                        con: 0,
+                        slots: [ss[2], ss[3]],
+                    }),
+                ];
+            case 2:
+                return [
+                    new opl_voice_1.OPLVoice({
+                        fb: this.fb,
+                        con: 0,
+                        slots: [ss[0], ss[3]],
+                    }),
+                    new opl_voice_1.OPLVoice({
+                        fb: 0,
+                        con: 0,
+                        slots: [ss[2], ss[3]],
+                    }),
+                ];
+            case 3:
+                return [
+                    new opl_voice_1.OPLVoice({
+                        fb: this.fb,
+                        con: 0,
+                        slots: [
+                            ss[0],
+                            new opl_voice_1.OPLSlotParam({ ...ss[3], ml: ss[1].ml, tl: Math.min(63, Math.max(0, ss[1].tl - 2) + ss[3].tl) }),
+                        ],
+                    }),
+                    new opl_voice_1.OPLVoice({
+                        fb: 0,
+                        con: 0,
+                        slots: [ss[2], ss[3]],
+                    }),
+                ];
+            case 4:
+                return [
+                    new opl_voice_1.OPLVoice({
+                        fb: this.fb,
+                        con: 0,
+                        slots: [ss[0], ss[1]],
+                    }),
+                    new opl_voice_1.OPLVoice({
+                        fb: 0,
+                        con: 0,
+                        slots: [ss[2], ss[3]],
+                    }),
+                ];
+            case 5:
+                return [
+                    new opl_voice_1.OPLVoice({
+                        fb: this.fb,
+                        con: 0,
+                        slots: [ss[0], ss[1]],
+                    }),
+                    new opl_voice_1.OPLVoice({
+                        fb: this.fb,
+                        con: 0,
+                        slots: [ss[0], ss[3]],
+                    }),
+                ];
+            case 6:
+                return [
+                    new opl_voice_1.OPLVoice({
+                        fb: this.fb,
+                        con: 0,
+                        slots: [ss[0], ss[1]],
+                    }),
+                    new opl_voice_1.OPLVoice({
+                        fb: 0,
+                        con: 1,
+                        slots: [ss[2], ss[3]],
+                    }),
+                ];
+            default:
+                return [
+                    new opl_voice_1.OPLVoice({
+                        fb: this.fb,
+                        con: 1,
+                        slots: [ss[0], ss[1]],
+                    }),
+                    new opl_voice_1.OPLVoice({
+                        fb: 0,
+                        con: 1,
+                        slots: [ss[2], ss[3]],
+                    }),
+                ];
+        }
+    }
+    toMML(type = "pmd") {
+        const s = this.slots;
+        if (type === "mucom88:poll_v") {
+            const raw = this.encode();
+            const data = [...raw.slice(0, 24), raw[0x1c]];
+            return `; OPN voice for MUCOM88(POLL V)
+@%000
+${data.slice(0, 4).map(pad0x3).join(",")} ; DT/ML
+${data.slice(4, 8).map(pad0x3).join(",")} ; TL
+${data.slice(8, 12).map(pad0x3).join(",")} ; KS/AR
+${data.slice(12, 16).map(pad0x3).join(",")} ; AM/DR
+${data.slice(16, 20).map(pad0x3).join(",")} ; SR
+${data.slice(20, 24).map(pad0x3).join(",")} ; SL/RR
+${data.slice(24).map(pad0x3).join(",")}                ; FB/AL
+    `;
+        }
+        if (type === "mucom88") {
+            return `; OPN voice for MUCOM88
+  @0
+${[this.fb, this.con].map(pad3).join(",")}
+${[s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, s[0].tl, s[0].ks, s[0].ml, s[0].dt].map(pad3).join(",")}
+${[s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, s[1].tl, s[1].ks, s[1].ml, s[1].dt].map(pad3).join(",")}
+${[s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, s[2].tl, s[2].ks, s[2].ml, s[2].dt].map(pad3).join(",")}
+${[s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, s[3].tl, s[3].ks, s[3].ml, s[3].dt].map(pad3).join(",")}
+`;
+        }
+        else {
+            const pad03 = (e) => ("000" + e).slice(-3);
+            return `; OPN voice for PMD
+; NUM ALG FB
+@ ${[0, this.con, this.fb].map(pad03).join(" ")}
+; AR  DR  SR  RR  SL  TL  KS  ML  DT  AMS
+  ${[s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, s[0].tl, s[0].ks, s[0].ml, s[0].dt, s[0].am].map(pad03).join(" ")}
+  ${[s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, s[1].tl, s[1].ks, s[1].ml, s[1].dt, s[1].am].map(pad03).join(" ")}
+  ${[s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, s[2].tl, s[2].ks, s[2].ml, s[2].dt, s[2].am].map(pad03).join(" ")}
+  ${[s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, s[3].tl, s[3].ks, s[3].ml, s[3].dt, s[3].am].map(pad03).join(" ")}
+`;
+        }
+    }
+    toFile(type = "tfi") {
+        const s = this.slots;
+        const convertDetune = (detune) => (detune > 3 ? 7 - detune : detune);
+        if (type === "dmp") {
+            return new Uint8Array([
+                ...[0x0a, 1, this.pms, this.fb, this.con, this.ams],
+                ...[s[0].ml, s[0].tl, s[0].ar, s[0].dr, s[0].sl, s[0].rr, s[0].am, s[0].ks, s[0].dt, s[0].sr, 0],
+                ...[s[1].ml, s[1].tl, s[1].ar, s[1].dr, s[1].sl, s[1].rr, s[1].am, s[1].ks, s[1].dt, s[1].sr, 0],
+                ...[s[2].ml, s[2].tl, s[2].ar, s[2].dr, s[2].sl, s[2].rr, s[2].am, s[2].ks, s[2].dt, s[2].sr, 0],
+                ...[s[3].ml, s[3].tl, s[3].ar, s[3].dr, s[3].sl, s[3].rr, s[3].am, s[3].ks, s[3].dt, s[3].sr, 0],
+            ]);
+        }
+        else if (type === "vgi") {
+            return new Uint8Array([
+                ...[this.con, this.fb, this.pms | (this.ams << 4)],
+                ...[s[0].ml, convertDetune(s[0].dt), s[0].tl, s[0].ks, s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, 0],
+                ...[s[1].ml, convertDetune(s[1].dt), s[1].tl, s[1].ks, s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, 0],
+                ...[s[2].ml, convertDetune(s[2].dt), s[2].tl, s[2].ks, s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, 0],
+                ...[s[3].ml, convertDetune(s[3].dt), s[3].tl, s[3].ks, s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, 0],
+            ]);
+        }
+        else {
+            return new Uint8Array([
+                ...[this.con, this.fb],
+                ...[s[0].ml, convertDetune(s[0].dt), s[0].tl, s[0].ks, s[0].ar, s[0].dr, s[0].sr, s[0].rr, s[0].sl, 0],
+                ...[s[1].ml, convertDetune(s[1].dt), s[1].tl, s[1].ks, s[1].ar, s[1].dr, s[1].sr, s[1].rr, s[1].sl, 0],
+                ...[s[2].ml, convertDetune(s[2].dt), s[2].tl, s[2].ks, s[2].ar, s[2].dr, s[2].sr, s[2].rr, s[2].sl, 0],
+                ...[s[3].ml, convertDetune(s[3].dt), s[3].tl, s[3].ks, s[3].ar, s[3].dr, s[3].sr, s[3].rr, s[3].sl, 0],
+            ]);
+        }
+    }
+}
+exports.OPNVoice = OPNVoice;

@@ -1,0 +1,43 @@
+{
+  "name": "ym-voice",
+  "version": "0.3.2",
+  "description": "FM voice parameter tools for YM sound chips.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "prepare": "npm run clean && npm run build",
+    "prepublishOnly": "npm run test",
+    "clean": "rimraf dist",
+    "build": "tsc",
+    "typedoc": "typedoc src/index.ts"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE.md",
+    "package.json",
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/jest": "^29.0.3",
+    "@types/node": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "@typescript-eslint/parser": "^7.0.1",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.0.1",
+    "typedoc": "^0.25.8",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^7.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/digital-sound-antiques/ym-voice"
+  },
+  "author": "Mitsutaka Okazaki",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

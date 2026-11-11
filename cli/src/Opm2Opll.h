@@ -1,0 +1,54 @@
+// Opm2Opll —— 源 JSON（YM2151/OPM）→ 目标 JSON（YM2413/OPLL）。
+//
+// 只做语义层转换（RULES.md E5）：
+//   · 时间：startSample / endSample 原样搬运，不量化
+//   · 通道：8 → 9 一一对应，第 9 通道空置
+//   · 音色：OPM 4-op → OPLL 2-op，走 FmVoice 的 OPM→OPN→OPL→ROM 匹配链
+//   · 音高：OPM 的 KC/KF 先还原成 Hz，再换算成 OPLL 的 block/fnum
+//   · 音量：载波最小 TL（7bit）→ OPLL 0x30 低 4 位
+//
+// 输出 JSON 里仍然只有寄存器写（0x10/0x20/0x30 + 用户音色 0x00-0x07），
+// 没有任何音高/音量/时序量化结果落盘。
+#pragma once
+
+#include <string>
+#include <vector>
+
+#include "Document.h"
+
+namespace vgmstudio {
+
+struct ConvertOptions {
+    uint32_t targetClock = 3579545;  // YM2413 标准时钟
+    std::string bank = "ym2413";     // ym2413 | vrc7 | ymf281b
+    bool useUserVoice = false;       // true = 用 0 号用户槽承载 OPM 参数（单音色曲目才可行）
+    int volumeOffsetBias = 0;        // 叠加在匹配得到的 volumeOffset 上
+};
+
+// 单音符的转换结果（用于有损报告）
+struct NoteConvertReport {
+    int sourceChannel = 0;
+    int targetChannel = 0;
+    int program = 0;
+    int volumeOffset = 0;
+    int octaveOffset = 0;
+    int srcCarrierTl = 0;
+    uint8_t kc = 0;
+    uint8_t kf = 0;
+    double freqHz = 0.0;
+};
+
+struct ConvertResult {
+    Document doc;
+    std::vector<NoteConvertReport> reports;
+    size_t notesConverted = 0;
+    bool ok = false;
+    std::string error;
+};
+
+ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt);
+
+// 数值换算（也被 report 打印用）
+int CarrierTlOfOpmVoice(const uint8_t shadow[256], int ch, int con);
+
+}  // namespace vgmstudio
