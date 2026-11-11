@@ -23,6 +23,18 @@ struct ConvertOptions {
     std::string bank = "ym2413";     // ym2413 | vrc7 | ymf281b
     bool useUserVoice = false;       // true = 用 0 号用户槽承载 OPM 参数（单音色曲目才可行）
     int volumeOffsetBias = 0;        // 叠加在匹配得到的 volumeOffset 上
+
+    // ── .fui 音色文件（与 vgm2json --fui 的命名一一对应）──
+    bool exportFui = false;          // 为每个源音色写出 chXinsY_ym2413.fui
+    std::string fuiDir;              // 输出目录（调用方保证存在）
+    bool useEditedFui = false;       // 若同名 .fui 存在，用它的参数覆盖自动匹配结果
+
+    // ── 宏执行 ──
+    // .fui 里只有 speed/delay（每步几个 tick），「一秒几个 tick」由工程决定，
+    // 乐器文件本身没有这个数（Furnace 的 song.hz / tickRate，默认 60）。
+    // 这里必须显式给出，否则宏无法折算成采样位置。
+    int tickRate = 60;
+    bool runMacros = true;           // 目标音色带宏时，把宏展开成寄存器写
 };
 
 // 单音符的转换结果（用于有损报告）
@@ -42,9 +54,16 @@ struct ConvertResult {
     Document doc;
     std::vector<NoteConvertReport> reports;
     size_t notesConverted = 0;
+    std::vector<std::string> fuiFiles;   // 已写出的 .fui
+    std::vector<std::string> fuiApplied; // 实际用上的用户改过的 .fui
     bool ok = false;
     std::string error;
 };
+
+// 把源 OPM 音色导出成等价的 .fui，并把目标侧匹配到的 OPLL 音色也导出成 .fui。
+// 命名规则与 vgm2json --fui 一致：chXinsY_ym2151.fui / chXinsY_ym2413.fui。
+void ExportOpmVoiceFui(const uint8_t shadow[256], int ch, int ordinal, const std::string& dir,
+                       std::string* err);
 
 ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt);
 

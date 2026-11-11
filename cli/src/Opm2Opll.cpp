@@ -4,9 +4,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <map>
 
 #include "AnalyzerYm2151.h"
 #include "FmVoice.h"
+#include "FuiVoice.h"
 
 namespace vgmstudio {
 namespace {
@@ -47,6 +49,56 @@ OpmVoice SnapshotOpmVoice(const uint8_t shadow[256], int ch) {
 }
 
 RegValue Rv(uint8_t reg, uint8_t val) { return RegValue{reg, val}; }
+
+// 音色哈希：只取定义音色的寄存器（排除 0x60 TL = 每音符音量）。
+// 与 Importer.cpp 的 .fui 导出用同一判据，两边序号才能一一对应。
+uint64_t VoiceHash(const uint8_t shadow[256], int ch) {
+    uint64_t h = 1469598103934665603ull;
+    auto mix = [&h](uint8_t v) { h = (h ^ v) * 1099511628211ull; };
+    for (int op = 0; op < 4; op++) {
+        const int base = op * 8 + ch;
+        mix(shadow[0x40 + base]);
+        mix(shadow[0x80 + base]);
+        mix(shadow[0xA0 + base]);
+        mix(shadow[0xC0 + base]);
+        mix(shadow[0xE0 + base]);
+    }
+    mix(shadow[0x20 + ch] & 0x3F);
+    mix(shadow[0x38 + ch]);
+    return h;
+}
+
+// 把匹配到的 OPLL ROM 音色展开成一个 FuiVoice（供用户审计/修改）
+FuiVoice OpllRomToFui(int program, const char* name) {
+    FuiVoice v;
+    v.type = kFuiInsOpll;
+    v.ops = 2;
+    v.name = name != nullptr ? name : "opll";
+    v.opllPreset = program;
+    if (program <= 0 || program >= 19) return v;
+
+    const std::vector<OpllVoice>& rom = OpllRomBank(OpllBank::Ym2413);
+    const OpllVoice& o = rom[program];
+    v.fb = o.fb;
+    for (int i = 0; i < 2; i++) {
+        const OpllSlot& s = o.slots[i];
+        FuiOperator& d = v.op[i];
+        d.am = s.am;
+        d.ksr = s.kr;
+        d.mult = s.ml;
+        d.ksl = s.kl;
+        d.tl = s.tl;
+        d.ar = s.ar;
+        d.dr = s.dr;
+        d.sl = s.sl;
+        d.rr = s.rr;
+        d.egt = s.eg;
+        d.ws = s.ws;
+    }
+    return v;
+}
+
+
 
 }  // namespace
 
@@ -125,6 +177,9 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                          [](const Entry& a, const Entry& b) { return a.at < b.at; });
 
         size_t cur = 0;
+        std::map<uint64_t, int> voiceOrdinal;
+        std::map<uint64_t, OpllMatch> voiceProgram;  // 音色 → 首次匹配结果（含 program/volume/octave）
+        std::map<uint64_t, FuiVoice> voiceFui;       // 音色 → 用户改过的 .fui（含宏）
         for (const Note& n : sc.notes) {
             // 重放到音符起始
             while (cur < stream.size() && stream[cur].at <= n.startSample) {
@@ -135,7 +190,75 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             const OpmVoice opm = SnapshotOpmVoice(shadow, ch);
             const OpnVoice opn = OpmToOpn(opm);
             const OplVoice opl = OpnToOpl(opn, /*keyOn=*/true);
-            const OpllMatch m = MatchOpllRom(opl, bank);
+
+            // 音色按哈希去重编号（与 vgm2json --fui 的 chXinsY 一一对应）。
+            // 匹配与 .fui 写出只在音色首次出现时做一次；
+            // 否则 2515 个音符会写出 2515 份 .fui（实测 fui=2534 files）。
+            const uint64_t vh = VoiceHash(shadow, ch);
+            int ordinal = 0;
+            auto oi = voiceOrdinal.find(vh);
+            OpllMatch m;
+            // 同一音色的匹配结果在首次出现时确定，后续音符必须沿用
+            // （否则用了 --use-edited-fui 时，之后的音符会退回自动匹配）
+            auto pm = voiceProgram.find(vh);
+            if (pm != voiceProgram.end()) {
+                ordinal = oi->second;
+                m = pm->second;
+                goto have_match;
+            }
+            if (oi == voiceOrdinal.end()) {
+                ordinal = static_cast<int>(voiceOrdinal.size()) + 1;
+                voiceOrdinal[vh] = ordinal;
+                m = MatchOpllRom(opl, bank);   // ← 自动匹配只在这里做一次
+
+                char baseName[32];
+                std::snprintf(baseName, sizeof(baseName), "ch%dins%d", ch + 1, ordinal);
+
+                // ★ 用户改过的 .fui 优先：同名 ym2413.fui 存在且开了 useEditedFui 时，
+                //   用它的 program（音色号）覆盖自动匹配结果。
+                bool usedEdited = false;
+                FuiVoice editedVoice;
+                if (opt.useEditedFui) {
+                    char fn[64];
+                    std::snprintf(fn, sizeof(fn), "ch%dins%d_ym2413.fui", ch + 1, ordinal);
+                    const std::string path = opt.fuiDir.empty() ? fn : (opt.fuiDir + "/" + fn);
+                    std::string ferr;
+                    if (LoadFui(path, &editedVoice, &ferr)) {
+                        if (editedVoice.opllPreset > 0 && editedVoice.opllPreset < 19) {
+                            m.program = editedVoice.opllPreset;
+                        }
+                        usedEdited = true;
+                        out.fuiApplied.push_back(path);
+                    }
+                }
+
+                voiceProgram[vh] = m;
+                if (usedEdited) voiceFui[vh] = editedVoice;
+                if (opt.exportFui) {
+                    auto save = [&](const FuiVoice& v, const char* suffix) {
+                        char fn[64];
+                        std::snprintf(fn, sizeof(fn), "ch%dins%d_%s.fui", ch + 1, ordinal, suffix);
+                        const std::string path = opt.fuiDir.empty() ? fn : (opt.fuiDir + "/" + fn);
+                        std::string ferr;
+                        if (SaveFui(v, path, &ferr)) {
+                            out.fuiFiles.push_back(path);
+                        } else {
+                            out.doc.meta.unhandled.push_back("fui 写出失败: " + ferr);
+                        }
+                    };
+                    FuiVoice srcVoice = OpmShadowToFui(shadow, ch);
+                    srcVoice.name = baseName;
+                    save(srcVoice, "ym2151");
+                    if (!usedEdited) {
+                        FuiVoice dstVoice = OpllRomToFui(m.program, baseName);
+                        save(dstVoice, "ym2413");
+                    }
+                }
+            } else {
+                ordinal = oi->second;
+            }
+        have_match:
+
 
             const int carrierTl = CarrierMinTL(shadow, ch, opm.con);
             int vol = (carrierTl >> 3) + m.volumeOffset + opt.volumeOffsetBias;
@@ -192,6 +315,60 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                         dn.segments.push_back(seg);
                     }
                 }
+            }
+
+
+            // ── 宏展开 ──
+            // 用户在 .fui 里写的宏（尤其音量宏）必须真的执行，否则改音色等于没用。
+            // 时间基准：宏的每一步 = speed 个 tick，1 tick = 1/tickRate 秒。
+            // ★ .fui 里没有 tickRate，它来自调用方的 opt.tickRate（Furnace 的 song.hz）。
+            auto fuiIt = voiceFui.find(vh);
+            if (opt.runMacros && fuiIt != voiceFui.end()) {
+                const FuiVoice& fv = fuiIt->second;
+                const int sampleRate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
+                const double samplesPerTick =
+                    static_cast<double>(sampleRate) / (opt.tickRate > 0 ? opt.tickRate : 60);
+
+                for (int mi = 0; mi < kMacroCount; mi++) {
+                    const Macro& macro = fv.macros[mi];
+                    if (macro.val.empty()) continue;
+                    if (macro.type != 0) continue;  // ADSR/LFO 需要音频级推进，这里只展开序列宏
+
+                    MacroRunner runner;
+                    runner.Start(macro, opt.tickRate);
+
+                    // 按 tick 推进，一个 tick 落一条写（只在值变化时写）
+                    const uint32_t durSamples = n.endSample - n.startSample;
+                    const int ticks = static_cast<int>(durSamples / samplesPerTick) + 1;
+                    int lastOut = -1;
+                    for (int t = 0; t < ticks; t++) {
+                        const uint32_t at = n.startSample +
+                                            static_cast<uint32_t>(t * samplesPerTick + 0.5);
+                        if (at >= n.endSample) break;
+                        if (t == ticks - 1) runner.Release();
+                        runner.Tick();
+                        if (!runner.Changed()) continue;
+
+                        const int raw = runner.CurrentValue();
+                        // 只处理能直接映射到寄存器的宏
+                        if (mi == kMacroVol) {
+                            // 音量宏 0..127 → OPLL 4 位音量（0 最响）
+                            const int v = std::max(0, std::min(15, 15 - raw / 8));
+                            if (v == lastOut) continue;
+                            lastOut = v;
+                            Segment seg;
+                            seg.atSample = at;
+                            seg.regs.push_back(
+                                Rv(0x30 + ch, static_cast<uint8_t>((m.program << 4) | v)));
+                            dn.segments.push_back(seg);
+                        }
+                    }
+                }
+                // 宏按时间插入后必须重新排序，否则回放顺序错乱
+                std::stable_sort(dn.segments.begin(), dn.segments.end(),
+                                 [](const Segment& a, const Segment& b) {
+                                     return a.atSample < b.atSample;
+                                 });
             }
 
             // key-off 段：0x20 去掉 bit4

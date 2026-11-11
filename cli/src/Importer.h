@@ -2,6 +2,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "Document.h"
 #include "NoteSplitter.h"
@@ -12,6 +13,8 @@ struct ImportOptions {
     SplitOptions split;
     bool includeRaw = true;   // 关掉可减小文件，但失去位精确往返
     bool pretty = true;
+    bool exportFui = false;   // 为每个出现过的 OPM 音色导出 .fui
+    std::string fuiDir;       // 空 = 与 JSON 同目录
 };
 
 struct ImportOutcome {
@@ -21,6 +24,7 @@ struct ImportOutcome {
     size_t totalWrites = 0;
     size_t structuredWrites = 0;
     size_t registerWritesInFile = 0;  // 文件里 0x54/0x51 命令的条数（独立对照）
+    std::vector<std::string> fuiFiles;  // 已写出的 .fui 路径
 };
 
 ImportOutcome BuildDocument(const std::string& vgmPath, const ImportOptions& opt);

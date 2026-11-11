@@ -59,6 +59,7 @@
 | `fuitool` | `.fui` / `.json` | `.fui` / `.json` | 音色文件互转 + 批量检查 |
 | `vgmroundtrip` | `.vgm` | stdout | **`vgm → json → vgm` 往返校验**（字节级 diff） |
 | **`json2mid`** | `.json` | `.mid` | **音高验证**：把任意芯片的 JSON 转成标准 MIDI，两份 MIDI 直接对比音高，见 `docs/PITCH-CONVERSION.md` |
+| **`fuitool`** | `.fui` | stdout / `.fui` | **音色文件**：dump 参数与 22 条宏、批量校验、读改写往返，见 `docs/VOICE-FUI.md` |
 
 ### 2.1 为什么 `vgminfo` 和 `vgmroundtrip` 是独立程序
 

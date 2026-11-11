@@ -51,6 +51,11 @@ int main(int argc, char** argv) {
             opt.includeRaw = false;
         } else if (std::strcmp(a, "--compact") == 0) {
             opt.pretty = false;
+        } else if (std::strcmp(a, "--fui") == 0) {
+            opt.exportFui = true;
+        } else if (std::strncmp(a, "--fui-dir=", 10) == 0) {
+            opt.fuiDir = a + 10;
+            opt.exportFui = true;
         } else if (std::strncmp(a, "--pitch-jump=", 13) == 0) {
             opt.split.pitchJumpSemitones = static_cast<float>(std::atof(a + 13));
         } else if (a[0] == '-') {
@@ -69,6 +74,11 @@ int main(int argc, char** argv) {
         return 1;
     }
     if (output.empty()) output = DefaultOutput(input);
+    // .fui 默认与 JSON 同目录
+    if (opt.exportFui && opt.fuiDir.empty()) {
+        const size_t sep = output.find_last_of("/\\");
+        opt.fuiDir = (sep == std::string::npos) ? std::string(".") : output.substr(0, sep);
+    }
 
     vgmstudio::ImportOutcome r = vgmstudio::BuildDocument(input, opt);
     if (!r.ok) {

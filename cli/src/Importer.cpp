@@ -1,9 +1,13 @@
 // Importer.cpp —— VGM → VGSJ Document。
 #include "Importer.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <ctime>
 #include <fstream>
+#include <map>
+
+#include "FuiVoice.h"
 
 #include "VgmImportPlayer.h"
 
@@ -131,6 +135,80 @@ ImportOutcome BuildDocument(const std::string& vgmPath, const ImportOptions& opt
             doc.raw.tailBase64 = Base64Encode(bytes.data() + eofOfs, bytes.size() - eofOfs);
         } else {
             doc.meta.unhandled.push_back("raw 分段失败：header 偏移越界");
+        }
+    }
+
+
+    // ── 为每个出现过的 OPM 音色导出 .fui ──
+    // 同一通道内，音色参数（0x20..0xE0 的 32 个写）在曲子进行中可能改变；
+    // 每次「音色块」变化就当作一个新音色，文件名 chXinsY_ym2151.fui。
+    if (opt.exportFui) {
+        struct VoiceKey {
+            uint64_t hash;
+            int ch;
+            int ordinal;
+        };
+        for (size_t ci = 0; ci < doc.channels.size(); ci++) {
+            const Channel& chn = doc.channels[ci];
+            if (chn.index < 0 || chn.index > 7) continue;
+
+            // 把所有写按时间排好，重放影子寄存器
+            struct W { uint32_t at; uint8_t reg; uint8_t val; };
+            std::vector<W> stream;
+            for (const Orphan& o : chn.orphans)
+                for (const RegValue& r : o.regs) stream.push_back(W{o.atSample, r.reg, r.val});
+            for (const Note& n : chn.notes)
+                for (const Segment& s : n.segments)
+                    for (const RegValue& r : s.regs) stream.push_back(W{s.atSample, r.reg, r.val});
+            std::stable_sort(stream.begin(), stream.end(),
+                             [](const W& a, const W& b) { return a.at < b.at; });
+
+            uint8_t shadow[256] = {0};
+            // 按哈希去重：同一通道里不同音符会在几个音色之间来回切换
+            // （实测 ch5 只有 4 个音色，但相邻音符交替，逐次比较会产出几百个文件）。
+            std::map<uint64_t, int> seen;   // hash → 音色序号（按首次出现编号）
+            size_t cur = 0;
+            for (const Note& n : chn.notes) {
+                while (cur < stream.size() && stream[cur].at <= n.startSample) {
+                    shadow[stream[cur].reg] = stream[cur].val;
+                    cur++;
+                }
+                // 音色哈希：只取「定义音色」的寄存器。
+                // ★ 排除 0x60 (TL)：TL 是每个音符的音量，不是音色；
+                //   算进去会让每个音符都变成一个"新音色"（实测 393 个）。
+                uint64_t h = 1469598103934665603ull;
+                auto mix = [&h](uint8_t v) { h = (h ^ v) * 1099511628211ull; };
+                for (int op = 0; op < 4; op++) {
+                    const int base = op * 8 + chn.index;
+                    mix(shadow[0x40 + base]);   // DT1/MUL
+                    mix(shadow[0x80 + base]);   // KS/AR
+                    mix(shadow[0xA0 + base]);   // AM/D1R
+                    mix(shadow[0xC0 + base]);   // DT2/D2R
+                    mix(shadow[0xE0 + base]);   // D1L/RR
+                }
+                mix(shadow[0x20 + chn.index] & 0x3F);  // FB + CON
+                mix(shadow[0x38 + chn.index]);          // PMS/AMS
+                const auto it = seen.find(h);
+                if (it != seen.end()) continue;
+                const int ordinal = static_cast<int>(seen.size()) + 1;
+                seen[h] = ordinal;
+
+                FuiVoice v = OpmShadowToFui(shadow, chn.index);
+                char nm[32];
+                std::snprintf(nm, sizeof(nm), "ch%dins%d", chn.index + 1, ordinal);
+                v.name = nm;
+
+                const std::string dir = opt.fuiDir;  // 由调用方保证已存在
+                char fn[64];
+                std::snprintf(fn, sizeof(fn), "ch%dins%d_ym2151.fui", chn.index + 1, ordinal);
+                std::string path = dir.empty() ? fn : (dir + "/" + fn);
+                std::string ferr;
+                if (SaveFui(v, path, &ferr)) {
+                    out.fuiFiles.push_back(path);
+                } else {
+                    out.doc.meta.unhandled.push_back("fui 写出失败: " + ferr);
+                }
+            }
         }
     }
 

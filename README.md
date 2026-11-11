@@ -55,6 +55,21 @@ $B/json2mid.exe  song.ym2413.json -o dst.mid --report
 libvgm/build/bin/vgm2wav.exe dst.vgm dst.wav       # VGM → WAV，直接用耳朵核对
 ```
 
+### 音色（`.fui`）
+
+每个 JSON 都配一套 Furnace 音色文件，用户直接在 Furnace 里改，改完再重新生成：
+
+```bash
+$B/vgm2json.exe  "$V" -o song.json --fui            # 出 chXinsY_ym2151.fui
+$B/opm2opll.exe  song.json -o song.ym2413.json --fui # 出 chXinsY_ym2413.fui
+$B/fuitool.exe   dump ch1ins1_ym2413.fui             # 看一眼
+#   ……在 Furnace 里改 ch1ins1_ym2413.fui……
+$B/opm2opll.exe  song.json -o song.v2.json --use-edited-fui --vgm=song.v2.vgm
+```
+
+**`.fui` 里不含中断速率**：宏只存「每步几个 tick」，一秒几个 tick 来自 `.fur` 工程
+（Furnace 的 `song.hz`，默认 60）。所以 `--tick-rate` 必须显式给。详见 [`docs/VOICE-FUI.md`](docs/VOICE-FUI.md)。
+
 ### 验证音高
 
 两份 `--report` 输出按 `(channel, startSample)` 配对，就是逐音符的音高 diff：
@@ -91,6 +106,7 @@ print(Counter(round(x) for x in delta).most_common(10))
 | `vgmroundtrip` | `.vgm` | stdout | `vgm→json→vgm` 字节级往返校验 |
 | `opm2opll` | `.json` | `.json` / `.vgm` | YM2151 → YM2413 跨芯片转换 |
 | **`json2mid`** | `.json` | `.mid` | **音高验证**：JSON → 标准 MIDI，两份直接对比 |
+| **`fuitool`** | `.fui` | stdout / `.fui` | **音色文件**：dump 参数与宏、批量校验、读改写 |
 
 ---
 

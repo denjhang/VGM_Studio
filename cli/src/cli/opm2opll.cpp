@@ -67,6 +67,18 @@ int main(int argc, char** argv) {
             opt.useUserVoice = true;
         } else if (std::strcmp(a, "--report") == 0) {
             report = true;
+        } else if (std::strcmp(a, "--fui") == 0) {
+            opt.exportFui = true;
+        } else if (std::strncmp(a, "--fui-dir=", 10) == 0) {
+            opt.fuiDir = a + 10;
+            opt.exportFui = true;
+        } else if (std::strncmp(a, "--tick-rate=", 12) == 0) {
+            opt.tickRate = std::atoi(a + 12);
+        } else if (std::strcmp(a, "--no-macros") == 0) {
+            opt.runMacros = false;
+        } else if (std::strcmp(a, "--use-edited-fui") == 0) {
+            opt.useEditedFui = true;
+            opt.exportFui = true;
         } else if (std::strncmp(a, "--vgm=", 6) == 0) {
             previewPath = a + 6;
         } else if (a[0] == '-') {
@@ -89,6 +101,10 @@ int main(int argc, char** argv) {
         return 1;
     }
     if (output.empty()) output = DefaultOutput(input);
+    if (opt.exportFui && opt.fuiDir.empty()) {
+        const size_t sep = output.find_last_of("/\\");
+        opt.fuiDir = (sep == std::string::npos) ? std::string(".") : output.substr(0, sep);
+    }
 
     vgmstudio::Document src;
     std::string err;
@@ -110,6 +126,9 @@ int main(int argc, char** argv) {
     std::printf("written       : %s\n", output.c_str());
     std::printf("target        : YM2413 @%u bank=%s\n", opt.targetClock, opt.bank.c_str());
     std::printf("notes         : %zu converted\n", r.notesConverted);
+    if (!r.fuiFiles.empty()) std::printf("fui           : %zu files\n", r.fuiFiles.size());
+    if (!r.fuiApplied.empty())
+        std::printf("fui applied   : %zu edited voices\n", r.fuiApplied.size());
 
     // 有损报告：按 (program, volumeOffset) 聚合
     if (!r.reports.empty()) {
