@@ -73,6 +73,8 @@ add_library(vgmcore STATIC
     src/PreviewVgm.cpp
     src/FuiVoice.h
     src/FuiVoice.cpp
+    src/MacroEngine.h
+    src/MacroEngine.cpp
 )
 target_include_directories(vgmcore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(vgmcore PUBLIC libvgm::vgm-player nlohmann_json::nlohmann_json)
@@ -114,3 +116,7 @@ target_link_libraries(json2mid PRIVATE vgmcore midifile)
 
 add_executable(fuitool src/cli/fuitool.cpp)
 target_link_libraries(fuitool PRIVATE vgmcore furnace_fui)
+
+# 宏引擎单元测试（纯内存，无外部文件）
+add_executable(macro_test tests/macro_engine_test.cpp)
+target_link_libraries(macro_test PRIVATE vgmcore furnace_fui)

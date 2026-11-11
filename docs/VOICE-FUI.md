@@ -217,12 +217,104 @@ fms/ams       : 0 / 0   (ops=2, opllPreset=14)
 
 ---
 
+## 8.5 宏执行（`MacroEngine`）
+
+`cli/src/MacroEngine.{h,cpp}` 实现**全部**宏的展开，逐行对应 Furnace 的两个平台 `tick()`：
+
+| 宏组 | 数量 | 位置 |
+|---|---|---|
+| 通道级（MA 块） | 22 条 | `arcade.cpp:292-480` / `opll.cpp:150-340` |
+| 算子级（O1..O4 块） | 4 × 20 条 | 同上（`chan[i].std.op[j]`） |
+
+### 8.5.1 通道级宏 → 寄存器
+
+| 宏 | OPM 落到 | OPLL 落到 |
+|---|---|---|
+| `vol` | 4 个算子的 `0x60+j*8`（按 KVS 决定是否叠音量） | `0x30` 低 4 位 |
+| `arp` / `pitch` | 音高偏移（1/128 半音），调用方重算 fnum | 同 |
+| `duty` | `0x0F` | — |
+| `wave` | `0x1B`（LFO 波形） | `0x30` 高 4 位（换音色号） |
+| `alg` | `0x20` bit0-2 | `0x20` bit5（SUS） |
+| `fb` | `0x20` bit3-5 | `0x03` bit0-2 |
+| `fms` / `ams` | `0x38` | `0x03` bit4 / bit3 |
+| `panL` / `panR` | `0x20` bit6/7 | — |
+| `ex1` / `ex2` / `ex3` | `0x19`（PMD）/ `0x19\|0x80`（AMD）/ `0x18`（LFO 频率） | — |
+| `phaseReset` | 重触发（重写 key 位） | 同 |
+| `ex4` | 改算子掩码 + 重触发 | — |
+| `ex5..ex10` | 两个平台都不消费 | — |
+
+### 8.5.2 算子级宏 → 寄存器
+
+| 宏 | OPM | OPLL（preset=0 时） |
+|---|---|---|
+| `am` | `0xA0` bit7 | `0x00+j` bit7 |
+| `ar` / `dr` | `0x80` / `0xA0` | `0x04+j` |
+| `mult` | `0x40` 低 4 位 | `0x00+j` 低 4 位 |
+| `rr` / `sl` | `0xE0` | `0x06+j` |
+| `tl` | `0x60`（按 KVS 叠音量） | 载波 → `0x30`；调制器 → `0x02` |
+| `dt` | `0x40` 高 4 位（经 `dtTable`） | — |
+| `dt2` / `d2r` | `0xC0` | — |
+| `rs` | `0x80` bit6-7 | — |
+| `ksr` | `0x60` bit7 | `0x00+j` bit4 |
+| `ksl` | — | `0x02` / `0x03` |
+| `vib` / `egt` | — | `0x00+j` |
+| `sus` | — | `0x20` bit5（key 段负责） |
+| `ssg` / `dam` / `dvb` / `ws` | OPM/OPLL 不支持 | — |
+
+### 8.5.3 音量缩放公式
+
+Furnace 的 `compatFlags.newVolumeScaling` 默认 `true`（`song.cpp:1165`），所以：
+
+```
+VOL_SCALE_LOG_BROKEN(x, y, range) = CLAMP(x + y - range, 0, range)
+```
+
+- OPM：`range=127`，`x=127-op.tl`，`y=通道音量`
+- OPLL：`range=15`，`x=15-carrierTl`，`y=通道音量`
+
+### 8.5.4 验证
+
+`cli/tests/macro_engine_test.cpp`（21 条断言，`cli/build/macro_test.exe`）：
+
+```
+vol seq timing               PASS  ← speed=2 @60Hz → 0/1470/2940 采样
+vol changes carrier TL       PASS  ← 127→30→93，调制器 TL 不变
+pitch emits offsets          PASS
+alg writes 0x20              PASS
+fb writes 0x20               PASS
+fms writes 0x38              PASS
+duty->0x0F wave->0x1B        PASS
+ex1/ex2/ex3 LFO regs         PASS
+op tl macro (opm)            PASS
+op ar/dr macros              PASS
+opll vol writes 0x30         PASS
+opll wave->preset            PASS
+ADSR runs                    PASS
+LFO triangle runs            PASS
+no macros => no writes       PASS
+phaseReset retriggers        PASS
+ex4 changes opMask           PASS
+op dt/dt2/d2r/rs/sl/am/mult  PASS
+opll op macros 0x00-0x06     PASS
+opll alg -> sus bit          PASS
+ALL PASS (0 fail)
+```
+
+---
+
 ## 9. 当前限制
 
 | 项 | 状态 |
 |---|---|
-| 序列宏（vol/arp/pitch…） | ✅ 已展开到寄存器写 |
-| ADSR / LFO 宏 | ⚠️ `MacroRunner` 已实现三种模式，但 `opm2opll` 只展开序列宏（ADSR/LFO 需要音频级逐步推进，属实时回放侧） |
-| 宏写到 OPM 侧 | ⚠️ 目前只展开「音量宏 → OPLL 0x30」；其它宏（arp/pitch 等）会改变音高，需与 `FreqToOpllFnum` 联动 |
+| 通道级 22 条宏 | ✅ 全部实现（序列 / ADSR / LFO 三种模式） |
+| 算子级 4×20 条宏 | ✅ 全部实现 |
+| 音高类宏（arp / pitch） | ✅ 输出音高偏移点，调用方按 1/128 半音重算 fnum |
+| 重触发类（phaseReset / ex4） | ✅ 输出重触发点 |
 | `.fui` 的采样/波表块 | 不涉及（FM 音色没有） |
 | 鼓（OPLL preset 16） | 导出为普通音色，鼓位映射未做 |
+
+**已知偏差**（都是 Furnace 语义本身决定的，不是漏实现）：
+
+1. `ex5..ex10` 在 OPM/OPLL 两个平台都不被消费（`arcade.cpp`/`opll.cpp` 里没有引用），所以展开为空。
+2. OPLL 的 `sus` 位由 key 段写（`0x20` bit5），不是独立寄存器。
+3. `ssg / dam / dvb / ws` 是 OPN/OPL/OPZ 的参数，OPM/OPLL 没有对应寄存器。

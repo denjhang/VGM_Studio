@@ -43,6 +43,34 @@ DivInstrumentMacro* MacroSlot(DivInstrument* ins, int i) {
     }
 }
 
+// 算子级宏的槽位（instrument.h:135 的 DIV_MACRO_OP_*，与 readFeatureOx 的 case 编号一致）
+DivInstrumentMacro* OpMacroSlot(DivInstrument* ins, int op, int i) {
+    auto& m = ins->std.opMacros[op];
+    switch (i) {
+        case kOpAm: return &m.amMacro;
+        case kOpAr: return &m.arMacro;
+        case kOpDr: return &m.drMacro;
+        case kOpMult: return &m.multMacro;
+        case kOpRr: return &m.rrMacro;
+        case kOpSl: return &m.slMacro;
+        case kOpTl: return &m.tlMacro;
+        case kOpDt2: return &m.dt2Macro;
+        case kOpRs: return &m.rsMacro;
+        case kOpDt: return &m.dtMacro;
+        case kOpD2r: return &m.d2rMacro;
+        case kOpSsg: return &m.ssgMacro;
+        case kOpDam: return &m.damMacro;
+        case kOpDvb: return &m.dvbMacro;
+        case kOpEgt: return &m.egtMacro;
+        case kOpKsl: return &m.kslMacro;
+        case kOpSus: return &m.susMacro;
+        case kOpVib: return &m.vibMacro;
+        case kOpWs: return &m.wsMacro;
+        case kOpKsr: return &m.ksrMacro;
+        default: return nullptr;
+    }
+}
+
 // Furnace 的 dtTable（platform/fmsharedbase.h:42）：内部 dt → OPM 寄存器 DT1
 constexpr int kDtTable[8] = {7, 6, 5, 0, 1, 2, 3, 4};
 
@@ -113,6 +141,23 @@ std::vector<uint8_t> EncodeFui(const FuiVoice& v) {
         m->mode = 0;
         m->open = (unsigned char)(((s.type & 3) << 1) | (s.activeRelease ? 8 : 0));
     }
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < kOpMacroCount; j++) {
+            DivInstrumentMacro* m = OpMacroSlot(&ins, i, j);
+            const Macro& s = v.opMacros[i][j];
+            if (m == nullptr) continue;
+            m->len = (unsigned char)(s.val.size() > 255 ? 255 : s.val.size());
+            for (int k = 0; k < m->len; k++) m->val[k] = s.val[k];
+            m->loop = (unsigned char)s.loop;
+            m->rel = (unsigned char)s.rel;
+            m->delay = (unsigned char)s.delay;
+            m->speed = (unsigned char)s.speed;
+            m->mode = 0;
+            // 算子宏的 open 只有 3 位（readFeatureOx 里 `target->open=wordSize&7`），
+            // 所以只保留 type 的 bit1-2，没有 activeRelease。
+            m->open = (unsigned char)((s.type & 3) << 1);
+        }
+    }
 
     SafeWriter w;
     w.init();
@@ -173,6 +218,22 @@ bool DecodeFui(const uint8_t* data, size_t len, FuiVoice* out, std::string* err)
         s.type = (m->open >> 1) & 3;
         s.activeRelease = (m->open & 8) != 0;
         s.linger = (i == kMacroVol);
+    }
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < kOpMacroCount; j++) {
+            DivInstrumentMacro* m = OpMacroSlot(&ins, i, j);
+            Macro& s = out->opMacros[i][j];
+            s.val.clear();
+            if (m == nullptr) continue;
+            s.val.assign(m->val, m->val + m->len);
+            s.loop = m->loop;
+            s.rel = m->rel;
+            s.delay = m->delay;
+            s.speed = m->speed;
+            s.type = (m->open >> 1) & 3;
+            s.activeRelease = false;
+            s.linger = (j == kOpTl && i == 1);
+        }
     }
     return true;
 }

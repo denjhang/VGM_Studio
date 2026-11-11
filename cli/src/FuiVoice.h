@@ -64,14 +64,41 @@ struct FuiOperator {
     int kvs = 2;
 };
 
-// ── 一个 FM 音色（对应 DivInstrument + DivInstrumentFM + 22 条宏）──
+// 算子级宏的类型（对应 instrument.h:135 的 DIV_MACRO_OP_*，值 32..51）
+// 索引 = macroType - 32
+enum OpMacroType {
+    kOpAm = 0,
+    kOpAr = 1,
+    kOpDr = 2,
+    kOpMult = 3,
+    kOpRr = 4,
+    kOpSl = 5,
+    kOpTl = 6,
+    kOpDt2 = 7,
+    kOpRs = 8,
+    kOpDt = 9,
+    kOpD2r = 10,
+    kOpSsg = 11,
+    kOpDam = 12,
+    kOpDvb = 13,
+    kOpEgt = 14,
+    kOpKsl = 15,
+    kOpSus = 16,
+    kOpVib = 17,
+    kOpWs = 18,
+    kOpKsr = 19,
+    kOpMacroCount = 20,
+};
+
+// ── 一个 FM 音色（对应 DivInstrument + DivInstrumentFM + 22 条通道宏 + 4×20 条算子宏）──
 struct FuiVoice {
     int type = 0;              // Furnace DivInstrumentType：13=OPLL, 14=OPL, 33=OPM
     std::string name;
     int alg = 0, fb = 0, fms = 0, ams = 0, ops = 4, opllPreset = 0, block = 0;
     bool fmsLFO = false, amsLFO = false, tremLFO = false;
     FuiOperator op[4];
-    Macro macros[kMacroCount];
+    Macro macros[kMacroCount];              // MA 块：22 条通道级宏
+    Macro opMacros[4][kOpMacroCount];       // O1..O4 块：每算子 20 条
 };
 
 // Furnace DIV_INS_* 里我们用到的三个

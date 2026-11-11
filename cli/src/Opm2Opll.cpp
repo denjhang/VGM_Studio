@@ -9,6 +9,7 @@
 #include "AnalyzerYm2151.h"
 #include "FmVoice.h"
 #include "FuiVoice.h"
+#include "MacroEngine.h"
 
 namespace vgmstudio {
 namespace {
@@ -66,6 +67,16 @@ uint64_t VoiceHash(const uint8_t shadow[256], int ch) {
     mix(shadow[0x20 + ch] & 0x3F);
     mix(shadow[0x38 + ch]);
     return h;
+}
+
+// 是否含任何宏（通道级或算子级）
+bool HasAnyMacro(const FuiVoice& v) {
+    for (int i = 0; i < kMacroCount; i++)
+        if (!v.macros[i].val.empty()) return true;
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < kOpMacroCount; j++)
+            if (!v.opMacros[i][j].val.empty()) return true;
+    return false;
 }
 
 // 把匹配到的 OPLL ROM 音色展开成一个 FuiVoice（供用户审计/修改）
@@ -318,57 +329,65 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             }
 
 
-            // ── 宏展开 ──
-            // 用户在 .fui 里写的宏（尤其音量宏）必须真的执行，否则改音色等于没用。
-            // 时间基准：宏的每一步 = speed 个 tick，1 tick = 1/tickRate 秒。
-            // ★ .fui 里没有 tickRate，它来自调用方的 opt.tickRate（Furnace 的 song.hz）。
-            auto fuiIt = voiceFui.find(vh);
-            if (opt.runMacros && fuiIt != voiceFui.end()) {
-                const FuiVoice& fv = fuiIt->second;
-                const int sampleRate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
-                const double samplesPerTick =
-                    static_cast<double>(sampleRate) / (opt.tickRate > 0 ? opt.tickRate : 60);
+            // ── 宏展开（全部 22 条通道级 + 4×20 条算子级宏）──
+            // 时间基准：一个宏步 = speed 个 tick，1 tick = 1/tickRate 秒。
+            // ★ .fui 里没有 tickRate，它来自调用方的 --tick-rate（Furnace 的 song.hz）。
+            if (opt.runMacros) {
+                // 只认目标侧（ym2413.fui）的宏：宏的语义是芯片相关的，
+                // 源侧 OPM 的宏不能套到 OPLL 上。
+                const FuiVoice* fv = nullptr;
+                auto fit = voiceFui.find(vh);
+                if (fit != voiceFui.end()) fv = &fit->second;
+                if (fv != nullptr && HasAnyMacro(*fv)) {
+                    MacroExpandInput mi;
+                    mi.ch = ch;
+                    mi.baseKc = kc;
+                    mi.baseKf = kf;
+                    mi.baseVol = 127;
+                    mi.startSample = n.startSample;
+                    mi.endSample = n.endSample;
+                    mi.sampleRate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
+                    mi.tickRate = opt.tickRate;
+                    mi.opll = true;
+                    mi.opllPreset = m.program;
+                    const MacroExpandOutput mo = ExpandMacros(*fv, mi);
 
-                for (int mi = 0; mi < kMacroCount; mi++) {
-                    const Macro& macro = fv.macros[mi];
-                    if (macro.val.empty()) continue;
-                    if (macro.type != 0) continue;  // ADSR/LFO 需要音频级推进，这里只展开序列宏
-
-                    MacroRunner runner;
-                    runner.Start(macro, opt.tickRate);
-
-                    // 按 tick 推进，一个 tick 落一条写（只在值变化时写）
-                    const uint32_t durSamples = n.endSample - n.startSample;
-                    const int ticks = static_cast<int>(durSamples / samplesPerTick) + 1;
-                    int lastOut = -1;
-                    for (int t = 0; t < ticks; t++) {
-                        const uint32_t at = n.startSample +
-                                            static_cast<uint32_t>(t * samplesPerTick + 0.5);
-                        if (at >= n.endSample) break;
-                        if (t == ticks - 1) runner.Release();
-                        runner.Tick();
-                        if (!runner.Changed()) continue;
-
-                        const int raw = runner.CurrentValue();
-                        // 只处理能直接映射到寄存器的宏
-                        if (mi == kMacroVol) {
-                            // 音量宏 0..127 → OPLL 4 位音量（0 最响）
-                            const int v = std::max(0, std::min(15, 15 - raw / 8));
-                            if (v == lastOut) continue;
-                            lastOut = v;
-                            Segment seg;
-                            seg.atSample = at;
-                            seg.regs.push_back(
-                                Rv(0x30 + ch, static_cast<uint8_t>((m.program << 4) | v)));
-                            dn.segments.push_back(seg);
-                        }
+                    for (const MacroWrite& w : mo.writes) {
+                        Segment seg;
+                        seg.atSample = w.atSample;
+                        // 宏输出里 0x30 的 val 已含 inst 高 4 位；其余直接照抄
+                        seg.regs.push_back(Rv(w.reg, w.val));
+                        dn.segments.push_back(seg);
                     }
+                    // phaseReset / ex4：重触发（重写 key 位）
+                    for (const MacroRetrigger& rt : mo.retriggers) {
+                        Segment seg;
+                        seg.atSample = rt.atSample;
+                        seg.regs.push_back(Rv(0x20 + ch,
+                                              static_cast<uint8_t>(dhBase | 0x10)));
+                        dn.segments.push_back(seg);
+                    }
+
+                    // arp / pitch 宏：按偏移重算 fnum，落在变化点
+                    for (const MacroPitch& p : mo.pitches) {
+                        if (p.offset128 == 0) continue;
+                        const double semi = p.offset128 / 128.0;
+                        const double f2 = freq * std::pow(2.0, semi / 12.0);
+                        const OpllFnum fn2 = FreqToOpllFnum(f2, opt.targetClock);
+                        const int bO = std::min(7, std::max(0, static_cast<int>(fn2.block) + octaveOffset));
+                        Segment seg;
+                        seg.atSample = p.atSample;
+                        seg.regs.push_back(Rv(0x10 + ch, fn2.fnumLow));
+                        seg.regs.push_back(Rv(0x20 + ch,
+                                              static_cast<uint8_t>((bO << 1) |
+                                                                   ((fn2.fnum >> 8) & 1) | 0x10)));
+                        dn.segments.push_back(seg);
+                    }
+                    std::stable_sort(dn.segments.begin(), dn.segments.end(),
+                                     [](const Segment& a, const Segment& b) {
+                                         return a.atSample < b.atSample;
+                                     });
                 }
-                // 宏按时间插入后必须重新排序，否则回放顺序错乱
-                std::stable_sort(dn.segments.begin(), dn.segments.end(),
-                                 [](const Segment& a, const Segment& b) {
-                                     return a.atSample < b.atSample;
-                                 });
             }
 
             // key-off 段：0x20 去掉 bit4

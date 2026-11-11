@@ -52,6 +52,13 @@ const char* MacroName(int i) {
     return (i >= 0 && i < vgmstudio::kMacroCount) ? kNames[i] : "?";
 }
 
+const char* OpMacroName(int i) {
+    static const char* kNames[vgmstudio::kOpMacroCount] = {
+        "am", "ar", "dr", "mult", "rr", "sl", "tl", "dt2", "rs", "dt",
+        "d2r", "ssg", "dam", "dvb", "egt", "ksl", "sus", "vib", "ws", "ksr"};
+    return (i >= 0 && i < vgmstudio::kOpMacroCount) ? kNames[i] : "?";
+}
+
 int DumpOne(const std::string& path, int tickRate) {
     vgmstudio::FuiVoice v;
     std::string err;
@@ -101,6 +108,22 @@ int DumpOne(const std::string& path, int tickRate) {
         }
     }
     if (used == 0) std::printf("    (none)\n");
+
+    // 算子级宏（O1..O4 块）
+    std::printf("\n  operator macros\n");
+    int opUsed = 0;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < vgmstudio::kOpMacroCount; j++) {
+            const vgmstudio::Macro& m = v.opMacros[i][j];
+            if (m.val.empty()) continue;
+            opUsed++;
+            std::printf("    op%d %-5s seq len=%-3zu speed=%-2d delay=%-2d loop=%-3d rel=%-3d  values:",
+                        i, OpMacroName(j), m.val.size(), m.speed, m.delay, m.loop, m.rel);
+            for (size_t k = 0; k < m.val.size() && k < 24; k++) std::printf(" %d", m.val[k]);
+            std::printf("\n");
+        }
+    }
+    if (opUsed == 0) std::printf("    (none)\n");
     return 0;
 }
 
@@ -161,6 +184,9 @@ int main(int argc, char** argv) {
                 int macros = 0;
                 for (int i = 0; i < vgmstudio::kMacroCount; i++)
                     if (!v.macros[i].val.empty()) macros++;
+                for (int i = 0; i < 4; i++)
+                    for (int j = 0; j < vgmstudio::kOpMacroCount; j++)
+                        if (!v.opMacros[i][j].val.empty()) macros++;
                 std::printf("OK    %-40s type=%-3d %-14s macros=%d\n", p.c_str(), v.type,
                             TypeName(v.type), macros);
             } else {
