@@ -223,6 +223,8 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
     // 通道状态（对应 Furnace 的 chan[i].state / chVolL / chVolR）
     int curAlg = in.alg & 7, curFb = in.fb & 7, curFms = in.fms & 7, curAms = in.ams & 3;
     int curOpMask = 0x0F;
+    // 初始 patch：调用方给的 in.opllPreset 优先，否则用音色文件自带的
+    int curPreset = in.opllPreset != 0 ? in.opllPreset : (in.opll ? voice.opllPreset : 0);   // ★ patch 切换会改它（opll.cpp:182-186）
     int outVol = in.opll ? 15 : 127;
     const int opCount = in.opll ? 2 : 4;
 
@@ -262,9 +264,9 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
         emit(at, 0x38 + ch, ((curFms & 7) << 4) | (curAms & 3));
     };
     // OPLL 的 0x30：inst(高 4) + vol(低 4)
-    auto emitOpllInstVol = [&](uint32_t at, int preset) {
+    auto emitOpllInstVol = [&](uint32_t at) {
         const int tl = VolScaleLog(outVol, 15 - (stateTl[1] & 15), 15);
-        emit(at, 0x30 + ch, ((preset & 15) << 4) | ((15 - tl) & 15));
+        emit(at, 0x30 + ch, ((curPreset & 15) << 4) | ((15 - tl) & 15));
     };
     // OPLL 的 0x00/0x01：AM/VIB/EGT/KSR/MULT
     auto emitOpllOp01 = [&](uint32_t at, int j) {
@@ -293,7 +295,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                 case kMacroVol:
                     if (in.opll) {
                         outVol = VolScaleLog(baseVol, std::min(15, v), 15);
-                        emitOpllInstVol(at, voice.opllPreset);
+                        emitOpllInstVol(at);
                     } else {
                         outVol = VolScaleLog(baseVol, std::min(127, v), 127);
                         for (int j = 0; j < 4; j++) {
@@ -336,8 +338,12 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                 case kMacroWave:
                     if (!in.opll) {
                         emit(at, 0x1B, v & 3);
-                    } else if (voice.opllPreset != 16) {
-                        emitOpllInstVol(at, v & 15);
+                    } else if (curPreset != 16) {
+                        // opll.cpp:182-186 —— OPLL 的 wave 宏就是 patch 切换：
+                        // 换掉 chirp 状态里的 opllPreset，再重写 0x30 的高 4 位。
+                        // ★ 必须同时更新 curPreset，否则后面所有算子宏仍按 preset==0 分支。
+                        curPreset = v & 15;
+                        emitOpllInstVol(at);
                     }
                     break;
 
@@ -345,7 +351,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                     curAlg = v & 7;
                     if (in.opll) {
                         // opll.cpp:205-210：OPLL 的 alg 退化成 0x20 的 SUS 位
-                        if (voice.opllPreset == 0) {
+                        if (curPreset == 0) {
                             emit(at, 0x20 + ch, curAlg ? 0x20 : 0x00);
                         }
                     } else {
@@ -356,7 +362,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                 case kMacroFb:
                     curFb = v & 7;
                     if (in.opll) {
-                        if (voice.opllPreset == 0) emitOpll03(at);
+                        if (curPreset == 0) emitOpll03(at);
                     } else {
                         emitPanFbAlg(at);
                     }
@@ -365,7 +371,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                 case kMacroFms:
                     curFms = v & 7;
                     if (in.opll) {
-                        if (voice.opllPreset == 0) emitOpll03(at);
+                        if (curPreset == 0) emitOpll03(at);
                     } else {
                         emitFmsAms(at);
                     }
@@ -374,7 +380,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                 case kMacroAms:
                     curAms = v & 3;
                     if (in.opll) {
-                        if (voice.opllPreset == 0) emitOpll03(at);
+                        if (curPreset == 0) emitOpll03(at);
                     } else {
                         emitFmsAms(at);
                     }
@@ -432,7 +438,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                 switch (mi) {
                     case kOpAm:
                         stateAm[j] = v & 1;
-                        if (in.opll && voice.opllPreset == 0) {
+                        if (in.opll && curPreset == 0) {
                             emitOpllOp01(at, j);
                         } else if (!in.opll) {
                             emit(at, 0xA0 + base, (stateDr[j] & 31) | ((v & 1) << 7));
@@ -440,7 +446,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         break;
                     case kOpAr:
                         stateAr[j] = v & 31;
-                        if (in.opll && voice.opllPreset == 0) {
+                        if (in.opll && curPreset == 0) {
                             emit(at, 0x04 + j, ((v & 15) << 4) | (stateDr[j] & 15));
                         } else if (!in.opll) {
                             emit(at, 0x80 + base, (v & 31) | (stateRs[j] << 6));
@@ -448,7 +454,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         break;
                     case kOpDr:
                         stateDr[j] = v & 31;
-                        if (in.opll && voice.opllPreset == 0) {
+                        if (in.opll && curPreset == 0) {
                             emit(at, 0x04 + j, ((stateAr[j] & 15) << 4) | (v & 15));
                         } else if (!in.opll) {
                             emit(at, 0xA0 + base, (v & 31) | (stateAm[j] << 7));
@@ -456,7 +462,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         break;
                     case kOpMult:
                         stateMult[j] = v & 15;
-                        if (in.opll && voice.opllPreset == 0) {
+                        if (in.opll && curPreset == 0) {
                             emitOpllOp01(at, j);
                         } else if (!in.opll) {
                             emit(at, 0x40 + base, (v & 15) | (DtToReg(stateDt[j]) << 4));
@@ -464,7 +470,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         break;
                     case kOpRr:
                         stateRr[j] = v & 15;
-                        if (in.opll && voice.opllPreset == 0) {
+                        if (in.opll && curPreset == 0) {
                             emit(at, 0x06 + j, ((stateSl[j] & 15) << 4) | (v & 15));
                         } else if (!in.opll) {
                             emit(at, 0xE0 + base, (v & 15) | (stateSl[j] << 4));
@@ -472,7 +478,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         break;
                     case kOpSl:
                         stateSl[j] = v & 15;
-                        if (in.opll && voice.opllPreset == 0) {
+                        if (in.opll && curPreset == 0) {
                             emit(at, 0x06 + j, ((v & 15) << 4) | (stateRr[j] & 15));
                         } else if (!in.opll) {
                             emit(at, 0xE0 + base, (stateRr[j] & 15) | (v << 4));
@@ -483,8 +489,8 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         if (in.opll) {
                             // opll.cpp:290-305：载波 TL 走 0x30，调制器走 0x02
                             if (j == 1) {
-                                emitOpllInstVol(at, voice.opllPreset);
-                            } else if (voice.opllPreset == 0) {
+                                emitOpllInstVol(at);
+                            } else if (curPreset == 0) {
                                 emit(at, 0x02, ((stateKsl[0] & 3) << 6) | (v & 63));
                             }
                         } else {
@@ -525,7 +531,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         break;
                     case kOpKsr:
                         stateKsr[j] = v & 1;
-                        if (in.opll && voice.opllPreset == 0) {
+                        if (in.opll && curPreset == 0) {
                             emitOpllOp01(at, j);
                         } else if (!in.opll) {
                             emit(at, 0x60 + base, (stateTl[j] & 127) | ((v & 1) << 7));
@@ -533,7 +539,7 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         break;
                     case kOpKsl:
                         stateKsl[j] = v & 3;
-                        if (in.opll && voice.opllPreset == 0) {
+                        if (in.opll && curPreset == 0) {
                             // opll.cpp:313-324：j==1（载波）→ 0x02；j==0（调制器）→ 0x03
                             if (j == 1) {
                                 emit(at, 0x02, ((stateKsl[0] & 3) << 6) | (stateTl[0] & 63));
@@ -544,11 +550,11 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         break;
                     case kOpVib:
                         stateVib[j] = v & 1;
-                        if (in.opll && voice.opllPreset == 0) emitOpllOp01(at, j);
+                        if (in.opll && curPreset == 0) emitOpllOp01(at, j);
                         break;
                     case kOpEgt:
                         stateEgt[j] = v & 1;
-                        if (in.opll && voice.opllPreset == 0) emitOpllOp01(at, j);
+                        if (in.opll && curPreset == 0) emitOpllOp01(at, j);
                         break;
                     case kOpSus:
                         // OPM 的 SUS 无对应寄存器；OPLL 的 0x20 bit5 由 key 段负责

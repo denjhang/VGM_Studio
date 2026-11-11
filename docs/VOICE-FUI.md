@@ -272,9 +272,80 @@ VOL_SCALE_LOG_BROKEN(x, y, range) = CLAMP(x + y - range, 0, range)
 - OPM：`range=127`，`x=127-op.tl`，`y=通道音量`
 - OPLL：`range=15`，`x=15-carrierTl`，`y=通道音量`
 
-### 8.5.4 验证
+### 8.5.4 OPLL 的两个常用宏：patch 切换与重触发
 
-`cli/tests/macro_engine_test.cpp`（21 条断言，`cli/build/macro_test.exe`）：
+这两个在 OPLL 上最常用，语义和 OPM 不同，单独说明。
+
+#### patch 切换（`wave` 宏）
+
+```cpp
+// furnace/src/engine/platform/opll.cpp:182-186
+if (chan[i].std.wave.had && chan[i].state.opllPreset!=16) {
+  chan[i].state.opllPreset=chan[i].std.wave.val;
+  if (i<9) {
+    rWrite(0x30+i, ((15-VOL_SCALE_LOG_BROKEN(chan[i].outVol,15-chan[i].state.op[1].tl,15))&15)
+                   | (chan[i].state.opllPreset<<4));
+  }
+}
+```
+
+- 值 = 音色号（0..15），写 `0x30` 的**高 4 位**
+- `preset == 16`（兼容鼓模式）时**不切**
+- ★ 切换后必须更新状态机里的当前 preset：后续所有算子参数宏只在 `preset == 0`（用户音色）时才写 `0x00-0x07`，切到 ROM 音色后这些写必须停掉
+- 真机行为：`0x30` 的 inst 高 4 位变化会立刻 `load_instrument()`（libvgm `ym2413.c` 的 `case 0x30`），**不需要**重触发就换音色
+
+#### 重触发（`phaseReset` 宏）
+
+```cpp
+// opll.cpp:196-200
+if (chan[i].std.phaseReset.had) {
+  if (chan[i].std.phaseReset.val==1 && chan[i].active) {
+    chan[i].keyOn=true;
+  }
+}
+```
+
+★ **关键差异**：YM2413 在 key 位已置位时再写 key-on **不会**重触发。
+
+```c
+// libvgm/emu/cores/ym2413.c 的 KEY_ON
+INLINE void KEY_ON(OPLL_SLOT *SLOT, UINT32 key_set) {
+  if( !SLOT->key ) {
+    /* do NOT restart Phase Generator (verified on real YM2413) */
+    SLOT->phase = DMP;
+  }
+  SLOT->key |= key_set;
+}
+```
+
+只有 `key` 从 0 变 1 才回到 `EG_DMP`。所以重触发必须是**两条写**：
+
+```
+0x20+ch = dhBase          (key off，清 bit4)
+0x20+ch = dhBase | 0x10   (key on)
+```
+
+同一采样点、按顺序执行。这正是 Furnace 的做法（`arcade.cpp:484-533`：先 `immWrite(0x08,i)`，随后 `immWrite(0x08,(opMask<<3)|i)`）。
+
+OPM 同理：libvgm `ym2151.c:687-703` 的 `KEY_ON` 也是 `if (!op->key)` 才清相位。
+
+#### 实测（`31 Grass Maze` ch1 notes[1]）
+
+注入 `wave = {14,3,7,0}`（speed=8）、`phaseReset = {0,1,0,1}`（speed=3）：
+
+```
+segs 6
+      0  ['10=01','20=1B','30=E2']   ← key-on：fnum/key/inst=14
+      0  ['30=E0']                    ← 音量宏
+   2205  ['20=0B','20=1B']            ← phaseReset：key-off 再 key-on（2205 = 3×735）
+   5880  ['30=30']                    ← patch 切到 3（5880 = 8×735）
+   6615  ['20=0B','20=1B']            ← 第二次重触发
+   7480  ['20=0B']                    ← 音符结束 key-off
+```
+
+### 8.5.5 验证
+
+`cli/tests/macro_engine_test.cpp`（24 条断言，`cli/build/macro_test.exe`）：
 
 ```
 vol seq timing               PASS  ← speed=2 @60Hz → 0/1470/2940 采样
@@ -297,6 +368,9 @@ ex4 changes opMask           PASS
 op dt/dt2/d2r/rs/sl/am/mult  PASS
 opll op macros 0x00-0x06     PASS
 opll alg -> sus bit          PASS
+opll patch switch 0x30       PASS  ← wave 宏切音色号
+patch switch gates op macros PASS  ← 切到 ROM 后算子参数宏停写
+retrigger points for OPLL    PASS  ← phaseReset 出重触发点
 ALL PASS (0 fail)
 ```
 

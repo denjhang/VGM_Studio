@@ -41,7 +41,8 @@ int OpnRateToOplRate(int a) {
 }
 
 // opll-voice.js:116-127 OPLLSlotParam.toOPN 的 _RR
-int OpllRateToOpnRate(int rate) {
+// 目前 OPM→OPLL 单向转换用不到它（我们只做降 op，不做升 op），保留供将来 OPLL→OPM 用。
+[[maybe_unused]] int OpllRateToOpnRate(int rate) {
     if (rate == 0) return 0;
     if (rate == 15) return 31;
     return Clamp(static_cast<int>(std::lround((rate + 1.5) * 2)), 0, 31);

@@ -359,12 +359,20 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                         seg.regs.push_back(Rv(w.reg, w.val));
                         dn.segments.push_back(seg);
                     }
-                    // phaseReset / ex4：重触发（重写 key 位）
+                    // phaseReset / ex4：重触发。
+                    // ★ 真机行为：YM2413 在 key 位已置位时再写 key-on 不会重触发
+                    //   （libvgm ym2413.c 的 KEY_ON 注释 "do NOT restart Phase Generator
+                    //    (verified on real YM2413)"，只有 !SLOT->key 时才回到 EG_DMP）。
+                    //   所以必须先 key-off 再 key-on，两条写落在同一采样点、按顺序执行
+                    //   （这正是 Furnace arcade.cpp:484-533 的做法：先 immWrite(0x08,i)，
+                    //    随后 immWrite(0x08,(opMask<<3)|i)）。
                     for (const MacroRetrigger& rt : mo.retriggers) {
                         Segment seg;
                         seg.atSample = rt.atSample;
                         seg.regs.push_back(Rv(0x20 + ch,
-                                              static_cast<uint8_t>(dhBase | 0x10)));
+                                              static_cast<uint8_t>(dhBase)));        // key off
+                        seg.regs.push_back(Rv(0x20 + ch,
+                                              static_cast<uint8_t>(dhBase | 0x10))); // key on
                         dn.segments.push_back(seg);
                     }
 

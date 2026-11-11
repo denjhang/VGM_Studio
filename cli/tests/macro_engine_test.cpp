@@ -17,6 +17,7 @@ static Macro Seq(std::vector<int> vals,int speed,int loop=0){
 }
 static int fails=0;
 static void check(const char* name,bool ok,const char* detail=""){
+
   std::printf("%-28s %s %s\n",name, ok?"PASS":"FAIL",detail); if(!ok) fails++;
 }
 int main(){
@@ -193,6 +194,35 @@ int main(){
     in.opll=true; auto o=ExpandMacros(v,in);
     bool found=false; for(auto&w:o.writes) if(w.reg==0x20 && (w.val&0x20)) found=true;
     check("opll alg -> sus bit", found);
+  }
+  // 21. OPLL patch 切换（wave 宏）：0x30 高 4 位换成新音色号
+  {
+    FuiVoice v=Base(true,2); v.opllPreset=2; v.macros[kMacroWave]=Seq({5,9},3);
+    in.opll=true; in.opllPreset=2;
+    auto o=ExpandMacros(v,in);
+    bool p5=false,p9=false;
+    for(auto&w:o.writes) if(w.reg==0x30){ int pr=(w.val>>4)&15; if(pr==5)p5=true; if(pr==9)p9=true; }
+    check("opll patch switch 0x30", p5&&p9);
+  }
+  // 22. patch 切换后，算子参数宏不再写 0x00-0x07（ROM 音色，写了无效）
+  {
+    FuiVoice v=Base(true,2); v.opllPreset=0;
+    v.macros[kMacroWave]=Seq({5},2);
+    v.opMacros[0][kOpAr]=Seq({1,31,2,30},2);
+    in.opll=true; in.opllPreset=0;
+    auto o=ExpandMacros(v,in);
+    uint32_t switchAt=0xFFFFFFFFu;
+    for(auto&w:o.writes) if(w.reg==0x30 && ((w.val>>4)&15)==5 && switchAt==0xFFFFFFFFu) switchAt=w.atSample;
+    int afterParam=0;
+    for(auto&w:o.writes) if(w.reg<=0x07 && w.atSample>switchAt) afterParam++;
+    check("patch switch gates op macros", switchAt!=0xFFFFFFFFu && afterParam==0);
+  }
+  // 23. phaseReset 的重触发点（OPLL）
+  {
+    FuiVoice v=Base(true,2); v.opllPreset=3; v.macros[kMacroPhaseReset]=Seq({0,1,0,1},2);
+    in.opll=true; in.opllPreset=3;
+    auto o=ExpandMacros(v,in);
+    check("retrigger points for OPLL", o.retriggers.size()>=2);
   }
   std::printf("\n%s (%d fail)\n", fails? "FAILED":"ALL PASS", fails);
   return fails?1:0;
