@@ -91,9 +91,19 @@ $B/opm2opll.exe out/v1/song.json -o out/v6/song.ym2413.json \
 $B/fuitool.exe fur out/2151-2413.fur
 ```
 
-配对规则：工程里的乐器名必须叫 `chXinsY`（可带后缀，如 `ch2ins2-vib`）。
-工程里同时存着源侧 OPM 音色（`ch1ins1-pad`，type 33）和目标侧 OPLL
-（`ch1ins1`，type 13），所以匹配时限定 `type=13`，不会拿错。
+配对规则（按优先级）：
+
+1. **名字**：`chXinsY`，可带后缀（`ch2ins2-vib` 也算匹配 `ch2ins2`）。
+2. **序号兜底**：名字对不上时，取该类型里第 N 个乐器。N 就是导出时的追加顺序
+   （ch1ins1, ch1ins2, ch2ins1…），所以**你在 Furnace 里把 19 个 OPLL 乐器
+   改成任何名字都不影响**，只要顺序不变。
+3. 两者都失败 → 该音色退回自动匹配，并在输出里明确列出
+   `!! N 个目标音色在工程里没找到`。
+
+匹配限定 `type=13`（OPLL）。工程里同时存着源侧 OPM 音色（`ch1ins1-pad`，
+type 33），不限类型会拿错；反过来，**给源侧 OPM 乐器改名完全无害**（实测
+把 19 个 OPM 乐器全改成别的名字，输出逐字节不变）。
+
 工程里的 `hz`（默认 60）直接当宏的 tick 速率用，不需要再传 `--tick-rate`。
 
 实测：`--fur` 与 `--use-edited-fui` 两条路径对同一套音色生成出的 JSON

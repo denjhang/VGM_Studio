@@ -294,9 +294,9 @@ bool LoadFur(const std::string& path, FurSong* out, std::string* err) {
 const FurInstrument* FindFurInstrument(const FurSong& song, const std::string& name,
                                        int preferType) {
     // 1) 名字完全相同
-    // 2) 名字 + 后缀（"ch1ins2-vib" 这种，音色名是用户随手编的）
-    // 两步都优先返回 preferType 的乐器：工程里往往同时存着源侧 OPM
-    // （type 33）和目标侧 OPLL（type 13），只按名字前缀找会拿到源侧那份。
+    // 2) 名字 + 后缀（"ch2ins2-vib" 这种，音色名是用户随手编的）
+    // 两步都只在 preferType 里找。工程里往往同时存着源侧 OPM（type 33）和
+    // 目标侧 OPLL（type 13），不限类型会拿错。
     const FurInstrument* exact = nullptr;
     const FurInstrument* prefix = nullptr;
     for (const FurInstrument& i : song.instruments) {
@@ -309,11 +309,24 @@ const FurInstrument* FindFurInstrument(const FurSong& song, const std::string& n
             if ((c == '-' || c == '_' || c == ' ') && prefix == nullptr) prefix = &i;
         }
     }
-    if (exact != nullptr) return exact;
-    if (prefix != nullptr) return prefix;
-    // 放宽类型再找一次
-    if (preferType >= 0) return FindFurInstrument(song, name, -1);
+    return exact != nullptr ? exact : prefix;
+}
+
+const FurInstrument* FindFurInstrumentByIndex(const FurSong& song, int type, size_t index) {
+    size_t seen = 0;
+    for (const FurInstrument& i : song.instruments) {
+        if (i.type != type) continue;
+        if (seen == index) return &i;
+        seen++;
+    }
     return nullptr;
+}
+
+size_t CountFurInstruments(const FurSong& song, int type) {
+    size_t n = 0;
+    for (const FurInstrument& i : song.instruments)
+        if (i.type == type) n++;
+    return n;
 }
 
 }  // namespace vgmstudio

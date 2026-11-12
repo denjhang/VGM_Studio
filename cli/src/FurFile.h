@@ -40,10 +40,19 @@ struct FurSong {
 bool LoadFur(const std::string& path, FurSong* out, std::string* err);
 
 // 在工程里按 Furnace 乐器名匹配；找不到返回 nullptr。
-// preferType >= 0 时优先返回该类型（13=OPLL）。工程里往往同时存着
-// 源侧 OPM 音色（ch1ins1-pad）和目标侧 OPLL 音色（ch1ins1），
-// 只按名字前缀找会拿到源侧那份。
+// preferType >= 0 时只在该类型里找（13=OPLL）。工程里往往同时存着
+// 源侧 OPM 音色和目标侧 OPLL 音色，只按名字找会拿错。
+// 注意：**不会**退回「任意类型」搜索——那样在用户重命名后会静默拿到
+// 一个 OPM 音色当 OPLL 用。名字找不到请改用 FindFurInstrumentByIndex。
 const FurInstrument* FindFurInstrument(const FurSong& song, const std::string& name,
                                       int preferType = -1);
+
+// 按「该类型里的第几个」取乐器。用于用户把乐器改名后仍然能对上：
+// opm2opll 导出的 OPLL 音色就是按 ch1ins1, ch1ins2, ch2ins1… 的顺序追加的，
+// 所以序号与导出顺序稳定对应。
+const FurInstrument* FindFurInstrumentByIndex(const FurSong& song, int type, size_t index);
+
+// 某类型乐器的总数。
+size_t CountFurInstruments(const FurSong& song, int type);
 
 }  // namespace vgmstudio

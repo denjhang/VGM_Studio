@@ -148,6 +148,13 @@ int main(int argc, char** argv) {
         std::printf("fur           : %zu instruments, %zu matched (%d tick/s)\n",
                     r.furInstruments, r.furApplied.size(), r.tickRateUsed);
         for (const std::string& n : r.furApplied) std::printf("                %s\n", n.c_str());
+        if (!r.furMissing.empty()) {
+            std::printf("  !! %zu 个目标音色在工程里没找到，已退回自动匹配：\n",
+                        r.furMissing.size());
+            for (const std::string& n : r.furMissing)
+                std::printf("                %s\n", n.c_str());
+            std::printf("     （乐器改名了？保留 chXinsY 命名或按顺序放置即可）\n");
+        }
     }
 
     // 有损报告：按 (program, volumeOffset) 聚合

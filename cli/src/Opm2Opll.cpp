@@ -192,6 +192,10 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
     }
 
     // 逐通道重放源寄存器，得到每个音符 key-on 时刻的音色与音高
+    // furVoiceSeq：全局递增的目标音色序号，与 .fur 里 OPLL 乐器的排列顺序对应
+    // （导出时就是按 ch1ins1, ch1ins2, ch2ins1… 的顺序追加的）。
+    // 用户在 Furnace 里给乐器改名后，靠它仍能对上。
+    int furVoiceSeq = 0;
     for (int ch = 0; ch < kSrcChannels && ch < static_cast<int>(src.channels.size()); ch++) {
         const Channel& sc = src.channels[ch];
         uint8_t shadow[256] = {0};
@@ -260,15 +264,29 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 bool usedEdited = false;
                 FuiVoice editedVoice;
                 if (haveFur) {
+                    // 先按名字找（chXinsY，可带后缀）；找不到再按序号兜底——
+                    // 用户在 Furnace 里把乐器改成完全不同的名字时，序号仍然对应。
                     const FurInstrument* fi =
                         FindFurInstrument(fur, baseName, kFuiInsOpll);
+                    bool matchedByName = (fi != nullptr);
+                    if (fi == nullptr) {
+                        fi = FindFurInstrumentByIndex(fur, kFuiInsOpll,
+                                                      (size_t)furVoiceSeq);
+                    }
+                    furVoiceSeq++;
                     if (fi != nullptr) {
                         editedVoice = fi->voice;
                         if (editedVoice.opllPreset >= 0 && editedVoice.opllPreset < 19) {
                             m.program = editedVoice.opllPreset;
                         }
                         usedEdited = true;
-                        out.furApplied.push_back(fi->name);
+                        out.furApplied.push_back(matchedByName
+                                                     ? fi->name
+                                                     : (fi->name + " (按序号)"));
+                    } else {
+                        // 工程里既没名字也没序号 → 必须显式报出来。
+                        // 悄悄退回自动匹配会让人以为改的音色生效了。
+                        out.furMissing.push_back(baseName);
                     }
                 }
                 if (!usedEdited && opt.useEditedFui) {

@@ -243,7 +243,7 @@ json2json <source.json> -o <target.json> \
 | `--transpose` | 整体移调（半音）。**默认 -12**：实测不降这一八度会比源高一个八度 |
 | `--fui` / `--fui-dir` | 为每个源音色写出 `chXinsY_ym2413.fui` |
 | `--use-edited-fui` | 读同目录下改过的 `.fui` 覆盖自动匹配（含宏） |
-| `--fur` | **从 Furnace 工程一次读全部音色**（按乐器名 `chXinsY` 匹配），并用工程的 `hz` 作为宏 tick 速率。优先级高于 `--use-edited-fui` |
+| `--fur` | **从 Furnace 工程一次读全部音色**（先按乐器名 `chXinsY`，对不上再按 OPLL 乐器顺序兜底），并用工程的 `hz` 作为宏 tick 速率。优先级高于 `--use-edited-fui`；找不到的音色会在输出里显式列出 |
 | `--tick-rate` | 宏的 tick 速率（Furnace 的 `song.hz`，默认 60）。**`.fui` 里没有这个数** |
 | `--no-macros` | 不执行 `.fui` 里的宏 |
 | `--report` | 输出逐音符有损报告 |
