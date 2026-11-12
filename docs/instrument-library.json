@@ -10,6 +10,11 @@
       "fb": 6,
       "fingerprint": "2de2a59c97e16bbe",
       "fms": 0,
+      "gm": {
+        "fullName": "Pad",
+        "gmName": "Pad 1 (new age)",
+        "gmProgram": 89
+      },
       "index": 0,
       "macros": [],
       "name": "ch1ins1-pad",
@@ -107,6 +112,11 @@
       "fb": 0,
       "fingerprint": "b0136ef80269e73d",
       "fms": 0,
+      "gm": {
+        "fullName": "Celesta",
+        "gmName": "Celesta",
+        "gmProgram": 9
+      },
       "index": 1,
       "macros": [],
       "name": "ch1ins2-celesta",
@@ -204,6 +214,11 @@
       "fb": 7,
       "fingerprint": "123eba3e75aad50f",
       "fms": 0,
+      "gm": {
+        "fullName": "Trumpet",
+        "gmName": "Trumpet",
+        "gmProgram": 57
+      },
       "index": 2,
       "macros": [],
       "name": "ch2ins1-trum",
@@ -301,6 +316,11 @@
       "fb": 0,
       "fingerprint": "b0136ef80269e73d",
       "fms": 0,
+      "gm": {
+        "fullName": "Vibraphone",
+        "gmName": "Vibraphone",
+        "gmProgram": 12
+      },
       "index": 3,
       "macros": [],
       "name": "ch2ins2-vib",
@@ -398,6 +418,11 @@
       "fb": 7,
       "fingerprint": "123eba3e75aad50f",
       "fms": 0,
+      "gm": {
+        "fullName": "Trumpet",
+        "gmName": "Trumpet",
+        "gmProgram": 57
+      },
       "index": 4,
       "macros": [],
       "name": "ch3ins1-trum",
@@ -495,6 +520,11 @@
       "fb": 4,
       "fingerprint": "2cb947fcefb07d7d",
       "fms": 0,
+      "gm": {
+        "fullName": "Shamisen",
+        "gmName": "Shamisen",
+        "gmProgram": 107
+      },
       "index": 5,
       "macros": [],
       "name": "ch3ins2-sanmi",
@@ -592,6 +622,11 @@
       "fb": 2,
       "fingerprint": "e54dd50c2ee4b0fc",
       "fms": 0,
+      "gm": {
+        "fullName": "Shamisen",
+        "gmName": "Shamisen",
+        "gmProgram": 107
+      },
       "index": 6,
       "macros": [],
       "name": "ch3ins3-sanmi2",
@@ -689,6 +724,11 @@
       "fb": 2,
       "fingerprint": "04d2e94f6a4f0e50",
       "fms": 0,
+      "gm": {
+        "fullName": "Acid Bass",
+        "gmName": "Synth Bass 1",
+        "gmProgram": 39
+      },
       "index": 7,
       "macros": [],
       "name": "ch4ins1-acid bass",
@@ -786,6 +826,11 @@
       "fb": 4,
       "fingerprint": "bfbc9d008b9579fe",
       "fms": 0,
+      "gm": {
+        "fullName": "Shamisen",
+        "gmName": "Shamisen",
+        "gmProgram": 107
+      },
       "index": 8,
       "macros": [],
       "name": "ch4ins2-sanmi",
@@ -883,6 +928,11 @@
       "fb": 2,
       "fingerprint": "cb6f7eec392ac96f",
       "fms": 0,
+      "gm": {
+        "fullName": "Bass Drum",
+        "gmName": "Bass Drum 1",
+        "gmPercussionNote": 36
+      },
       "index": 9,
       "macros": [],
       "name": "ch5ins1-bd",
@@ -980,6 +1030,11 @@
       "fb": 6,
       "fingerprint": "056a53811ae50a12",
       "fms": 0,
+      "gm": {
+        "fullName": "Hi-Hat",
+        "gmName": "Closed Hi-Hat",
+        "gmPercussionNote": 42
+      },
       "index": 10,
       "macros": [],
       "name": "ch5ins2-hh",
@@ -1077,6 +1132,11 @@
       "fb": 6,
       "fingerprint": "5eb092e9362bb342",
       "fms": 0,
+      "gm": {
+        "fullName": "Snare Drum",
+        "gmName": "Acoustic Snare",
+        "gmPercussionNote": 38
+      },
       "index": 11,
       "macros": [],
       "name": "ch5ins3-sd",
@@ -1174,6 +1234,11 @@
       "fb": 2,
       "fingerprint": "89894146583c5475",
       "fms": 0,
+      "gm": {
+        "fullName": "Pad (second)",
+        "gmName": "Pad 2 (warm)",
+        "gmProgram": 90
+      },
       "index": 12,
       "macros": [],
       "name": "ch5ins4-pad2",
@@ -1271,6 +1336,11 @@
       "fb": 2,
       "fingerprint": "2a690374eaff04a5",
       "fms": 0,
+      "gm": {
+        "fullName": "Acid Bass",
+        "gmName": "Synth Bass 1",
+        "gmProgram": 39
+      },
       "index": 13,
       "macros": [],
       "name": "ch6ins1-acid bass",
@@ -1368,6 +1438,11 @@
       "fb": 4,
       "fingerprint": "978971a12b3076b7",
       "fms": 0,
+      "gm": {
+        "fullName": "Shamisen",
+        "gmName": "Shamisen",
+        "gmProgram": 107
+      },
       "index": 14,
       "macros": [],
       "name": "ch6ins2-sanmi",
@@ -1465,6 +1540,11 @@
       "fb": 6,
       "fingerprint": "0d061b136bc2eefd",
       "fms": 0,
+      "gm": {
+        "fullName": "Square Pad",
+        "gmName": "Lead 1 (square)",
+        "gmProgram": 81
+      },
       "index": 15,
       "macros": [],
       "name": "ch7ins1-pad sq",
@@ -1562,6 +1642,11 @@
       "fb": 0,
       "fingerprint": "3f6ea3537308f9f4",
       "fms": 0,
+      "gm": {
+        "fullName": "Vibraphone",
+        "gmName": "Vibraphone",
+        "gmProgram": 12
+      },
       "index": 16,
       "macros": [],
       "name": "ch7ins2-vib",
@@ -1659,6 +1744,11 @@
       "fb": 6,
       "fingerprint": "0d061b136bc2eefd",
       "fms": 0,
+      "gm": {
+        "fullName": "Square Pad",
+        "gmName": "Lead 1 (square)",
+        "gmProgram": 81
+      },
       "index": 17,
       "macros": [],
       "name": "ch8ins1-pad sq",
@@ -1756,6 +1846,11 @@
       "fb": 0,
       "fingerprint": "3f6ea3537308f9f4",
       "fms": 0,
+      "gm": {
+        "fullName": "Vibraphone",
+        "gmName": "Vibraphone",
+        "gmProgram": 12
+      },
       "index": 18,
       "macros": [],
       "name": "ch8ins2-vib",
@@ -1853,6 +1948,11 @@
       "fb": 3,
       "fingerprint": "b948f06873152e69",
       "fms": 0,
+      "gm": {
+        "fullName": "Pad",
+        "gmName": "Pad 1 (new age)",
+        "gmProgram": 89
+      },
       "index": 19,
       "macros": [
         {
@@ -1923,6 +2023,11 @@
       "fb": 3,
       "fingerprint": "e213096f8b505662",
       "fms": 0,
+      "gm": {
+        "fullName": "Celesta",
+        "gmName": "Celesta",
+        "gmProgram": 9
+      },
       "index": 20,
       "macros": [],
       "name": "ch1ins2",
@@ -1980,6 +2085,11 @@
       "fb": 0,
       "fingerprint": "203029e11972d7d3",
       "fms": 0,
+      "gm": {
+        "fullName": "Trumpet",
+        "gmName": "Trumpet",
+        "gmProgram": 57
+      },
       "index": 21,
       "macros": [],
       "name": "ch2ins1",
@@ -2037,6 +2147,11 @@
       "fb": 3,
       "fingerprint": "e213096f8b505662",
       "fms": 0,
+      "gm": {
+        "fullName": "Vibraphone",
+        "gmName": "Vibraphone",
+        "gmProgram": 12
+      },
       "index": 22,
       "macros": [],
       "name": "ch2ins2-vib",
@@ -2094,6 +2209,11 @@
       "fb": 0,
       "fingerprint": "8a43a9e9b36fbedf",
       "fms": 0,
+      "gm": {
+        "fullName": "Trumpet",
+        "gmName": "Trumpet",
+        "gmProgram": 57
+      },
       "index": 23,
       "macros": [],
       "name": "ch3ins1",
@@ -2151,6 +2271,11 @@
       "fb": 3,
       "fingerprint": "91795c1a5f0eccbd",
       "fms": 0,
+      "gm": {
+        "fullName": "Shamisen",
+        "gmName": "Shamisen",
+        "gmProgram": 107
+      },
       "index": 24,
       "macros": [],
       "name": "ch3ins2",
@@ -2208,6 +2333,11 @@
       "fb": 3,
       "fingerprint": "91795c1a5f0eccbd",
       "fms": 0,
+      "gm": {
+        "fullName": "Shamisen",
+        "gmName": "Shamisen",
+        "gmProgram": 107
+      },
       "index": 25,
       "macros": [],
       "name": "ch3ins3",
@@ -2265,6 +2395,11 @@
       "fb": 0,
       "fingerprint": "47ed160944acebc3",
       "fms": 0,
+      "gm": {
+        "fullName": "Acid Bass",
+        "gmName": "Synth Bass 1",
+        "gmProgram": 39
+      },
       "index": 26,
       "macros": [],
       "name": "ch4ins1",
@@ -2322,6 +2457,11 @@
       "fb": 3,
       "fingerprint": "91795c1a5f0eccbd",
       "fms": 0,
+      "gm": {
+        "fullName": "Shamisen",
+        "gmName": "Shamisen",
+        "gmProgram": 107
+      },
       "index": 27,
       "macros": [],
       "name": "ch4ins2",
@@ -2379,6 +2519,11 @@
       "fb": 5,
       "fingerprint": "c5e05bfe922f346f",
       "fms": 0,
+      "gm": {
+        "fullName": "Bass Drum",
+        "gmName": "Bass Drum 1",
+        "gmPercussionNote": 36
+      },
       "index": 28,
       "macros": [],
       "name": "ch5ins1",
@@ -2436,6 +2581,11 @@
       "fb": 5,
       "fingerprint": "c5e05bfe922f346f",
       "fms": 0,
+      "gm": {
+        "fullName": "Hi-Hat",
+        "gmName": "Closed Hi-Hat",
+        "gmPercussionNote": 42
+      },
       "index": 29,
       "macros": [],
       "name": "ch5ins2",
@@ -2493,6 +2643,11 @@
       "fb": 5,
       "fingerprint": "c5e05bfe922f346f",
       "fms": 0,
+      "gm": {
+        "fullName": "Snare Drum",
+        "gmName": "Acoustic Snare",
+        "gmPercussionNote": 38
+      },
       "index": 30,
       "macros": [],
       "name": "ch5ins3",
@@ -2550,6 +2705,11 @@
       "fb": 3,
       "fingerprint": "bd0232348f1c8cc9",
       "fms": 0,
+      "gm": {
+        "fullName": "Pad (second)",
+        "gmName": "Pad 2 (warm)",
+        "gmProgram": 90
+      },
       "index": 31,
       "macros": [],
       "name": "ch5ins4",
@@ -2607,6 +2767,11 @@
       "fb": 0,
       "fingerprint": "47ed160944acebc3",
       "fms": 0,
+      "gm": {
+        "fullName": "Acid Bass",
+        "gmName": "Synth Bass 1",
+        "gmProgram": 39
+      },
       "index": 32,
       "macros": [],
       "name": "ch6ins1",
@@ -2664,6 +2829,11 @@
       "fb": 3,
       "fingerprint": "91795c1a5f0eccbd",
       "fms": 0,
+      "gm": {
+        "fullName": "Shamisen",
+        "gmName": "Shamisen",
+        "gmProgram": 107
+      },
       "index": 33,
       "macros": [],
       "name": "ch6ins2",
@@ -2721,6 +2891,11 @@
       "fb": 3,
       "fingerprint": "bd0232348f1c8cc9",
       "fms": 0,
+      "gm": {
+        "fullName": "Square Pad",
+        "gmName": "Lead 1 (square)",
+        "gmProgram": 81
+      },
       "index": 34,
       "macros": [],
       "name": "ch7ins1",
@@ -2778,6 +2953,11 @@
       "fb": 3,
       "fingerprint": "91795c1a5f0eccbd",
       "fms": 0,
+      "gm": {
+        "fullName": "Vibraphone",
+        "gmName": "Vibraphone",
+        "gmProgram": 12
+      },
       "index": 35,
       "macros": [],
       "name": "ch7ins2",
@@ -2835,6 +3015,11 @@
       "fb": 3,
       "fingerprint": "bd0232348f1c8cc9",
       "fms": 0,
+      "gm": {
+        "fullName": "Square Pad",
+        "gmName": "Lead 1 (square)",
+        "gmProgram": 81
+      },
       "index": 36,
       "macros": [],
       "name": "ch8ins1",
@@ -2892,6 +3077,11 @@
       "fb": 3,
       "fingerprint": "91795c1a5f0eccbd",
       "fms": 0,
+      "gm": {
+        "fullName": "Vibraphone",
+        "gmName": "Vibraphone",
+        "gmProgram": 12
+      },
       "index": 37,
       "macros": [],
       "name": "ch8ins2",

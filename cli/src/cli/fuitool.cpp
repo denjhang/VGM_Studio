@@ -56,6 +56,70 @@ const char* TypeName(int t) {
     }
 }
 
+// ── 标签 → GM 标准音色 ────────────────────────────────────────────────
+// 乐器名形如 ch1ins1-pad / ch5ins1-bd / ch4ins1-acid bass：取 "chXinsY" 之后
+// 的部分当标签，展开成全称并尽量对齐 General MIDI 的官方名字与 program 号。
+// GM program 用 1..128 的官方编号（MIDI 线上的 program 是 0..127，差 1）。
+// 打击乐在 GM 里是通道 10 的固定音符（note number），不是 program。
+struct GmEntry {
+    const char* tag;         // 乐器名里的标签（前缀匹配，长的排前面）
+    const char* fullName;    // 完整英文名
+    int gmProgram;           // 1..128；0 = 不是 GM program
+    const char* gmName;      // GM 官方音色名
+    int gmPercussionNote;    // GM 打击乐音符号；0 = 不是打击乐
+};
+
+const GmEntry kGmTable[] = {
+    // 长的写前面，匹配时按前缀
+    {"acid bass", "Acid Bass", 39, "Synth Bass 1", 0},
+    {"pad sq", "Square Pad", 81, "Lead 1 (square)", 0},
+    {"pad2", "Pad (second)", 90, "Pad 2 (warm)", 0},
+    {"pad", "Pad", 89, "Pad 1 (new age)", 0},
+    {"celesta", "Celesta", 9, "Celesta", 0},
+    {"trum", "Trumpet", 57, "Trumpet", 0},
+    {"vib", "Vibraphone", 12, "Vibraphone", 0},
+    {"sanmi", "Shamisen", 107, "Shamisen", 0},
+    {"bd", "Bass Drum", 0, "Bass Drum 1", 36},
+    {"hh", "Hi-Hat", 0, "Closed Hi-Hat", 42},
+    {"sd", "Snare Drum", 0, "Acoustic Snare", 38},
+};
+
+// 从乐器名里抽出标签：去掉开头的 ch<N>ins<M>，剩下 - 或空格分隔的部分。
+std::string TagOf(const std::string& name) {
+    const size_t p = name.find("ins");
+    if (p == std::string::npos) return std::string();
+    size_t q = p + 3;
+    while (q < name.size() && name[q] >= '0' && name[q] <= '9') q++;
+    if (q >= name.size()) return std::string();
+    const char sep = name[q];
+    if (sep != '-' && sep != '_' && sep != ' ') return std::string();
+    return name.substr(q + 1);
+}
+
+const GmEntry* LookupGm(const std::string& name) {
+    const std::string tag = TagOf(name);
+    if (tag.empty()) return nullptr;
+    for (const GmEntry& e : kGmTable) {
+        const size_t n = std::strlen(e.tag);
+        if (tag.size() >= n && tag.compare(0, n, e.tag) == 0) return &e;
+    }
+    return nullptr;
+}
+
+// 目标侧乐器（ch1ins1）本身不带标签，GM 名继承自同名的源侧乐器
+// （ch1ins1-pad）。这样 19 个 OPLL 音色也有可读的 GM 类别。
+const GmEntry* LookupGmPaired(const vgmstudio::FurSong& song, const std::string& name) {
+    if (const GmEntry* e = LookupGm(name)) return e;
+    for (const vgmstudio::FurInstrument& i : song.instruments) {
+        if (i.name.size() <= name.size()) continue;
+        if (i.name.compare(0, name.size(), name) != 0) continue;
+        const char sep = i.name[name.size()];
+        if (sep != '-' && sep != '_' && sep != ' ') continue;
+        if (const GmEntry* e = LookupGm(i.name)) return e;
+    }
+    return nullptr;
+}
+
 const char* MacroName(int i) {
     static const char* kNames[vgmstudio::kMacroCount] = {
         "vol", "arp", "duty", "wave", "pitch", "ex1", "ex2", "ex3",
@@ -169,9 +233,19 @@ bool WriteLibraryJson(const vgmstudio::FurSong& song, const std::string& source,
                               {"loop", mc.loop},
                               {"rel", mc.rel}});
         }
+        nlohmann::json gm = nullptr;
+        if (const GmEntry* e = LookupGmPaired(song, fi.name)) {
+            gm = {{"fullName", e->fullName}, {"gmName", e->gmName}};
+            if (e->gmPercussionNote) {
+                gm["gmPercussionNote"] = e->gmPercussionNote;
+            } else {
+                gm["gmProgram"] = e->gmProgram;
+            }
+        }
         ins.push_back({
             {"index", i},
             {"name", fi.name},
+            {"gm", gm},
             {"type", fi.type},
             {"chip", fi.type == vgmstudio::kFuiInsOpm
                          ? "YM2151"
@@ -290,8 +364,8 @@ int main(int argc, char** argv) {
                         wantType == vgmstudio::kFuiInsOpm ? "YM2151 源侧"
                                                           : "YM2413 目标侧",
                         wantType);
-            std::printf("| # | 标签 | preset | alg | fb | 指纹 | 参数 |\n");
-            std::printf("|---|---|---|---|---|---|---|\n");
+            std::printf("| # | 标签 | GM 音色 | preset | alg | fb | 指纹 | 参数 |\n");
+            std::printf("|---|---|---|---|---|---|---|---|\n");
             for (size_t i = 0; i < song.instruments.size(); i++) {
                 const vgmstudio::FurInstrument& fi = song.instruments[i];
                 if (fi.type != wantType) continue;
@@ -308,8 +382,18 @@ int main(int argc, char** argv) {
                     if (o) ops += "<br>";
                     ops += b;
                 }
-                std::printf("| %zu | `%s` | %d | %d | %d | `%016llx` | %s |\n", i,
-                            fi.name.c_str(), fi.voice.opllPreset, fi.voice.alg, fi.voice.fb,
+                char gm[64] = "—";
+                if (const GmEntry* e = LookupGmPaired(song, fi.name)) {
+                    if (e->gmPercussionNote) {
+                        std::snprintf(gm, sizeof(gm), "%s (perc %d)", e->gmName,
+                                      e->gmPercussionNote);
+                    } else {
+                        std::snprintf(gm, sizeof(gm), "%s (%d)", e->gmName, e->gmProgram);
+                    }
+                }
+                std::printf("| %zu | `%s` | %s | %d | %d | %d | `%016llx` | %s |\n", i,
+                            fi.name.c_str(), gm, fi.voice.opllPreset, fi.voice.alg,
+                            fi.voice.fb,
                             (unsigned long long)vgmstudio::VoiceFingerprint(fi.voice),
                             ops.c_str());
             }
@@ -322,12 +406,23 @@ int main(int argc, char** argv) {
         for (size_t i = 0; i < song.instruments.size(); i++) {
             const vgmstudio::FurInstrument& fi = song.instruments[i];
             const vgmstudio::FuiVoice& v = fi.voice;
-            std::printf("[%02zu] %-16s %-7s preset=%-2d alg=%d fb=%d fms=%d ams=%d ops=%d "
-                        "fp=%016llx\n",
+            const GmEntry* e = LookupGmPaired(song, fi.name);
+            char gmtxt[64] = "-";
+            if (e != nullptr) {
+                if (e->gmPercussionNote) {
+                    std::snprintf(gmtxt, sizeof(gmtxt), "%s/perc%d", e->gmName,
+                                  e->gmPercussionNote);
+                } else {
+                    std::snprintf(gmtxt, sizeof(gmtxt), "%s/%d", e->gmName, e->gmProgram);
+                }
+            }
+            std::printf("[%02zu] %-16s %-7s %-26s preset=%-2d alg=%d fb=%d fms=%d ams=%d "
+                        "ops=%d fp=%016llx\n",
                         i, fi.name.c_str(),
                         fi.type == vgmstudio::kFuiInsOpm
                             ? "YM2151"
                             : (fi.type == vgmstudio::kFuiInsOpll ? "YM2413" : "other"),
+                        e != nullptr ? e->fullName : "-",
                         v.opllPreset, v.alg, v.fb, v.fms, v.ams, v.ops,
                         (unsigned long long)vgmstudio::VoiceFingerprint(v));
             const int shown = v.ops >= 2 ? v.ops : 2;
