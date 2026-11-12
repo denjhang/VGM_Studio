@@ -109,6 +109,17 @@ constexpr int kFuiInsOpll = 13;
 constexpr int kFuiInsOpl = 14;
 constexpr int kFuiInsOpm = 33;
 
+// ── 音色身份：从 FM 参数本身算，不从寄存器影子算 ────────────────────
+// 寄存器影子（0x40/0x60/... 的 256 字节）里混着「每音符音量 TL」这类
+// 演奏期数据，同一音色在不同音符上影子不同；它只适合**曲目内去重**。
+// 判定「这是哪个乐器」必须只看定义音色的参数：alg/fb/fms/ams/ops +
+// 每个算子的 mult/tl/ar/dr/sl/rr/dt/dt2/ksr/am/vib/egt/ksl/ws/sus/...
+//
+// Signature() 返回一段稳定的规范化字符串（可直接当 map 键、可写进 JSON/DOC），
+// Fingerprint() 是它的 64 位哈希（只用于快速比较，不用于展示）。
+std::string VoiceSignature(const FuiVoice& v);
+uint64_t VoiceFingerprint(const FuiVoice& v);
+
 // ── FUI 文件读写（走 Furnace 的 instrument.cpp）──
 bool SaveFui(const FuiVoice& v, const std::string& path, std::string* err);
 bool LoadFui(const std::string& path, FuiVoice* out, std::string* err);

@@ -245,6 +245,45 @@ bool DecodeFui(const uint8_t* data, size_t len, FuiVoice* out, std::string* err)
     return DecodeFuiVersioned(data, len, 258, out, err);
 }
 
+// ── 音色身份（从 FM 参数本身算，不看寄存器影子）─────────────────────
+// 影子寄存器里混着演奏期数据（0x60 的 TL 在 OPLL 上甚至有 per-note 音量），
+// 同一个音色在不同音符上影子可以不同，所以影子只能用于曲目内去重。
+// 判定「是哪个乐器」必须只看定义音色的参数。
+//
+// 规范化格式（字段顺序固定、全部十进制），既能当 map 键也能直接写进文档：
+//   t13;preset5;alg0;fb3;fms0;ams0;ops2;|0:mult1,tl21,...;|1:...
+//
+// ★ preset 必须算进去：OPLL 上 opllPreset≠0 时芯片用的是 ROM 里那一号音色，
+//   fui 里的 FM 参数只是它的副本、并不生效。参数一模一样但 preset 5 / 14
+//   的两个乐器，听起来是 Clarinet 和 Acoustic Bass，完全是两个音色。
+//   卡在参数上而不看 preset，会把它们误判成同一个。
+// block 不算：它只是 2413 侧的八度偏移量，同一个音色换 block 仍是同一音色。
+std::string VoiceSignature(const FuiVoice& v) {
+    char buf[1024];
+    int n = std::snprintf(buf, sizeof(buf), "t%d;preset%d;alg%d;fb%d;fms%d;ams%d;ops%d",
+                          v.type, v.opllPreset, v.alg & 7, v.fb & 7, v.fms & 7, v.ams & 3,
+                          v.ops);
+    const int shown = v.ops >= 2 ? v.ops : 2;
+    for (int i = 0; i < shown && n > 0 && (size_t)n < sizeof(buf); i++) {
+        const FuiOperator& o = v.op[i];
+        n += std::snprintf(buf + n, sizeof(buf) - n,
+                           "|%d:%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", i, o.mult,
+                           o.tl, o.ar, o.dr, o.sl, o.rr, o.dt, o.dt2, o.ksr, o.am, o.vib,
+                           o.egt, o.ksl, o.ws, o.sus, o.kvs);
+    }
+    return std::string(buf);
+}
+
+uint64_t VoiceFingerprint(const FuiVoice& v) {
+    const std::string s = VoiceSignature(v);
+    uint64_t h = 1469598103934665603ull;  // FNV-1a 64
+    for (unsigned char c : s) {
+        h ^= c;
+        h *= 1099511628211ull;
+    }
+    return h;
+}
+
 bool SaveFui(const FuiVoice& v, const std::string& path, std::string* err) {
     const std::vector<uint8_t> bytes = EncodeFui(v);
     if (bytes.empty()) {

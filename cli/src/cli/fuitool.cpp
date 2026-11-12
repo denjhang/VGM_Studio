@@ -32,6 +32,12 @@ void Usage() {
         "  fuitool fur <project.fur>\n"
         "      列出 Furnace 工程里的全部乐器（与 opm2opll --fur 同一读取路径）\n"
         "\n"
+        "  fuitool lib <project.fur>\n"
+        "      导出乐器库 Markdown（参数 + 指纹 + 标签名），改动后可重新生成本地库文档\n"
+        "\n"
+        "  fuitool lib <project.fur> --json=OUT.json\n"
+        "      同上，但输出机器可读的乐器库 JSON\n"
+        "\n"
         "  fuitool rewrite <in.fui> <out.fui> [--name=...] [--alg=N] [--fb=N]\n"
         "      读入 → 改几个字段 → 写回（验证编解码往返无损）\n"
         "\n"
@@ -70,6 +76,9 @@ int DumpVoice(const vgmstudio::FuiVoice& v, const std::string& label, int tickRa
     std::printf("alg/fb        : %d / %d\n", v.alg, v.fb);
     std::printf("fms/ams       : %d / %d   (ops=%d, opllPreset=%d)\n", v.fms, v.ams, v.ops,
                 v.opllPreset);
+    std::printf("fingerprint   : %016llx\n",
+                (unsigned long long)vgmstudio::VoiceFingerprint(v));
+    std::printf("signature     : %s\n", vgmstudio::VoiceSignature(v).c_str());
     std::printf("\n  %-4s %-3s %-3s %-3s %-3s %-3s %-3s %-3s %-3s %-3s %-3s %-3s\n", "op",
                 "mult", "tl", "ar", "dr", "sl", "rr", "dt", "dt2", "ksr", "am", "vib");
     const int shown = v.ops >= 2 ? v.ops : 2;
@@ -174,6 +183,58 @@ int main(int argc, char** argv) {
         return DumpVoice(v, args[0], tickRate);
     }
 
+    if (cmd == "lib") {
+        // 导出乐器库：参数（唯一身份）+ 指纹（快速比较）+ 标签名（人读）
+        if (args.size() != 1) {
+            Usage();
+            return 1;
+        }
+        vgmstudio::FurSong song;
+        std::string err;
+        if (!vgmstudio::LoadFur(args[0], &song, &err)) {
+            std::fprintf(stderr, "error: %s\n", err.c_str());
+            return 2;
+        }
+        std::printf("<!-- 以下表格由 `fuitool lib %s` 自动生成，勿手改 -->\n\n",
+                    args[0].c_str());
+        std::printf("来源 `%s`，Furnace 版本 %d，hz=%.2f，共 %zu 个乐器。\n\n",
+                    args[0].c_str(), song.version, song.hz, song.instruments.size());
+        std::printf("**身份靠参数，不靠指纹。** 指纹只是参数串的哈希，用于快速比较；\n");
+        std::printf("参数相同 = 同一音色（哪怕标签名不同）。反之参数不同就是不同音色。\n\n");
+
+        for (int wantType : {vgmstudio::kFuiInsOpm, vgmstudio::kFuiInsOpll}) {
+            std::printf("## %s（type %d）\n\n",
+                        wantType == vgmstudio::kFuiInsOpm ? "YM2151 源侧"
+                                                          : "YM2413 目标侧",
+                        wantType);
+            std::printf("| # | 标签 | preset | alg | fb | 指纹 | 参数 |\n");
+            std::printf("|---|---|---|---|---|---|---|\n");
+            for (size_t i = 0; i < song.instruments.size(); i++) {
+                const vgmstudio::FurInstrument& fi = song.instruments[i];
+                if (fi.type != wantType) continue;
+                std::string ops;
+                const int shown = fi.voice.ops >= 2 ? fi.voice.ops : 2;
+                for (int o = 0; o < shown; o++) {
+                    const vgmstudio::FuiOperator& op = fi.voice.op[o];
+                    char b[192];
+                    std::snprintf(b, sizeof(b),
+                                  "op%d: ml=%d tl=%d ar=%d dr=%d sl=%d rr=%d dt=%d ksr=%d "
+                                  "am=%d vib=%d egt=%d ksl=%d sus=%d kvs=%d",
+                                  o, op.mult, op.tl, op.ar, op.dr, op.sl, op.rr, op.dt, op.ksr,
+                                  op.am, op.vib, op.egt, op.ksl, op.sus, op.kvs);
+                    if (o) ops += "<br>";
+                    ops += b;
+                }
+                std::printf("| %zu | `%s` | %d | %d | %d | `%016llx` | %s |\n", i,
+                            fi.name.c_str(), fi.voice.opllPreset, fi.voice.alg, fi.voice.fb,
+                            (unsigned long long)vgmstudio::VoiceFingerprint(fi.voice),
+                            ops.c_str());
+            }
+            std::printf("\n");
+        }
+        return 0;
+    }
+
     if (cmd == "fur") {
         // 把整个 .fur 工程里的乐器列出来（读法与 opm2opll --fur 完全一致）
         if (args.size() != 1) {
@@ -192,7 +253,8 @@ int main(int argc, char** argv) {
         std::printf("name          : %s\n", song.name.c_str());
         std::printf("author        : %s\n", song.author.c_str());
         std::printf("instruments   : %zu\n\n", song.instruments.size());
-        std::printf("  %-3s %-5s %-6s %-22s %s\n", "#", "type", "preset", "name", "macros");
+        std::printf("  %-3s %-5s %-6s %-10s %-22s %s\n", "#", "type", "preset", "fingerprint",
+                    "name", "macros");
         for (size_t i = 0; i < song.instruments.size(); i++) {
             const vgmstudio::FurInstrument& fi = song.instruments[i];
             int macros = 0;
@@ -201,7 +263,9 @@ int main(int argc, char** argv) {
             for (int k = 0; k < 4; k++)
                 for (int j = 0; j < vgmstudio::kOpMacroCount; j++)
                     if (!fi.voice.opMacros[k][j].val.empty()) macros++;
-            std::printf("  %-3zu %-5d %-6d %-22s %d\n", i, fi.type, fi.voice.opllPreset,
+            std::printf("  %-3zu %-5d %-6d %016llx %-22s %d\n", i, fi.type,
+                        fi.voice.opllPreset,
+                        (unsigned long long)vgmstudio::VoiceFingerprint(fi.voice),
                         fi.name.c_str(), macros);
         }
         return 0;
