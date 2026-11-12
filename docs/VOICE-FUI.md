@@ -341,7 +341,129 @@ if (chan[i].std.wave.had && chan[i].state.opllPreset!=16) {
 - 值 = 音色号（0..15），写 `0x30` 的**高 4 位**
 - `preset == 16`（兼容鼓模式）时**不切**
 - ★ 切换后必须更新状态机里的当前 preset：后续所有算子参数宏只在 `preset == 0`（用户音色）时才写 `0x00-0x07`，切到 ROM 音色后这些写必须停掉
-- 真机行为：`0x30` 的 inst 高 4 位变化会立刻 `load_instrument()`（libvgm `ym2413.c` 的 `case 0x30`），**不需要**重触发就换音色
+- 真机行为：`0x30` 的 inst 高 4 位变化会立刻 `load_instrument()`（libvgm `ym2413.c:1679-1725` 的 `case 0x30`），**不需要**重触发就换音色
+
+#### ★ 为什么 patch 宏是突破「15 个预设」的唯一手段
+
+先把 OPLL 的通道/音色关系说准确，别和 OPL2 混淆：
+
+- **OPLL 9 个通道，每个通道都可以用不同的音色。** 这是通道级的 `0x30` 高 4 位，
+  每个通道独立，互不影响。9 个通道同时跑 9 个不同音色是**完全正常**的用法。
+- **OPL2 的区别在于「自定义音色」的数量**：OPL2 有 9 个可自由写入的音色槽
+  （`0x20`–`0x35` 共 9 组、每组 11 字节），**每个通道都能塞自己的一套参数**；
+  OPLL 把这些全砍掉，只留 **1 个用户音色槽**（0 号，对应 `0x00`–`0x07`）+
+  **15 个不可改的 ROM 预置**。
+
+所以真正的限制不是「9 个通道共用一个音色」——而是**自定义音色只有 1 种**。
+15 个 ROM 预置改不了任何一个字节，0 号槽又只有一份。
+
+想得到 15 个预设之外的自定义音色，只有两条路：
+
+1. **改 0 号槽**（`0x00`-`0x07`）——但全芯片只有一份，同一时刻只能是一种自定义音色。
+2. **`Patch` 宏**（通道级 `0x30` 高 4 位）——按通道、按时间在 16 个槽位之间轮换。
+   这是**唯一**能在一个通道内跨越 15 个不可改预置的手段，也是把「1 种自定义」
+   扩展成「16 种可实时切换」的唯一途径。
+
+两种手段叠在一起，才突破了 15 个 ROM 预置的边界：
+
+| 手段 | 写入 | 能得到的音色 | 限制 |
+|---|---|---|---|
+| 只用 0 号槽 | `0x00`–`0x07` 一次性 | 1 种自定义 | 全芯片共享一份 |
+| 9 个通道各选预置 | 各通道 `0x30` 高 4 位（静态） | 9 路不同（取自 15 个 ROM） | 全部是 ROM，不可改 |
+| `Patch` 宏轮换 | `0x30` 高 4 位随时间变 | 同一通道上 16 种（0 + 15 ROM） | ROM 内部参数仍不可改 |
+| `Patch` 宏 + 0 号槽边响边改 | `0x30` 高 4 位 + `0x00`–`0x07` | **15 + 任意多自定义** | 0 号槽同一时刻只有一份，但可以边响边换成下一份 |
+| `Patch` 宏 + 吃 `op1_out` 残留 | 快速连续切 `0x30` | 上述组合之外再凭空多出混合音色 | 见 8.5.5.1，不可精确复现 |
+
+这也是为什么 Furnace 在 OPLL 的乐器编辑器里把 `waveMacro` 的显示名改成 `Patch`
+（`furnace/src/gui/insEdit/opll.cpp:76`），而 OPM 同一个槽位叫 `LFO Shape`
+（`insEdit/opm.cpp:39`）—— 名字是按芯片语义定的。
+
+★ **0 号槽是全局的，不是每通道一份**。`0x00`–`0x07` 写下去后，
+`update_instrument_zero()`（`ym2413.c:1383-1398`）会遍历**所有**
+`instvol_r[chan] & 0xf0 == 0` 的通道，一起改：
+
+```c
+for (chan=0; chan<chan_max; chan++)
+    if ((chip->instvol_r[chan]&0xf0)==0)
+        set_mul(chip, chan*2, inst[0]);
+```
+
+所以多个通道同时停在 0 号槽时，改一次参数是**一起变**的。想让它们各有各的自定义音色，
+必须靠 `Patch` 宏把其中一部分通道挪到 ROM 预置或吃残留，让它们不再共用 0 号槽。
+
+### 8.5.5.1 真机残留状态：切 patch 不重置运行态
+
+这是 OPLL 的**芯片固有特征**（不是仿真 bug，libvgm / Nuked-OPLL / emu2413 都保留了它）。
+切 patch 时 `load_instrument()` 只重写 8 个参数字节：
+
+```c
+// libvgm/emu/cores/ym2413.c:1371-1381
+static void load_instrument(YM2413 *chip, UINT32 chan, UINT32 slot, UINT8* inst)
+{
+	set_mul         (chip, slot,   inst[0]);
+	set_mul         (chip, slot+1, inst[1]);
+	set_ksl_tl      (chip, chan,   inst[2]);
+	set_ksl_wave_fb (chip, chan,   inst[3]);
+	set_ar_dr       (chip, slot,   inst[4]);
+	set_ar_dr       (chip, slot+1, inst[5]);
+	set_sl_rr       (chip, slot,   inst[6]);
+	set_sl_rr       (chip, slot+1, inst[7]);
+}
+```
+
+`OPLL_SLOT`（`ym2413.c:145-180`）里这些运行态字段**全部原样保留**：
+
+| 残留字段 | 内容 | 后果 |
+|---|---|---|
+| `op1_out[0]`、`op1_out[1]` | 反馈延迟线的两级历史输出 | **旧音色的输出被新音色的 FB 增益重新注入调制器** |
+| `phase` | 相位累加器 | 新音色从旧音色的相位位置接着跑 |
+| `volume` | 当前包络电平 | 旧音色的衰减进度直接套到新音色上 |
+| `state` | EG 阶段（ATT / DEC / SUS / REL / OFF） | 切换时不重新起音 |
+
+关键在反馈路径（`ym2413.c:894-905`）：
+
+```c
+out = SLOT->op1_out[0] + SLOT->op1_out[1];
+SLOT->op1_out[0] = SLOT->op1_out[1];
+phase_modulation = SLOT->op1_out[0];
+SLOT->op1_out[1] = 0;
+if (env < ENV_QUIET)
+    SLOT->op1_out[1] = op_calc1(SLOT->phase, env, (out<<SLOT->fb_shift), SLOT->wavetable);
+```
+
+被乘的数据 `out` 是**旧** patch 吐出来的采样，乘数 `fb_shift` 来自**新** patch 的
+`0x03` 低 3 位。这个组合在任何一条 ROM 记录里都不存在 —— 这就是"凭空造音色"的来源。
+切得越快，延迟线越来不及衰减，混合音色就越稳定。
+
+另一条不对称：`load_instrument` 会通过 `set_ksl_tl` 把**调制器 TL 恢复成 ROM 值**
+（覆盖你之前通过 `0x02` 做的调整），但**载波 TL 不会** —— 它是 `0x30` 低 4 位在
+`ym2413.c:1693` 单独设的，属于"音量"不属于"音色"。所以切 patch 时自己调过的
+通道音量能留住，调制器深度会被 ROM 冲掉。
+
+#### 本项目的实现状态
+
+**不需要为此写任何新代码。** `MacroEngine.cpp` 的两条路径已经自动获得这个效果：
+
+1. `Patch` 宏（`kMacroWave` 的 OPLL 分支）按 `speed` 节奏写 `0x30` 高 4 位，
+   连续切换就会吃到 `op1_out` 残留（`cli/src/MacroEngine.cpp` 的 `case kMacroWave`）。
+2. `preset == 0` 时，算子级宏（`tl` / `ar` / `dr` / `sl` / `rr` / `mult` / `ksl` /
+   `vib` / `egt` / `ksr` / `am`）直接改 `0x00`–`0x07`，真机走
+   `update_instrument_zero()`（`ym2413.c:1383-1470`）**对正在发声的 SLOT 立即生效**，
+   同样不重置 EG。这是"边响边改音色"的正规通道。
+
+渲染交给 libvgm 时，`op1_out` / `phase` / `volume` 的残留会自然出现，无需伪造。
+
+**推荐的组合写法**（`.fui` 里）：
+
+```
+opllPreset = 0            ← 启用 0 号槽
+Patch       = {1,2,4,8,12,3,5,...}  speed=1..2   ← 快速轮换，吃 FB 残留
+Phase Reset = {1}         speed=6                ← 可选：让每个 patch 重新起音
+算子 tl/ar/dr 宏          speed=1..4             ← 可选：0 号槽边响边改
+```
+
+去掉 `Phase Reset` 才能吃到残留；加上它则每个 patch 都是干净的独立起音，二者是互斥的两种效果。
+
 
 #### 重触发（`phaseReset` 宏）
 
