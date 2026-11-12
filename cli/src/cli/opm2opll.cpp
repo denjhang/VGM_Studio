@@ -28,6 +28,8 @@ void Usage() {
         "  --fui                  为每个源音色写 chXinsY_ym2413.fui\n"
         "  --fui-dir=DIR          .fui 输出目录（隐含 --fui）\n"
         "  --use-edited-fui       读同目录下改过的 .fui 覆盖自动匹配\n"
+        "  --fur=FILE.fur         从 Furnace 工程读全部音色（按乐器名 chXinsY 匹配），\n"
+        "                         并用工程的 hz 作为宏 tick 速率\n"
         "  --tick-rate=60         宏的 tick 速率（Furnace 的 song.hz）\n"
         "  --no-macros            不执行 .fui 里的宏\n"
         "  --vgm=OUT.vgm          同时输出试听 VGM\n");
@@ -88,6 +90,10 @@ int main(int argc, char** argv) {
         } else if (std::strcmp(a, "--use-edited-fui") == 0) {
             opt.useEditedFui = true;
             opt.exportFui = true;
+        } else if (std::strncmp(a, "--fur=", 6) == 0) {
+            opt.furPath = a + 6;
+        } else if (std::strcmp(a, "--fur") == 0 && i + 1 < argc) {
+            opt.furPath = argv[++i];
         } else if (std::strncmp(a, "--vgm=", 6) == 0) {
             previewPath = a + 6;
         } else if (a[0] == '-') {
@@ -138,6 +144,11 @@ int main(int argc, char** argv) {
     if (!r.fuiFiles.empty()) std::printf("fui           : %zu files\n", r.fuiFiles.size());
     if (!r.fuiApplied.empty())
         std::printf("fui applied   : %zu edited voices\n", r.fuiApplied.size());
+    if (r.furInstruments != 0 || !opt.furPath.empty()) {
+        std::printf("fur           : %zu instruments, %zu matched (%d tick/s)\n",
+                    r.furInstruments, r.furApplied.size(), r.tickRateUsed);
+        for (const std::string& n : r.furApplied) std::printf("                %s\n", n.c_str());
+    }
 
     // 有损报告：按 (program, volumeOffset) 聚合
     if (!r.reports.empty()) {

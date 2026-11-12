@@ -166,7 +166,8 @@ std::vector<uint8_t> EncodeFui(const FuiVoice& v) {
     return out;
 }
 
-bool DecodeFui(const uint8_t* data, size_t len, FuiVoice* out, std::string* err) {
+bool DecodeFuiVersioned(const uint8_t* data, size_t len, int version, FuiVoice* out,
+                        std::string* err) {
     if (data == nullptr || len < 8) {
         *err = "fui: too short";
         return false;
@@ -174,7 +175,7 @@ bool DecodeFui(const uint8_t* data, size_t len, FuiVoice* out, std::string* err)
     std::vector<uint8_t> copy(data, data + len);
     SafeReader r(copy.data(), copy.size());
     DivInstrument ins;
-    const DivDataErrors e = ins.readInsData(r, 258, nullptr);
+    const DivDataErrors e = ins.readInsData(r, (short)version, nullptr);
     if (e != DIV_DATA_SUCCESS) {
         char buf[64];
         std::snprintf(buf, sizeof(buf), "fui: readInsData error %d", (int)e);
@@ -237,6 +238,11 @@ bool DecodeFui(const uint8_t* data, size_t len, FuiVoice* out, std::string* err)
         }
     }
     return true;
+}
+
+bool DecodeFui(const uint8_t* data, size_t len, FuiVoice* out, std::string* err) {
+    // .fui 由当前版本的 Furnace 写出，固定用 DIV_ENGINE_VERSION 解码。
+    return DecodeFuiVersioned(data, len, 258, out, err);
 }
 
 bool SaveFui(const FuiVoice& v, const std::string& path, std::string* err) {

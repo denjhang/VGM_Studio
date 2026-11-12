@@ -229,6 +229,7 @@ json2json <source.json> -o <target.json> \
     [--bank=ym2413] [--clock=3579545] \
     [--volume-bias=0] [--transpose=-12] \
     [--fui | --fui-dir=DIR] [--use-edited-fui] \
+    [--fur=PROJECT.fur] \
     [--tick-rate=60] [--no-macros] \
     [--user-voice] [--report] [--vgm=OUT.vgm]
 ```
@@ -242,6 +243,7 @@ json2json <source.json> -o <target.json> \
 | `--transpose` | 整体移调（半音）。**默认 -12**：实测不降这一八度会比源高一个八度 |
 | `--fui` / `--fui-dir` | 为每个源音色写出 `chXinsY_ym2413.fui` |
 | `--use-edited-fui` | 读同目录下改过的 `.fui` 覆盖自动匹配（含宏） |
+| `--fur` | **从 Furnace 工程一次读全部音色**（按乐器名 `chXinsY` 匹配），并用工程的 `hz` 作为宏 tick 速率。优先级高于 `--use-edited-fui` |
 | `--tick-rate` | 宏的 tick 速率（Furnace 的 `song.hz`，默认 60）。**`.fui` 里没有这个数** |
 | `--no-macros` | 不执行 `.fui` 里的宏 |
 | `--report` | 输出逐音符有损报告 |
@@ -255,8 +257,8 @@ json2json <source.json> -o <target.json> \
 3. 通道映射：8 → 9 一一对应
 4. 音色映射：
    a. 对每个源音色，按源寄存器指纹（不含 TL）去重编号 chXinsY
-   b. 自动匹配 ROM 预置（最近邻）；有 --use-edited-fui 时以 .fui 的
-      opllPreset 为准（含 0 = 用户槽）
+   b. 自动匹配 ROM 预置（最近邻）；有 --fur / --use-edited-fui 时以工程或
+      .fui 里的 opllPreset 为准（含 0 = 用户槽）
    c. 生成/读入 target 的 .fui，展开其中的宏
 5. 音量映射：载波 TL → 0x30 低 4 位
 6. 音高映射（关键）：
@@ -273,11 +275,16 @@ json2json <source.json> -o <target.json> \
 
 ```bash
 fuitool dump   ins_000.fui              # 打印音色参数（人读）
-fuitool to-json ins_000.fui -o a.json   # .fui → JSON
-fuitool from-json a.json -o b.fui       # JSON → .fui
-fuitool convert ins_000.fui --to=opll -o out.fui   # 芯片间音色转换
-fuitool compare a.fui b.fui             # 参数差异
+fuitool fur    project.fur              # 列出 .fur 工程里的全部乐器
+fuitool check  a.fui b.fui ...          # 批量校验能否被 Furnace 解码
+fuitool rewrite in.fui out.fui --name=X # 读改写往返
 ```
+
+**`fuitool fur`**：`.fur` 是 zlib 压缩的 Furnace 工程。读取路径与
+`opm2opll --fur` 完全一致——zlib 解压（`fileOpsCommon.cpp:49-140`）→
+头解析（`fur.cpp:1035-1345` 旧 INFO / `800-1030` 新 INF2）→ 每个乐器的字节
+交回 `DivInstrument::readInsData`。**不是自己写的解析器**，所以 Furnace
+升级格式后只要同步 vendored 的 `instrument.cpp` 即可。
 
 **实现**：直接调 furnace 的 `DivInstrument::readInsData()` / `save()`（`RULES.md` F13，不自己写 `.fui` 解析器）。
 

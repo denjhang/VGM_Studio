@@ -75,6 +75,30 @@ $B/opm2opll.exe out/song.json -o out/song.v2.ym2413.json \
               --use-edited-fui --vgm=out/song.v2.vgm
 ```
 
+### 3.1 ★ 推荐做法：在 `.fur` 工程里改全部音色
+
+逐个导出/覆盖 19 个 `.fui` 很容易改错文件号。更省事的路径是把 19 个目标音色
+全部改进一个 Furnace 工程（`out/2151-2413.fur`），让 `opm2opll --fur` 直接读：
+
+```bash
+# 只需要一次：把 19 个 ym2413.fui 导入 Furnace 工程并保存为 2151-2413.fur
+# 之后每次都在 Furnace 里改这个工程、存盘
+
+$B/opm2opll.exe out/v1/song.json -o out/v6/song.ym2413.json \
+    --fur=out/2151-2413.fur --transpose=-12 --vgm=out/v6/song.ym2413.vgm
+
+# 看一眼工程里读到了什么
+$B/fuitool.exe fur out/2151-2413.fur
+```
+
+配对规则：工程里的乐器名必须叫 `chXinsY`（可带后缀，如 `ch2ins2-vib`）。
+工程里同时存着源侧 OPM 音色（`ch1ins1-pad`，type 33）和目标侧 OPLL
+（`ch1ins1`，type 13），所以匹配时限定 `type=13`，不会拿错。
+工程里的 `hz`（默认 60）直接当宏的 tick 速率用，不需要再传 `--tick-rate`。
+
+实测：`--fur` 与 `--use-edited-fui` 两条路径对同一套音色生成出的 JSON
+与 VGM **逐字节相同**。
+
 ---
 
 ## 4. `.fui` 里到底有什么

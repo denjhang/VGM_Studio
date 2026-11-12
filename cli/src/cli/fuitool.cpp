@@ -15,6 +15,7 @@
 #include <cstdlib>
 
 #include "FuiVoice.h"
+#include "FurFile.h"
 
 namespace {
 
@@ -27,6 +28,9 @@ void Usage() {
         "\n"
         "  fuitool check <voice.fui> [...]\n"
         "      校验能否被 Furnace 解码；多个文件一起给时批量检查\n"
+        "\n"
+        "  fuitool fur <project.fur>\n"
+        "      列出 Furnace 工程里的全部乐器（与 opm2opll --fur 同一读取路径）\n"
         "\n"
         "  fuitool rewrite <in.fui> <out.fui> [--name=...] [--alg=N] [--fb=N]\n"
         "      读入 → 改几个字段 → 写回（验证编解码往返无损）\n"
@@ -59,15 +63,8 @@ const char* OpMacroName(int i) {
     return (i >= 0 && i < vgmstudio::kOpMacroCount) ? kNames[i] : "?";
 }
 
-int DumpOne(const std::string& path, int tickRate) {
-    vgmstudio::FuiVoice v;
-    std::string err;
-    if (!vgmstudio::LoadFui(path, &v, &err)) {
-        std::fprintf(stderr, "error: %s: %s\n", path.c_str(), err.c_str());
-        return 2;
-    }
-
-    std::printf("file          : %s\n", path.c_str());
+int DumpVoice(const vgmstudio::FuiVoice& v, const std::string& label, int tickRate) {
+    std::printf("file          : %s\n", label.c_str());
     std::printf("type          : %d (%s)\n", v.type, TypeName(v.type));
     std::printf("name          : %s\n", v.name.c_str());
     std::printf("alg/fb        : %d / %d\n", v.alg, v.fb);
@@ -168,7 +165,46 @@ int main(int argc, char** argv) {
             Usage();
             return 1;
         }
-        return DumpOne(args[0], tickRate);
+        vgmstudio::FuiVoice v;
+        std::string err;
+        if (!vgmstudio::LoadFui(args[0], &v, &err)) {
+            std::fprintf(stderr, "error: %s: %s\n", args[0].c_str(), err.c_str());
+            return 2;
+        }
+        return DumpVoice(v, args[0], tickRate);
+    }
+
+    if (cmd == "fur") {
+        // 把整个 .fur 工程里的乐器列出来（读法与 opm2opll --fur 完全一致）
+        if (args.size() != 1) {
+            Usage();
+            return 1;
+        }
+        vgmstudio::FurSong song;
+        std::string err;
+        if (!vgmstudio::LoadFur(args[0], &song, &err)) {
+            std::fprintf(stderr, "error: %s\n", err.c_str());
+            return 2;
+        }
+        std::printf("file          : %s\n", args[0].c_str());
+        std::printf("version       : %d\n", song.version);
+        std::printf("hz            : %.2f (宏 tick 速率)\n", song.hz);
+        std::printf("name          : %s\n", song.name.c_str());
+        std::printf("author        : %s\n", song.author.c_str());
+        std::printf("instruments   : %zu\n\n", song.instruments.size());
+        std::printf("  %-3s %-5s %-6s %-22s %s\n", "#", "type", "preset", "name", "macros");
+        for (size_t i = 0; i < song.instruments.size(); i++) {
+            const vgmstudio::FurInstrument& fi = song.instruments[i];
+            int macros = 0;
+            for (int k = 0; k < vgmstudio::kMacroCount; k++)
+                if (!fi.voice.macros[k].val.empty()) macros++;
+            for (int k = 0; k < 4; k++)
+                for (int j = 0; j < vgmstudio::kOpMacroCount; j++)
+                    if (!fi.voice.opMacros[k][j].val.empty()) macros++;
+            std::printf("  %-3zu %-5d %-6d %-22s %d\n", i, fi.type, fi.voice.opllPreset,
+                        fi.name.c_str(), macros);
+        }
+        return 0;
     }
 
     if (cmd == "check") {

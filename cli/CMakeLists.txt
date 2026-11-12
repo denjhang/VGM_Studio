@@ -73,11 +73,16 @@ add_library(vgmcore STATIC
     src/PreviewVgm.cpp
     src/FuiVoice.h
     src/FuiVoice.cpp
+    src/FurFile.h
+    src/FurFile.cpp
     src/MacroEngine.h
     src/MacroEngine.cpp
 )
 target_include_directories(vgmcore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(vgmcore PUBLIC libvgm::vgm-player nlohmann_json::nlohmann_json)
+# .fur 是 zlib 压缩的（furnace fileOpsCommon.cpp:49-140 同款解压）
+find_package(ZLIB REQUIRED)
+target_link_libraries(vgmcore PUBLIC ZLIB::ZLIB)
 # vgmcore 里的 FuiVoice.cpp 需要 Furnace 的头文件（furnace_fui 在后面定义，
 # 所以这里用 target_link_libraries 的延迟求值特性：直接写库名也可以，Ninja 会排好序）
 # FuiVoice.cpp 会 include furnace 的 instrument.h → fixedQueue.h → ta-log.h → fmt/printf.h，

@@ -117,6 +117,11 @@ bool LoadFui(const std::string& path, FuiVoice* out, std::string* err);
 std::vector<uint8_t> EncodeFui(const FuiVoice& v);
 bool DecodeFui(const uint8_t* data, size_t len, FuiVoice* out, std::string* err);
 
+// 同上，但按指定 Furnace 引擎版本解码。读 .fur 时必须用工程里记录的版本，
+// 否则 instrument.cpp 里那些 `if (version<245)` 之类的兼容转换会走错分支。
+bool DecodeFuiVersioned(const uint8_t* data, size_t len, int version, FuiVoice* out,
+                        std::string* err);
+
 // ── 宏执行 ──────────────────────────────────────────────────────────
 // 完整实现 Furnace 的三种宏模式（序列 / ADSR / LFO），
 // 逐行对应 furnace/src/engine/macroInt.cpp:83-296 的 DivMacroStruct::doMacro。

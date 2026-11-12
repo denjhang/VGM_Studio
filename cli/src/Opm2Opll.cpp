@@ -9,6 +9,7 @@
 #include "AnalyzerYm2151.h"
 #include "FmVoice.h"
 #include "FuiVoice.h"
+#include "FurFile.h"
 #include "MacroEngine.h"
 
 namespace vgmstudio {
@@ -130,6 +131,23 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
     }
     const double clockRatio = 3579545.0 / static_cast<double>(srcClock);
 
+    // .fur 工程：一次读出全部音色（用户在 Furnace 里改完存盘的唯一入口）。
+    // 工程的 hz 就是宏的 tick 速率，比命令行猜 60 更准。
+    FurSong fur;
+    bool haveFur = false;
+    int tickRate = opt.tickRate;
+    if (!opt.furPath.empty()) {
+        std::string ferr;
+        if (!LoadFur(opt.furPath, &fur, &ferr)) {
+            out.error = ferr;
+            return out;
+        }
+        haveFur = true;
+        out.furInstruments = fur.instruments.size();
+        if (fur.hz > 0.5f) tickRate = (int)std::lround(fur.hz);
+    }
+    out.tickRateUsed = tickRate;
+
     // 0 号预设（唯一可写的用户音色）的内容：只有用户把某个 .fui 的 opllPreset
     // 改成 0 时才有值，此时把它的算子参数写进 0x00-0x07 全局段。
     FuiVoice userVoice;
@@ -234,13 +252,26 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 char baseName[32];
                 std::snprintf(baseName, sizeof(baseName), "ch%dins%d", ch + 1, ordinal);
 
-                // ★ 用户改过的 .fui 优先：同名 ym2413.fui 存在且开了 useEditedFui 时，
-                //   用它的 program（音色号）覆盖自动匹配结果。
+                // ★ 音色覆盖优先级：.fur 工程 > --use-edited-fui 单文件 > 自动匹配。
+                //   .fur 里按乐器名 "chXinsY" 精确匹配（同一工程里还存着源侧
+                //   OPM 音色 chXinsY-pad 之类，所以限定 type=13 OPLL）。
                 //   opllPreset == 0 是合法的：0 号槽是唯一可写的用户音色，
                 //   只有它能被算子级宏改动，也正是 patch 切换之外 OPLL 唯一的自由音色。
                 bool usedEdited = false;
                 FuiVoice editedVoice;
-                if (opt.useEditedFui) {
+                if (haveFur) {
+                    const FurInstrument* fi =
+                        FindFurInstrument(fur, baseName, kFuiInsOpll);
+                    if (fi != nullptr) {
+                        editedVoice = fi->voice;
+                        if (editedVoice.opllPreset >= 0 && editedVoice.opllPreset < 19) {
+                            m.program = editedVoice.opllPreset;
+                        }
+                        usedEdited = true;
+                        out.furApplied.push_back(fi->name);
+                    }
+                }
+                if (!usedEdited && opt.useEditedFui) {
                     char fn[64];
                     std::snprintf(fn, sizeof(fn), "ch%dins%d_ym2413.fui", ch + 1, ordinal);
                     const std::string path = opt.fuiDir.empty() ? fn : (opt.fuiDir + "/" + fn);
@@ -251,11 +282,11 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                         }
                         usedEdited = true;
                         out.fuiApplied.push_back(path);
-                        if (m.program == 0 && !haveUserVoice) {
-                            userVoice = editedVoice;
-                            haveUserVoice = true;
-                        }
                     }
+                }
+                if (usedEdited && m.program == 0 && !haveUserVoice) {
+                    userVoice = editedVoice;
+                    haveUserVoice = true;
                 }
 
                 voiceProgram[vh] = m;
@@ -464,7 +495,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     mi.startSample = n.startSample;
                     mi.endSample = n.endSample;
                     mi.sampleRate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
-                    mi.tickRate = opt.tickRate;
+                    mi.tickRate = tickRate;
                     mi.opll = true;
                     mi.opllPreset = m.program;
                     const MacroExpandOutput mo = ExpandMacros(*fv, mi);

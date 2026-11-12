@@ -29,6 +29,12 @@ struct ConvertOptions {
     std::string fuiDir;              // 输出目录（调用方保证存在）
     bool useEditedFui = false;       // 若同名 .fui 存在，用它的参数覆盖自动匹配结果
 
+    // ── .fur 工程（一次性读出全部音色，优先级高于 --use-edited-fui）──
+    // 在 Furnace 里把 19 个目标音色都改进一个工程存盘，按乐器名
+    // "chXinsY" 精确匹配。工程里的 hz 会覆盖 tickRate（宏速率来自工程）。
+    std::string furPath;
+    bool useFur = false;
+
     // ── 宏执行 ──
     // .fui 里只有 speed/delay（每步几个 tick），「一秒几个 tick」由工程决定，
     // 乐器文件本身没有这个数（Furnace 的 song.hz / tickRate，默认 60）。
@@ -61,6 +67,9 @@ struct ConvertResult {
     size_t notesConverted = 0;
     std::vector<std::string> fuiFiles;   // 已写出的 .fui
     std::vector<std::string> fuiApplied; // 实际用上的用户改过的 .fui
+    size_t furInstruments = 0;           // .fur 里读到的乐器总数
+    std::vector<std::string> furApplied; // 从 .fur 取到并生效的乐器名
+    int tickRateUsed = 60;               // 实际使用的宏 tick 速率（--fur 会用工程的 hz）
     bool ok = false;
     std::string error;
 };
