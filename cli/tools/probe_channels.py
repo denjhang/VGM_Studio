@@ -99,7 +99,7 @@ src_ch = src["channels"]
 print("ch | 源 OPM RMS | 目标 OPLL RMS | 差 dB")
 tot_s, tot_d = 0.0, 0.0
 targets = {}
-for ver in ["v11", "v12"]:
+for ver in ["v12", "v13"]:
     p = "out/%s/song.ym2413.json" % ver
     if os.path.exists(p):
         targets[ver] = json.load(open(p, encoding="utf-8"))

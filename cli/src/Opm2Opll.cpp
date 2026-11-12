@@ -823,6 +823,24 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 }
                 if (n.segments.empty()) continue;
 
+                // ①b 联动音色自己也写了 note:X 时，音高同样由名字决定：
+                //    把上面搬来的 fnum/block 全部改写成固定值，key/sus 位保留。
+                if (ltags.hasNote) {
+                    const OpllFnum lf = FreqToOpllFnum(ltags.noteHz, opt.targetClock);
+                    const int lb = std::min(7, std::max(0, static_cast<int>(lf.block)));
+                    const uint8_t ldh =
+                        static_cast<uint8_t>((lb << 1) | ((lf.fnum >> 8) & 1));
+                    for (Segment& seg : n.segments) {
+                        for (RegValue& r : seg.regs) {
+                            if (r.reg == 0x10 + dstCh) {
+                                r.val = lf.fnumLow;
+                            } else if (r.reg == 0x20 + dstCh) {
+                                r.val = static_cast<uint8_t>((r.val & 0xF0) | ldh);
+                            }
+                        }
+                    }
+                }
+
                 // ② 音色与音量：联动音色自己的 preset + vol。
                 const int program = fi.voice.opllPreset;
                 // 同主循环：vol:N 是 Furnace 音量语义（15=最响），转成 0x30 的衰减 nibble。

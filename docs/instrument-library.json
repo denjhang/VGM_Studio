@@ -2950,7 +2950,7 @@
           ]
         }
       ],
-      "name": "ch5ins3-OPLL-SD2-note:B3",
+      "name": "ch5ins3-SD2-note:B3-noteoff:self-vol:13",
       "operators": [
         {
           "am": 0,
@@ -3639,7 +3639,7 @@
           ]
         }
       ],
-      "name": "ch9ins1-SD2-HF-link:ch5ins3-vol:13-noteoff:self",
+      "name": "ch9ins1-SD2-HF-link:ch5ins3-vol:13-noteoff:self-note:C8",
       "operators": [
         {
           "am": 0,

@@ -181,17 +181,23 @@ t<type>;preset<opllPreset>;alg<alg>;fb<fb>;fms<fms>;ams<ams>;ops<ops>
 - `link:X` 只联动「确实用了 X 这个乐器」的音符：鼓通道上同时有 BD/hh/SD/pad2，
   按 `(通道, 起点) → 乐器名` 筛一遍，否则整条通道都会被复制过去。
 
-**当前 .fur 里的实例**（`31 Grass Maze`）
+**当前 .fur 里的实例**（`31 Grass Maze`，v13）
 
 | 乐器 | 参数 | 效果 |
 |---|---|---|
-| `ch5ins1-BD3` | `note:B2` `vol:15` `noteoff:self` | 底鼓锁在 B2，宏放完才 off |
-| `ch5ins2-hh` | `note:C8` `noteoff:self` | 镲锁在 C8（block 7 / fnum 255 上限） |
-| `ch5ins3-SD2` | `note:B3` `vol:15` `noteoff:self` | 军鼓锁在 B3 |
-| `ch9ins1-SD2-HF` | `link:ch5ins3` `vol:13` `noteoff:self` | FM9 叠一层 SD2 的 HF 层，只在 ch5ins3 击发时跟着响 |
+| `ch5ins1-BD3` | `note:B2` `vol:13` `noteoff:self` | 底鼓锁在 B2，宏放完才 off |
+| `ch5ins2-hh` | `note:C8` `noteoff:self` | 镲锁在 C8（block 7 / fnum 344） |
+| `ch5ins3-SD2` | `note:B3` `noteoff:self` `vol:13` | 军鼓锁在 B3 |
+| `ch9ins1-SD2-HF` | `link:ch5ins3` `vol:13` `noteoff:self` `note:C8` | FM9 叠一层 SD2 的 HF 层，只在 ch5ins3 击发时跟着响，音高锁 C8 |
 
-实测：FM9 从 0 个音符变成 **54 个**（正好等于 ch5ins3 的音符数），
-FM5 的 noteoff:self 音符不再与下一个音符重叠（0 处重叠）。
+实测（v13）：FM9 从 0 个音符变成 **54 个**（正好等于 ch5ins3 的音符数），
+每个都落在 block 7 / fnum 344（= C8），不再沿用它联动的 SD2 的 B3；
+FM5 的 noteoff:self 音符与下一个音符 **0 处重叠**；
+`vol:13` 落成 nibble 2（`15-13`），宏第一帧 0 时回到 15（静音）。
+
+**`link` 目标也支持 `note:`**：联动方自己写了 `note:X` 时，搬运过来的
+fnum/block 会被改写成 X 的固定值（key/sus 位保留）。这条是 v13 加的——
+之前 link 只能沿用被联动方的音高。
 
 ---
 
