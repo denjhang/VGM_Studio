@@ -74,6 +74,13 @@ struct ConvertResult {
     std::string error;
 };
 
+// 载波 TL（0..127，0 = 最响）→ OPLL 通道音量（0x30 低 4 位，0 = 最响）。
+// 两者都是**衰减量**，极性相同，所以这里不取反。
+//   YM2151 TL 每单位 0.7526 dB   （ym2151.c:1143 `op->tl=(v&0x7f)<<3`）
+//   YM2413 0x30 每步 3.01 dB     （ym2413.c:1695 `TL=((v&0x0f)<<2)<<1`）
+// 两者都左移进同一个 10 bit 包络域，所以 nibble = round(TL / 4)。
+int TlvToOpllVolume(int carrierTl);
+
 // 把源 OPM 音色导出成等价的 .fui，并把目标侧匹配到的 OPLL 音色也导出成 .fui。
 // 命名规则与 vgm2json --fui 一致：chXinsY_ym2151.fui / chXinsY_ym2413.fui。
 void ExportOpmVoiceFui(const uint8_t shadow[256], int ch, int ordinal, const std::string& dir,

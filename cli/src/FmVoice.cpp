@@ -473,7 +473,14 @@ OpllMatch MatchOpllRom(const OplVoice& v, OpllBank bank) {
     best.octaveOffset = static_cast<int>(
         std::lround(std::log2(kMlTable[v.slots[1].ml & 15] / kMlTable[o.slots[1].ml & 15])));
     // ⑧ 音量补偿：目标有波形时响度不同
-    int voff = 1;
+    //
+    // ★ 基准值从 1 改成 0。ym-voice 的 voff=1 是为了补它自己用 `tl>>3` 粗移位
+    //   带来的系统性偏差（÷8 比 ÷4 多衰减 3 dB/步）；Opm2Opll 现在按物理比例
+    //   ÷4 换算（OPM TL 0.7526 dB/单位，OPLL 0x30 3.01 dB/步，正好 4 倍），
+    //   再叠加 voff=1 就会整体多衰减约 3 dB。实测整曲 RMS：
+    //   voff=1 → −22.0 dBFS，voff=0 → −19.0 dBFS，源 −19.0 dBFS。
+    //   ws 的 ±2 步补偿与映射精度无关，原样保留。
+    int voff = 0;
     if (o.slots[1].ws) {
         voff -= 2;
         if (o.slots[0].ws) voff -= 2;

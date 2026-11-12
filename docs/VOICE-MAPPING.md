@@ -247,6 +247,65 @@ this._y(0x30 + ch, d);
 | `0xb0+nch`（ALG） | `0x20+ch` 的 bit2-0 |
 | `0x40/0x44/0x48/0x4c+nch`（TL） | `0x60+op*8+ch`（op=0..3） |
 
+### 5.1 ★ `>> 3` 对 OPM 是错的，必须是 `÷ 4`
+
+这段 TS 的 `(vol >> 3)` 是**给 OPN 用的**近似，`volumeOffset: 1`（§4 的 ⑧）
+正是为了补这个粗移位。搬到 OPM 上会双重出错。实测（`cli/tools/probe_volume.py`，
+用 libvgm 渲染单音后取 RMS）：
+
+| 平台 | 音量台阶 | 实测 dB/单位 |
+|---|---|---|
+| YM2151 载波 TL（7 bit） | 1 | **0.7526 dB**（TL 0→80 共 −60.98 dB，严格线性） |
+| YM2413 `0x30` 低 4 位（4 bit） | 1 | **3.01 dB**（0→12 共 −36.07 dB） |
+
+比值正好 **4**，和寄存器位宽完全自洽：
+
+```c
+// libvgm/emu/cores/ym2151.c:1143
+op->tl   = (v & 0x7f) << (ENV_BITS - 7);              // <<3
+// libvgm/emu/cores/ym2413.c:1695
+SLOT->TL = ((v & 0x0f) << 2) << (ENV_BITS - 2 - 7);   // <<2，再 <<1
+```
+
+两者都把值左移进同一个 10 bit 包络域，所以 **nibble n ≡ TL 4n**。
+
+用 `>> 3` 的后果（`31 Grass Maze` 实测）：源载波 TL 分布 13..26，动态范围
+9.8 dB 被压成 `1..3` 两步（6 dB）；响的音符整体偏轻一个档位。改用
+`round(TL / 4)` 后 nibble 落在 3..7，动态范围恢复到 9.6 dB。
+
+**`volumeOffset` 的基准也要改**：ym-voice 的 `voff = 1` 是补 `>> 3` 的偏差，
+按 `÷ 4` 换算时应为 `0`。保留 1 会让整曲再多衰减约 3 dB。实测整曲 RMS：
+
+| 映射 | voff | 整曲 RMS |
+|---|---|---|
+| `>> 3` | 1（v9） | −16.4 dBFS（比源响 2.6 dB） |
+| `÷ 4` | 1（v10） | −22.0 dBFS（比源轻 3.0 dB） |
+| `÷ 4` | **0（v11）** | **−19.0 dBFS（与源一致）** |
+
+源 `01_original_OPM_YMF2151.wav` 本身是 −19.0 dBFS。
+
+### 5.2 与乐器宏的比例乘法
+
+转换器算出的 nibble 是**该音符的基础音量** `vol`，宏在此基础上做相对变化。
+两层的合成走 Furnace 的 `VOL_SCALE_LOG`（`dispatch.h:1747`，dB 域相加后 clamp）：
+
+```cpp
+mi.baseVol = 15 - vol;                                   // Opm2Opll.cpp：转成 chan.vol 极性
+// MacroEngine.cpp：x = baseVol, y = 宏值
+//   outVol  = CLAMP(baseVol + min(15,v) - 15, 0, 15)
+//   nibble  = 15 - VOL_SCALE_LOG(outVol, 15-载波TL, 15)
+```
+
+所以宏写 `0`（静音）时 nibble 被推到 15（全衰减），宏写 `15` 时 nibble 回到
+`vol` 附近 —— 正是"按比例缩放"的语义。实测 ch1（`vol` 宏 `{0, 15}`、
+基础 nibble 3）在 v11 的输出：
+
+```
+rel=0    0x30 = 0x?f   (宏第 1 帧 0 → 全衰减)
+rel=0    0x30 = 0x?3   (宏第 2 帧 15 → nibble 3，即基础音量)
+rel=735  0x30 = 0x?3   (循环回第 2 帧)
+```
+
 ---
 
 ## 6. 我们该怎么做（C++ 移植）

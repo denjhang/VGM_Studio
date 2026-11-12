@@ -1,5 +1,6 @@
 // 单元测试：逐条宏验证展开结果
 #include "MacroEngine.h"
+#include "Opm2Opll.h"
 #include <cstdio>
 #include <vector>
 using namespace vgmstudio;
@@ -411,6 +412,17 @@ int main(){
     check("real key-off releases macro", !ra.empty() && (ra.back()&15)==10);
     check("legato block keeps macro running", !rb.empty() && (rb.back()&15)==15);
     in.releaseAtEnd=true; in.endSample=44100; in.opll=false; }
+
+  // 52. ★ TL → OPLL 音量的比例：两端的音量台阶是 4:1（实测 0.7526 vs 3.01 dB/步），
+  //     所以 nibble = round(TL/4)，不是 vgm-conv 给 OPN 的 `TL>>3`。
+  {
+    check("TL 0 -> vol 0", TlvToOpllVolume(0) == 0);
+    check("TL 13 -> vol 3", TlvToOpllVolume(13) == 3);
+    check("TL 21 -> vol 5", TlvToOpllVolume(21) == 5);
+    check("TL 26 -> vol 7 (not 3)", TlvToOpllVolume(26) == 7);
+    check("TL 60 -> vol 15 (clamp)", TlvToOpllVolume(60) == 15);
+    check("TL 127 -> vol 15 (clamp)", TlvToOpllVolume(127) == 15);
+  }
 
   std::printf("\n%s (%d fail)\n", fails? "FAILED":"ALL PASS", fails);
   return fails?1:0;

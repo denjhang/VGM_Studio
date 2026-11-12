@@ -16,6 +16,19 @@ namespace vgmstudio {
 namespace {
 
 constexpr int kSrcChannels = 8;
+
+// ── 音量台阶的物理换算（实测，见 cli/tools/probe_volume.py 与 docs/VOICE-FUI.md §8.5.4）──
+//   YM2151 载波 TL：7 bit，每单位 0.7526 dB（实测 TL 0→80 共 −60.98 dB，严格线性）
+//   YM2413 0x30 低 4 位：0..15 是**衰减量**，每步 3.01 dB（实测 0→12 共 −36.07 dB）
+// 两者比值正好 4：`4 × 0.7526 = 3.0104 dB`。这与寄存器位宽也一致——
+//   OPM  `op->tl = (v&0x7f)<<3`（ym2151.c:1143）
+//   OPLL `SLOT->TL = ((v&0x0f)<<2)<<1`（ym2413.c:1695）
+// 都把值左移进同一个 10 bit 包络域，所以 nibble n 恰好等于 TL 4n。
+// 旧代码写 `tl >> 3`（÷8）是 vgm-conv 对 OPN 的 0.75 dB/单位 的近似，
+// 放到 OPM 上把 4 倍关系压成了 8 倍：本曲 TL 13..26 的 9.8 dB 动态范围
+// 被压成 2 步（6 dB），且所有通道整体偏响约 9 dB。
+constexpr int kTlPerOpllStep = 4;
+
 constexpr int kDstChannels = 9;
 
 OpllBank ParseBank(const std::string& name) {
@@ -116,6 +129,12 @@ FuiVoice OpllRomToFui(int program, const char* name) {
 
 int CarrierTlOfOpmVoice(const uint8_t shadow[256], int ch, int con) {
     return CarrierMinTL(shadow, ch, con);
+}
+
+int TlvToOpllVolume(int carrierTl) {
+    const int t = carrierTl < 0 ? 0 : (carrierTl > 127 ? 127 : carrierTl);
+    const int v = (t + kTlPerOpllStep / 2) / kTlPerOpllStep;   // 四舍五入
+    return v > 15 ? 15 : v;
 }
 
 ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
@@ -338,7 +357,9 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
 
 
             const int carrierTl = CarrierMinTL(shadow, ch, opm.con);
-            int vol = (carrierTl >> 3) + m.volumeOffset + opt.volumeOffsetBias;
+            // TL（0.7526 dB/单位）→ OPLL 衰减 nibble（3.01 dB/步）＝ ÷4。
+            // m.volumeOffset / volumeOffsetBias 是 nibble 单位，直接叠加。
+            int vol = TlvToOpllVolume(carrierTl) + m.volumeOffset + opt.volumeOffsetBias;
             vol = std::max(0, std::min(15, vol));
 
             // 音高：KC/KF → Hz → OPLL block/fnum
@@ -494,7 +515,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     shadow[r.reg] = r.val;
                     if ((r.reg & 0x07) != ch) continue;
                     const int tl = CarrierMinTL(shadow, ch, shadow[0x20 + ch] & 7);
-                    int v2 = (tl >> 3) + m.volumeOffset + opt.volumeOffsetBias;
+                    int v2 = TlvToOpllVolume(tl) + m.volumeOffset + opt.volumeOffsetBias;
                     v2 = std::max(0, std::min(15, v2));
                     if (v2 == lastVol) continue;
                     lastVol = v2;

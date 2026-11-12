@@ -79,7 +79,7 @@ const char* OpllProgramName(OpllBank bank, int program);
 // ── 最近邻匹配（opl-voice.js:toOPLLROMVoice，原文逐行）──────────────
 struct OpllMatch {
     int program = 0;
-    int volumeOffset = 1;
+    int volumeOffset = 0;   // 见 FmVoice.cpp ⑧：按物理比例 ÷4 换算后不再需要 vgm-conv 的 +1
     int octaveOffset = 0;
 };
 OpllMatch MatchOpllRom(const OplVoice& v, OpllBank bank);
