@@ -135,6 +135,22 @@ t<type>;preset<opllPreset>;alg<alg>;fb<fb>;fms<fms>;ams<ams>;ops<ops>
 「每个音中间被掐掉一拍」。正确处理是用 `skipTicks` 接续相位（见
 [VOICE-FUI.md §8.5.4](VOICE-FUI.md)）。
 
+**③ 基础音量本身要按 4:1 换算，宏才是在正确的基线上做比例。**
+宏的 `baseVol` 不是满量程常数，它来自转换器算出的音符音量，所以 TL→nibble
+的换算精度直接决定宏的比例是否成立。两端台阶是 **4:1**（YM2151 载波 TL
+0.7526 dB/单位 vs YM2413 `0x30` 3.01 dB/步），即 `nibble = round(TL/4)`，
+不是 vgm-conv 给 OPN 的 `TL>>3`。整曲 RMS：`>>3` 时 −16.4 dBFS，
+`÷4` 且 `volumeOffset=0` 时 −19.0 dBFS，与源一致。详见
+[VOICE-MAPPING.md §5.1](VOICE-MAPPING.md)。
+
+**④ 逐通道仍有 ±7 dB 的剩余偏差，与 nibble 无关。**
+整曲电平对齐后，把每个通道单独抽出来渲染会发现：FM4/FM6 约 +0.9/+0.5 dB，
+而 FM2/FM3/FM8 约 −6.6 ~ −7.0 dB、FM5（鼓）−11.5 dB。原因是同一个 nibble
+在不同 ROM 预置上的绝对响度不同（各预置的载波 TL 与波形不同），加上 OPM
+的 4 算子频谱密度 OPLL 本来就还原不了。要逐通道拉平，得在 `MatchOpllRom`
+里加一张"预置实测响度"补偿表，而不是继续调 nibble。测量方法见
+`cli/tools/probe_channels.py`。
+
 
 ---
 

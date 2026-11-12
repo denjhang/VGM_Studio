@@ -239,7 +239,7 @@ json2json <source.json> -o <target.json> \
 | `--target` | 目标芯片（`ym2413` / `ym2151` / ...） |
 | `--bank` | OPLL 音色库：`ym2413` / `vrc7` / `ymf281b` |
 | `--clock` | 目标芯片时钟（默认 3579545） |
-| `--volume-bias` | 音量偏移，叠加在匹配结果上（-15..15） |
+| `--volume-bias` | 音量偏移（nibble 单位，-15..15），叠加在 TL→音量的换算结果上。**默认 0**：换算已按物理比例 `round(TL/4)` 做，整曲 RMS 与源对齐，不需要再补（详见 [VOICE-MAPPING.md §5.1](VOICE-MAPPING.md)） |
 | `--transpose` | 整体移调（半音）。**默认 -12**：实测不降这一八度会比源高一个八度 |
 | `--fui` / `--fui-dir` | 为每个源音色写出 `chXinsY_ym2413.fui` |
 | `--use-edited-fui` | 读同目录下改过的 `.fui` 覆盖自动匹配（含宏） |

@@ -14,7 +14,7 @@
 | 6 | [`RULES.md`](RULES.md) | 硬约束 D1–D5 / E1–E5 + 禁止 F1–F15 |
 | 7 | [`MILESTONES.md`](MILESTONES.md) | 验收标准（每条都可实测） |
 | 8 | [`CHIP-YM2151.md`](CHIP-YM2151.md) | **YM2151 语义表**（三方交叉验证，已定稿）：key-on、KC/KF、ALG 载波 |
-| 9 | [`VOICE-MAPPING.md`](VOICE-MAPPING.md) | **乐器指纹 + OPLL 15 个 ROM 音色表 + 最近邻匹配**（vgm-conv/ym-voice 实证） |
+| 9 | [`VOICE-MAPPING.md`](VOICE-MAPPING.md) | **乐器指纹 + OPLL 15 个 ROM 音色表 + 最近邻匹配 + 音量 4:1 台阶换算**（vgm-conv/ym-voice 实证 + 本机实测） |
 | 10 | [`IMPLEMENTATION-CLI.md`](IMPLEMENTATION-CLI.md) | **CLI 实施记录**：`cli/` 工程结构、影子设备接法、实测结果、7 个坑、json2mid 音高验证 |
 | 11 | [`PITCH-CONVERSION.md`](PITCH-CONVERSION.md) | **★ 音高转换权威汇总**：YM2151/YM2413 在 5 个参考实现里的全部公式（带行号）+ 物理真值推导 + 4 个已修 bug |
 | 12 | [`VOICE-FUI.md`](VOICE-FUI.md) | **★ 音色文件与宏**：`.fui` 命名规则、FM/MA 块布局、22 条宏、**宏速率不在 fui 里**、宏展开实测 |
