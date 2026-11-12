@@ -84,4 +84,11 @@ struct MacroExpandOutput {
 // 执行全部宏。不含 key-on（0x08 / 0x20 bit4）与 key-off —— 那些由调用方按音符边界写。
 MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in);
 
+// 这套宏「从头放到尾」需要多少 tick（含 delay，按各宏自己的 speed 折算）。
+// 给 noteoff:self 用：那种乐器的音符长度不取源，而是取这个值。
+//   音量宏若最终停在 0（鼓类常见写法），按「最后一次非 0 值」计；
+//   若完全没有音量宏，取所有通道级宏里最长的那个。
+int MacroActiveTicks(const FuiVoice& voice);
+
+
 }  // namespace vgmstudio

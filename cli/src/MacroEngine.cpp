@@ -639,4 +639,51 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
     return out;
 }
 
+// 「这套宏从头放到尾」的 tick 数。
+// 序列宏（type 0）时长 = delay + len*speed；loop 生效时不算无限，只算到 loop 点。
+// 音量宏停在 0 之后的部分不计（鼓类就是这么写的：先衰减到 0 再补一串 0）。
+int MacroActiveTicks(const FuiVoice& voice) {
+    int longest = 0;
+    int volTicks = 0;
+
+    for (int mi = 0; mi < kMacroCount; mi++) {
+        const Macro& m = voice.macros[mi];
+        if (m.val.empty()) continue;
+        const int len = static_cast<int>(m.val.size());
+        const int speed = m.speed > 0 ? m.speed : 1;
+        int steps = len;
+        if (m.type == 0) {
+            // 序列：走到最后一个非零值（音量宏的补零尾巴不算时长）
+            if (mi == kMacroVol) {
+                int lastNonZero = -1;
+                for (int i = 0; i < len; i++)
+                    if (m.val[i] != 0) lastNonZero = i;
+                steps = lastNonZero >= 0 ? lastNonZero + 1 : len;
+                if (m.loop < len) steps = std::min(steps, m.rel < len ? std::max(m.loop + 1, 1) : steps);
+            }
+            if (m.loop < len && m.loop < m.rel) steps = m.loop + 1;
+            else if (m.loop < len && m.rel >= len) steps = m.loop + 1;
+        }
+        const int ticks = std::max(0, m.delay) + steps * speed;
+        if (mi == kMacroVol) volTicks = ticks;
+        if (ticks > longest) longest = ticks;
+    }
+
+    // 算子级宏也参与（同样口径）
+    for (int j = 0; j < 4; j++)
+        for (int k = 0; k < kOpMacroCount; k++) {
+            const Macro& m = voice.opMacros[j][k];
+            if (m.val.empty()) continue;
+            const int len = static_cast<int>(m.val.size());
+            const int speed = m.speed > 0 ? m.speed : 1;
+            int steps = (m.type == 0 && m.loop < len) ? m.loop + 1 : len;
+            const int ticks = std::max(0, m.delay) + steps * speed;
+            if (ticks > longest) longest = ticks;
+        }
+
+    // 有音量宏就以它为准（音符声长由音量包络决定），否则取最长
+    if (volTicks > 0) return volTicks;
+    return longest;
+}
+
 }  // namespace vgmstudio

@@ -69,6 +69,7 @@ struct ConvertResult {
     size_t furInstruments = 0;           // .fur 里读到的乐器总数
     std::vector<std::string> furApplied; // 从 .fur 取到并生效的乐器名
     std::vector<std::string> furMissing; // .fur 里没找到的目标音色名（会退回自动匹配）
+    std::vector<std::string> linkApplied; // 生效的 link:X 联动（"ch9ins1 -> ch5ins3"）
     int tickRateUsed = 60;               // 实际使用的宏 tick 速率（--fur 会用工程的 hz）
     bool ok = false;
     std::string error;

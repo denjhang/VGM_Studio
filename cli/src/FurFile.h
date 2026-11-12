@@ -28,6 +28,39 @@ struct FurInstrument {
     FuiVoice voice;     // 已转换好的统一表示
 };
 
+// ── 乐器名里的参数标签 ────────────────────────────────────────────────
+// 用户在 Furnace 里直接把参数写进乐器名，用 '-' 分隔，例如
+//     ch5ins1-BD3-note:B2-vol:15-noteoff:self
+//     ch9ins1-SD2-HF-link:ch5ins3-vol:13-noteoff:self
+//
+// 四个参数都只作用于「用该音色的那些音符」：
+//   note:X       音高改由名字指定。X 就是目标芯片上的**最终音高**（科学音高记法，
+//                A4=440）：不做源 KC/KF 换算、不做 ML 八度补偿、不叠加 --transpose，
+//                也不跟随源里的滑音/颤音——那些由 2413 侧的宏负责。
+//   vol:N        基础音量改由名字指定（0..15，OPLL 0x30 低 4 位，0=最响）。
+//                跳过载波 TL 换算；宏仍在这个基线上做比例。
+//   noteoff:self 不使用源的 key-off，把音符延长到宏完整播完才 off。
+//   link:X       联动音色：X 是另一个乐器的基名（如 ch5ins3）。本乐器每次击发时，
+//                X 也在同一采样点、同样时长地一起击发。
+struct InsTags {
+    std::string base;      // 参数之前的基名，例如 "ch5ins3"
+    std::string full;      // 完整乐器名（含参数）
+    bool hasNote = false;
+    int noteMidi = -1;     // MIDI 音号（C4=60）
+    double noteHz = 0.0;   // 由 noteMidi 换算的频率
+    bool hasVol = false;
+    int vol = 0;           // 0..15
+    bool noteOffSelf = false;
+    std::string linkTo;    // 非空 = 要联动的乐器基名
+};
+
+// 从乐器名里解析上述参数；没有标签时返回全默认值。
+InsTags ParseInstrumentTags(const std::string& name);
+
+// "B2" / "B-2" / "C#4" / "Bb3" → MIDI 音号（C4=60）。解析失败返回 -1。
+// 注意 '-' 在这里是 Furnace 记法的占位符（C-4 即 C4），不是降号。
+int ParseNoteName(const std::string& text);
+
 struct FurSong {
     int version = 0;      // .fur 里记录的 Furnace 引擎版本
     float hz = 60.0f;     // 工程的 tick 速率（宏的「一秒几个 tick」）

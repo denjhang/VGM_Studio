@@ -151,6 +151,47 @@ t<type>;preset<opllPreset>;alg<alg>;fb<fb>;fms<fms>;ams<ams>;ops<ops>
 里加一张"预置实测响度"补偿表，而不是继续调 nibble。测量方法见
 `cli/tools/probe_channels.py`。
 
+---
+
+### 3.1b ★ 乐器名里的参数标签
+
+用户在 Furnace 里直接把参数写进乐器名，用 `-` 分隔。`opm2opll --fur` 会解析
+并执行它们（`FurFile.cpp` 的 `ParseInstrumentTags`）。
+
+| 标签 | 语义 | 关掉了什么 |
+|---|---|---|
+| `note:X` | 音高由名字指定。**X 就是目标芯片上的最终音高**（科学音高记法，A4=440，`C4`=60） | 不读源 KC/KF、**不做 ML 八度补偿**、不叠加 `--transpose`，也**不跟随源里的滑音/颤音**——那些由 2413 侧的宏替代 |
+| `vol:N` | 基础音量由名字指定（0..15，Furnace 音量语义，**15 = 最响**） | 不看载波 TL；宏仍在这个基线上做比例 |
+| `noteoff:self` | 不使用源的 key-off，音符延长到宏完整播完 | 源里的所有 key-off 被丢弃，改为宏长度 × tick 时长后补一条 |
+| `link:X` | 联动音色：X 是另一乐器的基名（如 `ch5ins3`） | 目标乐器每次击发时，本乐器在同一起点、同样时长地一起响 |
+
+**解析规则**：每个标签是 `key:value`，值到下一个空格或「`-` + 已知 key + `:`」为止。
+`-` 同时是 Furnace 音符记法的占位符（`C-4` 就是 `C4`），所以只在后面紧跟已知
+参数名时才当分隔符。`Bb3`/`Cb4` 里的 `b` 是降号。
+
+**实现要点**
+
+- `note:X` 直接走 `FreqToOpllFnum(440·2^((X-69)/12))`，`octaveOffset = 0`。
+  例：`note:B2` → MIDI 47 → 123.47 Hz → block 2 / fnum 325。
+- `vol:N` 要转换极性：`N` 是音量域（15=最响），而 `0x30` 低 4 位是衰减域
+  （0=最响），所以内部用 `15 - N`。写成 `vol:15` 才是最响，`vol:0` 是静音。
+- `noteoff:self` 的时长取 `MacroActiveTicks(voice)`（音量宏最后一个非零帧之前
+  的步数 × speed）。拉长后若越过下一个音符起点，会被裁到下个音符起点——
+  OPLL 同通道不能同时发两个音，不裁就会丢鼓点。
+- `link:X` 只联动「确实用了 X 这个乐器」的音符：鼓通道上同时有 BD/hh/SD/pad2，
+  按 `(通道, 起点) → 乐器名` 筛一遍，否则整条通道都会被复制过去。
+
+**当前 .fur 里的实例**（`31 Grass Maze`）
+
+| 乐器 | 参数 | 效果 |
+|---|---|---|
+| `ch5ins1-BD3` | `note:B2` `vol:15` `noteoff:self` | 底鼓锁在 B2，宏放完才 off |
+| `ch5ins2-hh` | `note:C8` `noteoff:self` | 镲锁在 C8（block 7 / fnum 255 上限） |
+| `ch5ins3-SD2` | `note:B3` `vol:15` `noteoff:self` | 军鼓锁在 B3 |
+| `ch9ins1-SD2-HF` | `link:ch5ins3` `vol:13` `noteoff:self` | FM9 叠一层 SD2 的 HF 层，只在 ch5ins3 击发时跟着响 |
+
+实测：FM9 从 0 个音符变成 **54 个**（正好等于 ch5ins3 的音符数），
+FM5 的 noteoff:self 音符不再与下一个音符重叠（0 处重叠）。
 
 ---
 

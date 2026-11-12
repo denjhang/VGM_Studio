@@ -329,4 +329,123 @@ size_t CountFurInstruments(const FurSong& song, int type) {
     return n;
 }
 
+// ───────────────────── 乐器名里的参数标签 ─────────────────────
+// 名字形如 ch5ins1-BD3-note:B2-vol:15-noteoff:self。
+// 每个标签是 "key:value"，value 到下一个空格为止；'-' 既是分段符也是
+// 音符名里的占位符（C-4 就是 C4），所以 key 的起点要回溯到上一个
+// '-' 或空格之后，而 value 内部允许 '-'。
+
+int ParseNoteName(const std::string& text) {
+    if (text.empty()) return -1;
+    const char letter = static_cast<char>(std::toupper(static_cast<unsigned char>(text[0])));
+    int semitone = -1;
+    switch (letter) {
+        case 'C': semitone = 0; break;
+        case 'D': semitone = 2; break;
+        case 'E': semitone = 4; break;
+        case 'F': semitone = 5; break;
+        case 'G': semitone = 7; break;
+        case 'A': semitone = 9; break;
+        case 'B': semitone = 11; break;
+        default: return -1;
+    }
+    size_t i = 1;
+    int accidental = 0;
+    if (i < text.size()) {
+        const char c = text[i];
+        if (c == '#' || c == '+') {
+            accidental = 1;
+            i++;
+        } else if (c == 'b') {
+            accidental = -1;
+            i++;
+        } else if (c == '-') {
+            // 后面还有数字 → Furnace 的占位符（C-4）；否则是降号（Cb4）
+            if (i + 1 < text.size() &&
+                std::isdigit(static_cast<unsigned char>(text[i + 1]))) {
+                i++;
+            } else {
+                accidental = -1;
+                i++;
+            }
+        } else if (c == '_') {
+            i++;
+        }
+    }
+    if (i >= text.size()) return -1;
+    char* end = nullptr;
+    const long octave = std::strtol(text.c_str() + i, &end, 10);
+    if (end == text.c_str() + i) return -1;
+    // 科学音高记法：C4 = MIDI 60
+    const int midi = static_cast<int>((octave + 1) * 12 + semitone + accidental);
+    if (midi < 0 || midi > 127) return -1;
+    return midi;
+}
+
+InsTags ParseInstrumentTags(const std::string& name) {
+    InsTags t;
+    t.full = name;
+    // 基名 = 第一个参数标签之前的部分（ch5ins1-BD3-note:B2 → ch5ins1 之后到 -note 之前全算名字）
+    {
+        const size_t firstColon = name.find(':');
+        if (firstColon == std::string::npos) {
+            t.base = name;
+        } else {
+            // 从冒号往回到上一个 '-' 或空格，那里就是参数的起点
+            size_t k = firstColon;
+            while (k > 0 && name[k - 1] != '-' && name[k - 1] != ' ') k--;
+            size_t end = k;
+            while (end > 0 && (name[end - 1] == '-' || name[end - 1] == ' ')) end--;
+            t.base = name.substr(0, end);
+        }
+    }
+    // 已知的参数名。value 的结束点除了空格，还包括「'-' + 已知参数名 + ':'」，
+    // 否则 note:B2-vol:15 会把后面整串都当成 B2 的值。
+    auto isKeyAt = [&name](size_t dashPos) {
+        if (dashPos >= name.size() || name[dashPos] != '-') return false;
+        const size_t colon = name.find(':', dashPos + 1);
+        if (colon == std::string::npos) return false;
+        const std::string k = name.substr(dashPos + 1, colon - dashPos - 1);
+        return k == "note" || k == "vol" || k == "noteoff" || k == "link";
+    };
+    size_t i = 0;
+    while (i < name.size()) {
+        const size_t colon = name.find(':', i);
+        if (colon == std::string::npos) break;
+        size_t k = colon;
+        while (k > 0 && name[k - 1] != '-' && name[k - 1] != ' ') k--;
+        const std::string key = name.substr(k, colon - k);
+        size_t v = colon + 1;
+        size_t e = v;
+        while (e < name.size()) {
+            if (name[e] == ' ') break;
+            if (name[e] == '-' && isKeyAt(e)) break;
+            e++;
+        }
+        const std::string val = name.substr(v, e - v);
+
+        if (key == "note") {
+            const int midi = ParseNoteName(val);
+            if (midi >= 0) {
+                t.hasNote = true;
+                t.noteMidi = midi;
+            }
+        } else if (key == "vol") {
+            char* end = nullptr;
+            const long n = std::strtol(val.c_str(), &end, 10);
+            if (end != val.c_str()) {
+                t.hasVol = true;
+                t.vol = n < 0 ? 0 : (n > 15 ? 15 : static_cast<int>(n));
+            }
+        } else if (key == "noteoff") {
+            if (val == "self") t.noteOffSelf = true;
+        } else if (key == "link") {
+            if (!val.empty()) t.linkTo = val;
+        }
+        i = e;
+    }
+    if (t.hasNote) t.noteHz = 440.0 * std::pow(2.0, (t.noteMidi - 69) / 12.0);
+    return t;
+}
+
 }  // namespace vgmstudio

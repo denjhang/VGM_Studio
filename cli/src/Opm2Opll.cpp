@@ -2,6 +2,7 @@
 #include "Opm2Opll.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <map>
@@ -31,6 +32,20 @@ constexpr int kTlPerOpllStep = 4;
 
 constexpr int kDstChannels = 9;
 
+// "ch5ins3-..." → 5（1 基）→ 返回 4（0 基通道号）。解析失败返回 -1。
+int ChannelFromInstrumentName(const std::string& name) {
+    if (name.size() < 3 || name[0] != 'c' || name[1] != 'h') return -1;
+    size_t i = 2;
+    int n = 0;
+    while (i < name.size() && std::isdigit(static_cast<unsigned char>(name[i]))) {
+        n = n * 10 + (name[i] - '0');
+        i++;
+    }
+    if (n <= 0) return -1;
+    return n - 1;
+}
+
+
 OpllBank ParseBank(const std::string& name) {
     if (name == "vrc7") return OpllBank::Vrc7;
     if (name == "ymf281b") return OpllBank::Ymf281b;
@@ -39,8 +54,7 @@ OpllBank ParseBank(const std::string& name) {
 
 // 把 OPM 影子寄存器（0x20..0xFF 的通道部分）读成一个 OPMVoice。
 // 索引与 libvgm 一致：op*8 + ch。
-OpmVoice SnapshotOpmVoice(const uint8_t shadow[256], int ch) {
-    OpmVoice v;
+OpmVoice SnapshotOpmVoice(const uint8_t shadow[256], int ch) {    OpmVoice v;
     v.fb = (shadow[0x20 + ch] >> 3) & 7;
     v.con = shadow[0x20 + ch] & 7;
     v.pms = (shadow[0x38 + ch] >> 4) & 7;
@@ -215,6 +229,9 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
     // （导出时就是按 ch1ins1, ch1ins2, ch2ins1… 的顺序追加的）。
     // 用户在 Furnace 里给乐器改名后，靠它仍能对上。
     int furVoiceSeq = 0;
+    // 每个目标音符用的是哪个乐器基名（chXinsY）。link:X 只在该乐器真正发声的
+    // 那些音符上联动，不能把整条通道的音符都算进去（鼓通道里有 4 个音色）。
+    std::map<int, std::map<uint32_t, std::string>> noteVoiceOfChannel;
     for (int ch = 0; ch < kSrcChannels && ch < static_cast<int>(src.channels.size()); ch++) {
         const Channel& sc = src.channels[ch];
         uint8_t shadow[256] = {0};
@@ -238,6 +255,8 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
         std::map<uint64_t, int> voiceOrdinal;
         std::map<uint64_t, OpllMatch> voiceProgram;  // 音色 → 首次匹配结果（含 program/volume/octave）
         std::map<uint64_t, FuiVoice> voiceFui;       // 音色 → 用户改过的 .fui（含宏）
+        std::map<uint64_t, InsTags> voiceTags;       // 音色 → 乐器名里的参数标签
+        std::map<uint64_t, std::string> voiceFurName; // 音色 → 匹配到的 .fur 乐器全名
         // 该通道的 key 位当前是否置位。legato 切块（KC 跳变产生，源里没有 key 事件）
         // 必须沿用上一块的状态，否则会凭空产生一次 key-off + key-on。
         bool keyDown = false;
@@ -301,6 +320,10 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                             m.program = editedVoice.opllPreset;
                         }
                         usedEdited = true;
+                        // ★ 乐器名里可以带参数（note:B2 / vol:15 / noteoff:self /
+                        //   link:ch5ins3），与音色一起缓存，后面每个音符都用得上。
+                        voiceTags[vh] = ParseInstrumentTags(fi->name);
+                        voiceFurName[vh] = fi->name;
                         out.furApplied.push_back(matchedByName
                                                      ? fi->name
                                                      : (fi->name + " (按序号)"));
@@ -355,11 +378,29 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             }
         have_match:
 
+            // 乐器名里写在 .fur 上的参数（note:/vol:/noteoff:/link:）
+            InsTags tags;
+            {
+                auto tit = voiceTags.find(vh);
+                if (tit != voiceTags.end()) tags = tit->second;
+            }
+            // 目标音色（含宏）提前取出来：noteoff:self 要按宏的长度算音符时长。
+            const FuiVoice* voicePtr = nullptr;
+            {
+                auto fit = voiceFui.find(vh);
+                if (fit != voiceFui.end()) voicePtr = &fit->second;
+            }
 
             const int carrierTl = CarrierMinTL(shadow, ch, opm.con);
             // TL（0.7526 dB/单位）→ OPLL 衰减 nibble（3.01 dB/步）＝ ÷4。
             // m.volumeOffset / volumeOffsetBias 是 nibble 单位，直接叠加。
-            int vol = TlvToOpllVolume(carrierTl) + m.volumeOffset + opt.volumeOffsetBias;
+            // ★ 名称里写了 vol:N 就以它为准，完全不看源音量。
+            //   N 走 Furnace 的音量语义（0=静音，15=最响），而 `vol` 这个变量
+            //   是 0x30 的衰减 nibble（0=最响），所以要 15-N 转换。
+            int vol = tags.hasVol
+                          ? 15 - tags.vol
+                          : TlvToOpllVolume(carrierTl) + m.volumeOffset +
+                                opt.volumeOffsetBias;
             vol = std::max(0, std::min(15, vol));
 
             // 音高：KC/KF → Hz → OPLL block/fnum
@@ -371,13 +412,20 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 opt.transposeSemitones != 0
                     ? std::pow(2.0, opt.transposeSemitones / 12.0)
                     : 1.0;
-            const double freq = OpmKcKfToFreq(kc, kf, clockRatio) * transposeRatio;
+            // ★ 名称里写了 note:X 时，X 就是目标芯片上的**最终音高**：
+            //   不读源 KC/KF、不做 ML 八度补偿、不叠加 --transpose。
+            //   源里的滑音/颤音也不再跟随——那部分由 2413 侧的音色宏负责。
+            const double srcFreq =
+                tags.hasNote ? tags.noteHz : OpmKcKfToFreq(kc, kf, clockRatio);
+            const double freq = tags.hasNote ? srcFreq : srcFreq * transposeRatio;
             const OpllFnum fn = FreqToOpllFnum(freq, opt.targetClock);
             // 八度补偿：源的载波 ML 与目标 ROM 的载波 ML 不同，
             // 实际发声基频就差 log2(ML比) 个八度，必须加回 block。
             // （vgm-conv 的 `floor(log2(ratio)/2)` 少了一个因子 2，见 FmVoice.cpp 注释）
-            const int octaveOffset = MlRatioToOctave(OpmCarrierMl(shadow, ch),
-                                                     OpllCarrierMl(m.program));
+            const int octaveOffset = tags.hasNote
+                                         ? 0
+                                         : MlRatioToOctave(OpmCarrierMl(shadow, ch),
+                                                           OpllCarrierMl(m.program));
             const int blkO = std::min(7, std::max(0, static_cast<int>(fn.block) + octaveOffset));
             const uint8_t dhBase = static_cast<uint8_t>((blkO << 1) | ((fn.fnum >> 8) & 1));
 
@@ -401,6 +449,25 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                              [](const auto& a, const auto& b) { return a.first < b.first; });
             const bool hadKeyOff = !keyEvents.empty() && !keyEvents.back().second;
             (void)hadKeyOff;
+
+            // ★ noteoff:self —— 不用源的 key-off，让宏完整播完再 off。
+            //   鼓类（BD/HH/SD）就是这种：源的 key-off 时刻会把宏的衰减尾巴截断。
+            //   时长按 MacroActiveTicks 折算成采样数，音符终点跟着延长。
+            uint32_t selfOffSample = 0;
+            if (tags.noteOffSelf && voicePtr != nullptr) {
+                const int macroTicks = MacroActiveTicks(*voicePtr);
+                const int rate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
+                const double perTick = static_cast<double>(rate) / (tickRate > 0 ? tickRate : 60);
+                selfOffSample = n.startSample +
+                                static_cast<uint32_t>(macroTicks * perTick + 0.5);
+                // 源的 key-off 全部丢掉，只保留起点那次 key-on
+                keyEvents.erase(std::remove_if(keyEvents.begin(), keyEvents.end(),
+                                               [](const std::pair<uint32_t, bool>& e) {
+                                                   return !e.second;
+                                               }),
+                                keyEvents.end());
+                dn.endSample = std::max(dn.endSample, selfOffSample);
+            }
 
             // 先把落在音符起点及之前的 key 事件结清，起点段才知道 key 位该是什么。
             const bool keyDownBefore = keyDown;
@@ -452,7 +519,9 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             int curKf = kf;
             int lastFnumLow = fn.fnumLow;
             int lastFnumHigh = dhBase;
+            // ★ note:X 的音高是固定的，源里的滑音/颤音一律不跟（由 2413 的宏替代）。
             for (const Segment& s : n.segments) {
+                if (tags.hasNote) break;
                 if (s.atSample <= n.startSample) continue;
                 bool pitchMoved = false;
                 for (const RegValue& r : s.regs) {
@@ -507,8 +576,11 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             }
 
             // 音符中间若源 TL 变化，跟随写 0x30（值变了才写）
+            // ★ 名称里写了 vol:N（或 noteoff:self 的音符），音量由名称/宏决定，
+            //   不再跟随源 TL。
             int lastVol = vol;
             for (const Segment& s : n.segments) {
+                if (tags.hasVol || tags.noteOffSelf) break;
                 if (s.atSample <= n.startSample) continue;
                 for (const RegValue& r : s.regs) {
                     if (r.reg < 0x60 || r.reg > 0x7F) continue;
@@ -539,9 +611,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             if (opt.runMacros) {
                 // 只认目标侧（ym2413.fui）的宏：宏的语义是芯片相关的，
                 // 源侧 OPM 的宏不能套到 OPLL 上。
-                const FuiVoice* fv = nullptr;
-                auto fit = voiceFui.find(vh);
-                if (fit != voiceFui.end()) fv = &fit->second;
+                const FuiVoice* fv = voicePtr;
                 if (fv != nullptr && HasAnyMacro(*fv)) {
                     MacroExpandInput mi;
                     mi.ch = ch;
@@ -553,7 +623,10 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     //   反向衰减：vol=2 会变成 15-2=13 的衰减（几乎没声）。
                     mi.baseVol = 15 - vol;
                     mi.startSample = n.startSample;
-                    mi.endSample = n.endSample;
+                    // noteoff:self：宏要完整播完，不能被源的音符终点截断。
+                    mi.endSample = tags.noteOffSelf && selfOffSample > n.startSample
+                                       ? selfOffSample
+                                       : n.endSample;
                     mi.sampleRate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
                     mi.tickRate = tickRate;
                     // ★ 宏只在真实 key-on 启动一次。legato 块（源里无 key 事件）
@@ -644,8 +717,24 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             // 重放里按原时刻写进 0x20，重放结束后 keyDown 就是源的真实状态。
             // legato 切块到这里 keyDown 仍为 true（源里从未 key-off），
             // 不补写 —— 补写就会把同一个音切成两段独立起音。
+            //
+            // ★ noteoff:self：把上面丢掉的源 key-off 换成「宏播完再 off」。
+            if (tags.noteOffSelf && selfOffSample > n.startSample) {
+                Segment seg;
+                seg.atSample = selfOffSample;
+                seg.regs.push_back(Rv(0x20 + ch,
+                                      static_cast<uint8_t>(dhBase)));  // key 位清零
+                dn.segments.push_back(seg);
+                keyDown = false;
+            }
 
             dc.notes.push_back(dn);
+            // link:X 要知道「哪个音符属于哪个 .fur 乐器」，按 (通道, 起点) 记一份。
+            {
+                auto nit = voiceFurName.find(vh);
+                if (nit != voiceFurName.end())
+                    noteVoiceOfChannel[ch][n.startSample] = nit->second;
+            }
             out.notesConverted++;
             NoteConvertReport rep;
             rep.sourceChannel = ch;
@@ -658,6 +747,183 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             rep.kf = kf;
             rep.freqHz = freq;
             out.reports.push_back(rep);
+        }
+
+        // ★ noteoff:self 把音符拉长到宏播完，可能越过下一个音符的起点。
+        //   OPLL 同一通道不能同时发两个音（后一个 key-on 会直接抢走前一个），
+        //   所以把前一个音符裁到下个音符起点：宏的尾巴本来就是渐弱，
+        //   提前几毫秒 off 听不出来，但能保证每个鼓点都真的重新起音。
+        for (size_t i = 0; i + 1 < sc.notes.size(); i++) {
+            Note& cur = doc.channels[ch].notes[i];
+            const Note& nxt = doc.channels[ch].notes[i + 1];
+            if (cur.endSample > nxt.startSample) {
+                cur.endSample = nxt.startSample;
+                // 该块的收尾 key-off 也要跟着前移（如果它落在裁剪区之外）
+                for (Segment& seg : cur.segments) {
+                    if (seg.atSample > cur.endSample) seg.atSample = cur.endSample;
+                }
+                std::stable_sort(cur.segments.begin(), cur.segments.end(),
+                                 [](const Segment& a, const Segment& b) {
+                                     return a.atSample < b.atSample;
+                                 });
+            }
+        }
+    }
+
+    // ── link:X 联动 ───────────────────────────────────────────────────
+    // 名字里带 link:chNinsM 的乐器（通常挂在第 9 通道这个空位上）是「联动音色」：
+    // 目标乐器每次击发时，它也在同一采样点、同样时长地一起击发。
+    //
+    // 这里取的不是目标乐器的参数，而是**联动音色自己的**音色/音量/宏——
+    // 它的价值就在于叠加一个不同的层次（例如 SD2 底鼓层之上再叠一层 HF）。
+    // 音高与 key 时机沿用目标音符（那已经换算成 OPLL 的 fnum/block 了），
+    // 音色与包络按联动音色重新展开。
+    if (haveFur) {
+        for (const FurInstrument& fi : fur.instruments) {
+            if (fi.type != kFuiInsOpll) continue;
+            const InsTags ltags = ParseInstrumentTags(fi.name);
+            if (ltags.linkTo.empty()) continue;
+            const int dstCh = ChannelFromInstrumentName(fi.name);
+            const int srcCh = ChannelFromInstrumentName(ltags.linkTo);
+            if (dstCh < 0 || dstCh >= static_cast<int>(doc.channels.size())) continue;
+            if (srcCh < 0 || srcCh >= static_cast<int>(doc.channels.size())) continue;
+            if (srcCh == dstCh) continue;
+
+            Channel& dc = doc.channels[dstCh];
+            const std::vector<Note> source = doc.channels[srcCh].notes;
+            // 只联动「确实用了 link:X 指定乐器」的那些音符。鼓通道上同时有
+            // BD/hh/SD/pad2 四个音色，不筛就会把整条通道都复制一遍。
+            auto nvIt = noteVoiceOfChannel.find(srcCh);
+            for (const Note& sn : source) {
+                if (nvIt != noteVoiceOfChannel.end()) {
+                    auto vIt = nvIt->second.find(sn.startSample);
+                    if (vIt == nvIt->second.end()) continue;
+                    const InsTags srcTags = ParseInstrumentTags(vIt->second);
+                    if (srcTags.base.compare(0, ltags.linkTo.size(), ltags.linkTo) != 0) continue;
+                }
+                Note n;
+                n.id = static_cast<int>(dc.notes.size());
+                n.startSample = sn.startSample;
+                n.endSample = sn.endSample;
+
+                // ① 音高与 key 轨迹：沿用目标音符的 0x10/0x20，只改通道号。
+                for (const Segment& seg : sn.segments) {
+                    Segment out;
+                    out.atSample = seg.atSample;
+                    for (const RegValue& r : seg.regs) {
+                        if (r.reg >= 0x10 && r.reg <= 0x18) {
+                            out.regs.push_back(Rv(static_cast<uint8_t>(0x10 + dstCh), r.val));
+                        } else if (r.reg >= 0x20 && r.reg <= 0x28) {
+                            // 高 4 位是 sus/pan 之类的通道位，低 4 位是 block/fnum 高位；
+                            // 只换通道地址，值原样保留（含 key 位）。
+                            out.regs.push_back(Rv(static_cast<uint8_t>(0x20 + dstCh), r.val));
+                        }
+                    }
+                    if (!out.regs.empty()) n.segments.push_back(out);
+                }
+                if (n.segments.empty()) continue;
+
+                // ② 音色与音量：联动音色自己的 preset + vol。
+                const int program = fi.voice.opllPreset;
+                // 同主循环：vol:N 是 Furnace 音量语义（15=最响），转成 0x30 的衰减 nibble。
+                int vol = ltags.hasVol ? 15 - ltags.vol : 0;
+                vol = std::max(0, std::min(15, vol));
+                // 起点补一条 0x30（音色号 + 音量），与主循环的写法一致。
+                {
+                    Segment seg;
+                    seg.atSample = n.startSample;
+                    seg.regs.push_back(
+                        Rv(static_cast<uint8_t>(0x30 + dstCh),
+                           static_cast<uint8_t>((program << 4) | vol)));
+                    n.segments.insert(n.segments.begin(), seg);
+                }
+
+                // ③ noteoff:self：延长到宏播完，再补 key-off。
+                uint32_t offAt = 0;
+                if (ltags.noteOffSelf) {
+                    const int ticks = MacroActiveTicks(fi.voice);
+                    const int rate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
+                    const double perTick = static_cast<double>(rate) / (tickRate > 0 ? tickRate : 60);
+                    offAt = n.startSample + static_cast<uint32_t>(ticks * perTick + 0.5);
+                    n.endSample = std::max(n.endSample, offAt);
+                }
+
+                // ④ 宏：按联动音色重新展开，时间窗与目标音符相同。
+                if (opt.runMacros && HasAnyMacro(fi.voice)) {
+                    MacroExpandInput mi;
+                    mi.ch = dstCh;
+                    mi.baseVol = 15 - vol;
+                    mi.startSample = n.startSample;
+                    mi.endSample = ltags.noteOffSelf ? n.endSample : sn.endSample;
+                    mi.sampleRate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
+                    mi.tickRate = tickRate;
+                    mi.releaseAtEnd = true;
+                    mi.opll = true;
+                    mi.opllPreset = program;
+                    const MacroExpandOutput mo = ExpandMacros(fi.voice, mi);
+                    for (const MacroWrite& w : mo.writes) {
+                        Segment seg;
+                        seg.atSample = w.atSample;
+                        seg.regs.push_back(Rv(w.reg, w.val));
+                        n.segments.push_back(seg);
+                    }
+                    for (const MacroPitch& p : mo.pitches) {
+                        if (p.offset128 == 0) continue;
+                        // 在联动通道的基准音高上叠偏移：直接改该点的 fnum。
+                        // 基准取目标音符起点的 fnum/block。
+                        int baseFnumLow = 0, baseDh = 0;
+                        for (const Segment& seg : n.segments) {
+                            if (seg.atSample > n.startSample) break;
+                            for (const RegValue& r : seg.regs) {
+                                if (r.reg == 0x10 + dstCh) baseFnumLow = r.val;
+                                if (r.reg == 0x20 + dstCh) baseDh = r.val & 0x0F;
+                            }
+                        }
+                        const double semi = p.offset128 / 128.0;
+                        const int blk = (baseDh >> 1) & 7;
+                        const int fnum = (baseFnumLow | ((baseDh & 1) << 8));
+                        const double f = static_cast<double>(fnum) *
+                                         std::pow(2.0, blk) * std::pow(2.0, semi / 12.0);
+                        int nf = static_cast<int>(f);
+                        int nb = 0;
+                        while (nf > 511) {
+                            nf >>= 1;
+                            nb++;
+                        }
+                        if (nb > 7) { nb = 7; if (nf > 255) nf = 255; }
+                        Segment seg;
+                        seg.atSample = p.atSample;
+                        seg.regs.push_back(Rv(static_cast<uint8_t>(0x10 + dstCh),
+                                              static_cast<uint8_t>(nf & 0xFF)));
+                        seg.regs.push_back(Rv(static_cast<uint8_t>(0x20 + dstCh),
+                                              static_cast<uint8_t>(((nb & 7) << 1) |
+                                                                   ((nf >> 8) & 1) | 0x10)));
+                        n.segments.push_back(seg);
+                    }
+                }
+
+                // ⑤ noteoff:self 的收尾 key-off（宏跑完才 off）
+                if (offAt > 0) {
+                    Segment seg;
+                    seg.atSample = offAt;
+                    uint8_t dh = 0;
+                    for (const Segment& s2 : n.segments) {
+                        if (s2.atSample > offAt) break;
+                        for (const RegValue& r : s2.regs)
+                            if (r.reg == 0x20 + dstCh) dh = r.val & 0x0F;
+                    }
+                    seg.regs.push_back(Rv(static_cast<uint8_t>(0x20 + dstCh), dh));
+                    n.segments.push_back(seg);
+                }
+
+                std::stable_sort(n.segments.begin(), n.segments.end(),
+                                 [](const Segment& a, const Segment& b) {
+                                     return a.atSample < b.atSample;
+                                 });
+                dc.notes.push_back(n);
+                out.notesConverted++;
+            }
+            out.linkApplied.push_back(fi.name + " -> " + ltags.linkTo);
         }
     }
 

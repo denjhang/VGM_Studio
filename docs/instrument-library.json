@@ -1948,11 +1948,7 @@
       "fb": 3,
       "fingerprint": "b948f06873152e69",
       "fms": 0,
-      "gm": {
-        "fullName": "Square Pad",
-        "gmName": "Lead 1 (square)",
-        "gmProgram": 81
-      },
+      "gm": null,
       "index": 19,
       "macros": [
         {
@@ -1966,9 +1962,21 @@
             0,
             15
           ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            10,
+            5
+          ]
         }
       ],
-      "name": "ch1ins1-pad sq",
+      "name": "ch1ins1-light pad sq",
       "operators": [
         {
           "am": 0,
@@ -2476,7 +2484,19 @@
         "gmProgram": 39
       },
       "index": 26,
-      "macros": [],
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 1,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            -12
+          ]
+        }
+      ],
       "name": "ch4ins1-synth bass",
       "operators": [
         {
@@ -2619,11 +2639,7 @@
       "fb": 7,
       "fingerprint": "fbeb787c1c42118d",
       "fms": 0,
-      "gm": {
-        "fullName": "Bass Drum",
-        "gmName": "Bass Drum 1",
-        "gmPercussionNote": 36
-      },
+      "gm": null,
       "index": 28,
       "macros": [
         {
@@ -2704,7 +2720,7 @@
           ]
         }
       ],
-      "name": "ch5ins1-bd",
+      "name": "ch5ins1-BD3-note:B2-vol:13-noteoff:self",
       "operators": [
         {
           "am": 0,
@@ -2775,11 +2791,11 @@
           "type": 0,
           "values": [
             0,
-            10,
-            8,
-            5,
+            15,
+            12,
+            9,
+            6,
             3,
-            2,
             0
           ]
         },
@@ -2796,7 +2812,7 @@
           ]
         }
       ],
-      "name": "ch5ins2-hh",
+      "name": "ch5ins2-hh-note:C8-noteoff:self",
       "operators": [
         {
           "am": 0,
@@ -2851,11 +2867,7 @@
       "fb": 7,
       "fingerprint": "fbeb787c1c42118d",
       "fms": 0,
-      "gm": {
-        "fullName": "Snare Drum",
-        "gmName": "Acoustic Snare",
-        "gmPercussionNote": 38
-      },
+      "gm": null,
       "index": 30,
       "macros": [
         {
@@ -2866,16 +2878,16 @@
           "speed": 1,
           "type": 0,
           "values": [
-            12,
+            0,
+            15,
+            15,
             15,
             14,
-            12,
+            13,
+            11,
             9,
             6,
-            3,
-            2,
-            1,
-            1,
+            0,
             0,
             0,
             0,
@@ -2924,20 +2936,21 @@
         },
         {
           "delay": 0,
-          "loop": 255,
+          "loop": 13,
           "macro": 3,
           "rel": 255,
           "speed": 1,
           "type": 0,
           "values": [
-            8,
+            10,
             4,
-            4,
-            4
+            5,
+            12,
+            8
           ]
         }
       ],
-      "name": "ch5ins3-sd",
+      "name": "ch5ins3-OPLL-SD2-note:B3",
       "operators": [
         {
           "am": 0,
@@ -3229,9 +3242,9 @@
       "fingerprint": "b948f06873152e69",
       "fms": 0,
       "gm": {
-        "fullName": "Sine Pad",
-        "gmName": "Pad 1 (new age)",
-        "gmProgram": 89
+        "fullName": "Square Pad 2",
+        "gmName": "Lead 1 (square)",
+        "gmProgram": 81
       },
       "index": 34,
       "macros": [
@@ -3255,12 +3268,12 @@
           "speed": 1,
           "type": 0,
           "values": [
-            4,
+            14,
             5
           ]
         }
       ],
-      "name": "ch7ins1-pad sine",
+      "name": "ch7ins1-pad sq2",
       "operators": [
         {
           "am": 0,
@@ -3403,9 +3416,9 @@
       "fingerprint": "b948f06873152e69",
       "fms": 0,
       "gm": {
-        "fullName": "Square Pad 2",
-        "gmName": "Lead 1 (square)",
-        "gmProgram": 81
+        "fullName": "Sine Pad",
+        "gmName": "Pad 1 (new age)",
+        "gmProgram": 89
       },
       "index": 36,
       "macros": [
@@ -3429,12 +3442,12 @@
           "speed": 1,
           "type": 0,
           "values": [
-            14,
+            4,
             5
           ]
         }
       ],
-      "name": "ch8ins1-pad sq2",
+      "name": "ch8ins1-pad sine",
       "operators": [
         {
           "am": 0,
@@ -3567,6 +3580,111 @@
       "opllPreset": 12,
       "ops": 2,
       "signature": "t13;preset12;alg0;fb3;fms0;ams0;ops2|0:1,9,15,1,12,0,0,0,0,0,0,0,2,0,0,2|1:1,0,14,4,1,3,0,0,0,0,0,0,0,0,0,2",
+      "type": 13
+    },
+    {
+      "alg": 0,
+      "ams": 0,
+      "chip": "YM2413",
+      "fb": 7,
+      "fingerprint": "8a233a658b948e1c",
+      "fms": 0,
+      "gm": null,
+      "index": 38,
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 8,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15,
+            14,
+            13,
+            11,
+            9,
+            7,
+            3,
+            0,
+            0
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            5,
+            4
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 0,
+          "macro": 4,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            72,
+            106,
+            78,
+            92
+          ]
+        }
+      ],
+      "name": "ch9ins1-SD2-HF-link:ch5ins3-vol:13-noteoff:self",
+      "operators": [
+        {
+          "am": 0,
+          "ar": 15,
+          "dr": 3,
+          "dt": 0,
+          "dt2": 0,
+          "egt": 0,
+          "enable": true,
+          "index": 0,
+          "ksl": 0,
+          "ksr": 0,
+          "kvs": 2,
+          "mult": 1,
+          "rr": 15,
+          "sl": 15,
+          "sus": 0,
+          "tl": 27,
+          "vib": 0,
+          "ws": 0
+        },
+        {
+          "am": 0,
+          "ar": 15,
+          "dr": 3,
+          "dt": 6,
+          "dt2": 0,
+          "egt": 0,
+          "enable": true,
+          "index": 1,
+          "ksl": 0,
+          "ksr": 0,
+          "kvs": 2,
+          "mult": 1,
+          "rr": 15,
+          "sl": 15,
+          "sus": 0,
+          "tl": 0,
+          "vib": 0,
+          "ws": 0
+        }
+      ],
+      "opllPreset": 2,
+      "ops": 2,
+      "signature": "t13;preset2;alg0;fb7;fms0;ams0;ops2|0:1,27,15,3,15,15,0,0,0,0,0,0,0,0,0,2|1:1,0,15,3,15,15,6,0,0,0,0,0,0,0,0,2",
       "type": 13
     }
   ],

@@ -22,7 +22,8 @@ out/
 ├── v8/                          ← 修 baseVol 极性（音量域 vs 衰减域）
 ├── v9/                          ← 宏只在真实 key-on 启动一次
 ├── v10/                         ← TL→nibble 改 round(TL/4)，voff 仍是 1
-└── v11/                         ← ★ 当前版本：voff 归零，整曲音量与源对齐
+├── v11/                         ← voff 归零，整曲音量与源对齐
+└── v12/                         ← ★ 当前版本：乐器名参数 note:/vol:/noteoff:/link: 生效
 ```
 
 `.fui` 在根下是**当前工作副本**；每个版本目录里另存一份**当时的快照**。
@@ -68,7 +69,8 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 | `v8/` | 修 `baseVol = 15 - vol`，音量回到源的水平 | **块边界静音一拍、arp 重扫（宏被重启动）** |
 | `v9/` | 宏只在真实 key-on 启动一次（`skipTicks` + `releaseAtEnd`） | 音量用 `tl>>3`，动态范围被压扁 |
 | `v10/` | TL→nibble 改成 `round(TL/4)` | `volumeOffset` 仍是 1，整曲偏轻 3 dB |
-| `v11/` | `volumeOffset` 基准改回 0，整曲 RMS 与源对齐 | 当前版本 |
+| `v11/` | `volumeOffset` 基准改回 0，整曲 RMS 与源对齐 | — |
+| `v12/` | **乐器名参数**：`note:` 锁音高、`vol:` 锁音量、`noteoff:self` 宏播完才 off、`link:` 联动第 9 通道 | 当前版本 |
 
 ## 完整重跑（写进新版本目录）
 
@@ -76,7 +78,7 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 cd E:/working/zcode-projects/VGM_Studio
 B=cli/build
 V="vgm/Spindizzy_II_(Sharp_X68000)/31 Grass Maze.vgm"
-NEW=out/v11     # ← 每次换新名字，不要复用
+NEW=out/v12     # ← 每次换新名字，不要复用
 mkdir -p "$NEW"
 
 # ① 原芯片 VGM → JSON + 源侧音色
@@ -110,10 +112,12 @@ libvgm/build/bin/vgm2wav.exe --loops 1 --fade 3 \
 | 0x00–0x07 用户槽写入 | — | 0 | 0 | **0** |
 | 用到的 ROM 预设 | — | 8 个 | 8 个 | **15 个（1–15 全用到，preset 0 零写入）** |
 | 音符内切 preset 的音符 | — | 0 | 0 | **1737** |
+| `link:` 联动出的音符（FM9） | — | 0 | 0 | **54（= ch5ins3 的音符数）** |
+| `noteoff:self` 音符重叠 | — | — | — | **0** |
 | legato 块边界静音帧 | — | 0 | 0 | **371 → v9 降到 1** |
 | 源动态范围（载波 TL） | 9.8 dB | — | — | 9.6 dB（v11，旧映射 5.9） |
-| 整曲 RMS | −19.0 dBFS | — | — | **−19.0（v11）** |
-| VGM 字节数 | — | 51224 | 63832 | v9 141023 / **v11 143339** |
+| 整曲 RMS | −19.0 dBFS | — | — | −19.0（v11）/ −16.6（v12，多一层联动） |
+| VGM 字节数 | — | 51224 | 63832 | v9 141023 / v11 143339 / **v12 205157** |
 
 ## 四条必须记住的规则
 
