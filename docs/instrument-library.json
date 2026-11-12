@@ -1949,9 +1949,9 @@
       "fingerprint": "b948f06873152e69",
       "fms": 0,
       "gm": {
-        "fullName": "Pad",
-        "gmName": "Pad 1 (new age)",
-        "gmProgram": 89
+        "fullName": "Square Pad",
+        "gmName": "Lead 1 (square)",
+        "gmProgram": 81
       },
       "index": 19,
       "macros": [
@@ -1968,7 +1968,7 @@
           ]
         }
       ],
-      "name": "ch1ins1",
+      "name": "ch1ins1-pad sq",
       "operators": [
         {
           "am": 0,
@@ -2024,13 +2024,13 @@
       "fingerprint": "e213096f8b505662",
       "fms": 0,
       "gm": {
-        "fullName": "Celesta",
-        "gmName": "Celesta",
-        "gmProgram": 9
+        "fullName": "Vibraphone",
+        "gmName": "Vibraphone",
+        "gmProgram": 12
       },
       "index": 20,
       "macros": [],
-      "name": "ch1ins2",
+      "name": "ch1ins2-vibraphone",
       "operators": [
         {
           "am": 0,
@@ -2092,7 +2092,7 @@
       },
       "index": 21,
       "macros": [],
-      "name": "ch2ins1",
+      "name": "ch2ins1-trumpet",
       "operators": [
         {
           "am": 0,
@@ -2148,13 +2148,38 @@
       "fingerprint": "e213096f8b505662",
       "fms": 0,
       "gm": {
-        "fullName": "Vibraphone",
+        "fullName": "Clean Vibraphone",
         "gmName": "Vibraphone",
         "gmProgram": 12
       },
       "index": 22,
-      "macros": [],
-      "name": "ch2ins2-vib",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            5,
+            12
+          ]
+        }
+      ],
+      "name": "ch2ins2-clean vibraphone",
       "operators": [
         {
           "am": 0,
@@ -2207,7 +2232,7 @@
       "ams": 0,
       "chip": "YM2413",
       "fb": 0,
-      "fingerprint": "8a43a9e9b36fbedf",
+      "fingerprint": "203029e11972d7d3",
       "fms": 0,
       "gm": {
         "fullName": "Trumpet",
@@ -2216,7 +2241,7 @@
       },
       "index": 23,
       "macros": [],
-      "name": "ch3ins1",
+      "name": "ch3ins1-trum",
       "operators": [
         {
           "am": 0,
@@ -2259,9 +2284,9 @@
           "ws": 0
         }
       ],
-      "opllPreset": 3,
+      "opllPreset": 7,
       "ops": 2,
-      "signature": "t13;preset3;alg0;fb0;fms0;ams0;ops2|0:3,25,15,2,2,1,0,0,1,0,0,0,2,0,0,2|1:1,0,13,4,2,3,0,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset7;alg0;fb0;fms0;ams0;ops2|0:3,25,15,2,2,1,0,0,1,0,0,0,2,0,0,2|1:1,0,13,4,2,3,0,0,0,0,0,0,0,0,0,2",
       "type": 13
     },
     {
@@ -2269,16 +2294,41 @@
       "ams": 0,
       "chip": "YM2413",
       "fb": 3,
-      "fingerprint": "91795c1a5f0eccbd",
+      "fingerprint": "10239b9037cc9a83",
       "fms": 0,
       "gm": {
-        "fullName": "Shamisen",
-        "gmName": "Shamisen",
-        "gmProgram": 107
+        "fullName": "Clean Electric Guitar",
+        "gmName": "Electric Guitar (clean)",
+        "gmProgram": 28
       },
       "index": 24,
-      "macros": [],
-      "name": "ch3ins2",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            14,
+            11
+          ]
+        }
+      ],
+      "name": "ch3ins2-clean guitar",
       "operators": [
         {
           "am": 0,
@@ -2321,9 +2371,9 @@
           "ws": 0
         }
       ],
-      "opllPreset": 15,
+      "opllPreset": 2,
       "ops": 2,
-      "signature": "t13;preset15;alg0;fb3;fms0;ams0;ops2|0:1,9,15,1,12,0,0,0,0,0,0,0,2,0,0,2|1:1,0,14,4,1,3,0,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset2;alg0;fb3;fms0;ams0;ops2|0:1,9,15,1,12,0,0,0,0,0,0,0,2,0,0,2|1:1,0,14,4,1,3,0,0,0,0,0,0,0,0,0,2",
       "type": 13
     },
     {
@@ -2334,13 +2384,38 @@
       "fingerprint": "91795c1a5f0eccbd",
       "fms": 0,
       "gm": {
-        "fullName": "Shamisen",
-        "gmName": "Shamisen",
-        "gmProgram": 107
+        "fullName": "Electric Guitar",
+        "gmName": "Electric Guitar (jazz)",
+        "gmProgram": 27
       },
       "index": 25,
-      "macros": [],
-      "name": "ch3ins3",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            2,
+            11
+          ]
+        }
+      ],
+      "name": "ch3ins3-guitar",
       "operators": [
         {
           "am": 0,
@@ -2396,13 +2471,13 @@
       "fingerprint": "47ed160944acebc3",
       "fms": 0,
       "gm": {
-        "fullName": "Acid Bass",
+        "fullName": "Synth Bass",
         "gmName": "Synth Bass 1",
         "gmProgram": 39
       },
       "index": 26,
       "macros": [],
-      "name": "ch4ins1",
+      "name": "ch4ins1-synth bass",
       "operators": [
         {
           "am": 0,
@@ -2458,13 +2533,38 @@
       "fingerprint": "91795c1a5f0eccbd",
       "fms": 0,
       "gm": {
-        "fullName": "Shamisen",
-        "gmName": "Shamisen",
-        "gmProgram": 107
+        "fullName": "Clean Electric Guitar 2",
+        "gmName": "Electric Guitar (clean)",
+        "gmProgram": 28
       },
       "index": 27,
-      "macros": [],
-      "name": "ch4ins2",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            3,
+            11
+          ]
+        }
+      ],
+      "name": "ch4ins2-clean guitar2",
       "operators": [
         {
           "am": 0,
@@ -2516,8 +2616,8 @@
       "alg": 0,
       "ams": 0,
       "chip": "YM2413",
-      "fb": 5,
-      "fingerprint": "c5e05bfe922f346f",
+      "fb": 7,
+      "fingerprint": "fbeb787c1c42118d",
       "fms": 0,
       "gm": {
         "fullName": "Bass Drum",
@@ -2525,34 +2625,112 @@
         "gmPercussionNote": 36
       },
       "index": 28,
-      "macros": [],
-      "name": "ch5ins1",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15,
+            15,
+            15,
+            15,
+            15,
+            15,
+            15,
+            13,
+            10,
+            8,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 1,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            -5,
+            -10,
+            -14,
+            -17,
+            -20,
+            -23,
+            -26,
+            -28,
+            -30,
+            -32,
+            -34,
+            -36,
+            -37,
+            -38,
+            -39,
+            -41
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            10,
+            4,
+            6
+          ]
+        }
+      ],
+      "name": "ch5ins1-bd",
       "operators": [
         {
           "am": 0,
-          "ar": 13,
-          "dr": 8,
+          "ar": 15,
+          "dr": 3,
           "dt": 0,
           "dt2": 0,
           "egt": 0,
           "enable": true,
           "index": 0,
           "ksl": 0,
-          "ksr": 1,
+          "ksr": 0,
           "kvs": 2,
-          "mult": 3,
-          "rr": 3,
-          "sl": 2,
+          "mult": 1,
+          "rr": 15,
+          "sl": 15,
           "sus": 0,
-          "tl": 26,
+          "tl": 27,
           "vib": 0,
-          "ws": 1
+          "ws": 0
         },
         {
           "am": 0,
-          "ar": 15,
-          "dr": 7,
-          "dt": 0,
+          "ar": 8,
+          "dr": 3,
+          "dt": 6,
           "dt2": 0,
           "egt": 0,
           "enable": true,
@@ -2561,25 +2739,25 @@
           "ksr": 0,
           "kvs": 2,
           "mult": 1,
-          "rr": 3,
-          "sl": 1,
+          "rr": 15,
+          "sl": 15,
           "sus": 0,
           "tl": 0,
           "vib": 0,
           "ws": 0
         }
       ],
-      "opllPreset": 2,
+      "opllPreset": 14,
       "ops": 2,
-      "signature": "t13;preset2;alg0;fb5;fms0;ams0;ops2|0:3,26,13,8,2,3,0,0,1,0,0,0,0,1,0,2|1:1,0,15,7,1,3,0,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset14;alg0;fb7;fms0;ams0;ops2|0:1,27,15,3,15,15,0,0,0,0,0,0,0,0,0,2|1:1,0,8,3,15,15,6,0,0,0,0,0,0,0,0,2",
       "type": 13
     },
     {
       "alg": 0,
       "ams": 0,
       "chip": "YM2413",
-      "fb": 5,
-      "fingerprint": "c5e05bfe922f346f",
+      "fb": 7,
+      "fingerprint": "8a233a658b948e1c",
       "fms": 0,
       "gm": {
         "fullName": "Hi-Hat",
@@ -2587,34 +2765,64 @@
         "gmPercussionNote": 42
       },
       "index": 29,
-      "macros": [],
-      "name": "ch5ins2",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            10,
+            8,
+            5,
+            3,
+            2,
+            0
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            11,
+            4
+          ]
+        }
+      ],
+      "name": "ch5ins2-hh",
       "operators": [
         {
           "am": 0,
-          "ar": 13,
-          "dr": 8,
+          "ar": 15,
+          "dr": 3,
           "dt": 0,
           "dt2": 0,
           "egt": 0,
           "enable": true,
           "index": 0,
           "ksl": 0,
-          "ksr": 1,
+          "ksr": 0,
           "kvs": 2,
-          "mult": 3,
-          "rr": 3,
-          "sl": 2,
+          "mult": 1,
+          "rr": 15,
+          "sl": 15,
           "sus": 0,
-          "tl": 26,
+          "tl": 27,
           "vib": 0,
-          "ws": 1
+          "ws": 0
         },
         {
           "am": 0,
           "ar": 15,
-          "dr": 7,
-          "dt": 0,
+          "dr": 3,
+          "dt": 6,
           "dt2": 0,
           "egt": 0,
           "enable": true,
@@ -2623,8 +2831,8 @@
           "ksr": 0,
           "kvs": 2,
           "mult": 1,
-          "rr": 3,
-          "sl": 1,
+          "rr": 15,
+          "sl": 15,
           "sus": 0,
           "tl": 0,
           "vib": 0,
@@ -2633,15 +2841,15 @@
       ],
       "opllPreset": 2,
       "ops": 2,
-      "signature": "t13;preset2;alg0;fb5;fms0;ams0;ops2|0:3,26,13,8,2,3,0,0,1,0,0,0,0,1,0,2|1:1,0,15,7,1,3,0,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset2;alg0;fb7;fms0;ams0;ops2|0:1,27,15,3,15,15,0,0,0,0,0,0,0,0,0,2|1:1,0,15,3,15,15,6,0,0,0,0,0,0,0,0,2",
       "type": 13
     },
     {
       "alg": 0,
       "ams": 0,
       "chip": "YM2413",
-      "fb": 5,
-      "fingerprint": "c5e05bfe922f346f",
+      "fb": 7,
+      "fingerprint": "fbeb787c1c42118d",
       "fms": 0,
       "gm": {
         "fullName": "Snare Drum",
@@ -2649,34 +2857,113 @@
         "gmPercussionNote": 38
       },
       "index": 30,
-      "macros": [],
-      "name": "ch5ins3",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            12,
+            15,
+            14,
+            12,
+            9,
+            6,
+            3,
+            2,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 1,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            -5,
+            -10,
+            -14,
+            -17,
+            -20,
+            -23,
+            -26,
+            -28,
+            -30,
+            -32,
+            -34,
+            -36,
+            -37,
+            -38,
+            -39,
+            -41
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            8,
+            4,
+            4,
+            4
+          ]
+        }
+      ],
+      "name": "ch5ins3-sd",
       "operators": [
         {
           "am": 0,
-          "ar": 13,
-          "dr": 8,
+          "ar": 15,
+          "dr": 3,
           "dt": 0,
           "dt2": 0,
           "egt": 0,
           "enable": true,
           "index": 0,
           "ksl": 0,
-          "ksr": 1,
+          "ksr": 0,
           "kvs": 2,
-          "mult": 3,
-          "rr": 3,
-          "sl": 2,
+          "mult": 1,
+          "rr": 15,
+          "sl": 15,
           "sus": 0,
-          "tl": 26,
+          "tl": 27,
           "vib": 0,
-          "ws": 1
+          "ws": 0
         },
         {
           "am": 0,
-          "ar": 15,
-          "dr": 7,
-          "dt": 0,
+          "ar": 8,
+          "dr": 3,
+          "dt": 6,
           "dt2": 0,
           "egt": 0,
           "enable": true,
@@ -2685,17 +2972,17 @@
           "ksr": 0,
           "kvs": 2,
           "mult": 1,
-          "rr": 3,
-          "sl": 1,
+          "rr": 15,
+          "sl": 15,
           "sus": 0,
           "tl": 0,
           "vib": 0,
           "ws": 0
         }
       ],
-      "opllPreset": 2,
+      "opllPreset": 14,
       "ops": 2,
-      "signature": "t13;preset2;alg0;fb5;fms0;ams0;ops2|0:3,26,13,8,2,3,0,0,1,0,0,0,0,1,0,2|1:1,0,15,7,1,3,0,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset14;alg0;fb7;fms0;ams0;ops2|0:1,27,15,3,15,15,0,0,0,0,0,0,0,0,0,2|1:1,0,8,3,15,15,6,0,0,0,0,0,0,0,0,2",
       "type": 13
     },
     {
@@ -2711,8 +2998,33 @@
         "gmProgram": 90
       },
       "index": 31,
-      "macros": [],
-      "name": "ch5ins4",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            3,
+            13
+          ]
+        }
+      ],
+      "name": "ch5ins4-pad2",
       "operators": [
         {
           "am": 0,
@@ -2768,13 +3080,13 @@
       "fingerprint": "47ed160944acebc3",
       "fms": 0,
       "gm": {
-        "fullName": "Acid Bass",
+        "fullName": "Synth Bass",
         "gmName": "Synth Bass 1",
         "gmProgram": 39
       },
       "index": 32,
       "macros": [],
-      "name": "ch6ins1",
+      "name": "ch6ins1-syn bass",
       "operators": [
         {
           "am": 0,
@@ -2827,16 +3139,41 @@
       "ams": 0,
       "chip": "YM2413",
       "fb": 3,
-      "fingerprint": "91795c1a5f0eccbd",
+      "fingerprint": "10239b9037cc9a83",
       "fms": 0,
       "gm": {
-        "fullName": "Shamisen",
-        "gmName": "Shamisen",
-        "gmProgram": 107
+        "fullName": "Clean Electric Guitar",
+        "gmName": "Electric Guitar (clean)",
+        "gmProgram": 28
       },
       "index": 33,
-      "macros": [],
-      "name": "ch6ins2",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            14,
+            11
+          ]
+        }
+      ],
+      "name": "ch6ins2-clean guitar",
       "operators": [
         {
           "am": 0,
@@ -2879,9 +3216,9 @@
           "ws": 0
         }
       ],
-      "opllPreset": 15,
+      "opllPreset": 2,
       "ops": 2,
-      "signature": "t13;preset15;alg0;fb3;fms0;ams0;ops2|0:1,9,15,1,12,0,0,0,0,0,0,0,2,0,0,2|1:1,0,14,4,1,3,0,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset2;alg0;fb3;fms0;ams0;ops2|0:1,9,15,1,12,0,0,0,0,0,0,0,2,0,0,2|1:1,0,14,4,1,3,0,0,0,0,0,0,0,0,0,2",
       "type": 13
     },
     {
@@ -2889,16 +3226,41 @@
       "ams": 0,
       "chip": "YM2413",
       "fb": 3,
-      "fingerprint": "bd0232348f1c8cc9",
+      "fingerprint": "b948f06873152e69",
       "fms": 0,
       "gm": {
-        "fullName": "Square Pad",
-        "gmName": "Lead 1 (square)",
-        "gmProgram": 81
+        "fullName": "Sine Pad",
+        "gmName": "Pad 1 (new age)",
+        "gmProgram": 89
       },
       "index": 34,
-      "macros": [],
-      "name": "ch7ins1",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            4,
+            5
+          ]
+        }
+      ],
+      "name": "ch7ins1-pad sine",
       "operators": [
         {
           "am": 0,
@@ -2941,9 +3303,9 @@
           "ws": 0
         }
       ],
-      "opllPreset": 14,
+      "opllPreset": 5,
       "ops": 2,
-      "signature": "t13;preset14;alg0;fb3;fms0;ams0;ops2|0:1,21,14,4,0,3,0,0,0,0,0,0,1,0,0,2|1:1,0,9,0,0,2,0,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset5;alg0;fb3;fms0;ams0;ops2|0:1,21,14,4,0,3,0,0,0,0,0,0,1,0,0,2|1:1,0,9,0,0,2,0,0,0,0,0,0,0,0,0,2",
       "type": 13
     },
     {
@@ -2951,16 +3313,41 @@
       "ams": 0,
       "chip": "YM2413",
       "fb": 3,
-      "fingerprint": "91795c1a5f0eccbd",
+      "fingerprint": "e213096f8b505662",
       "fms": 0,
       "gm": {
-        "fullName": "Vibraphone",
+        "fullName": "Light Vibraphone",
         "gmName": "Vibraphone",
         "gmProgram": 12
       },
       "index": 35,
-      "macros": [],
-      "name": "ch7ins2",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            1,
+            12
+          ]
+        }
+      ],
+      "name": "ch7ins2-light vibraphone",
       "operators": [
         {
           "am": 0,
@@ -3003,9 +3390,9 @@
           "ws": 0
         }
       ],
-      "opllPreset": 15,
+      "opllPreset": 12,
       "ops": 2,
-      "signature": "t13;preset15;alg0;fb3;fms0;ams0;ops2|0:1,9,15,1,12,0,0,0,0,0,0,0,2,0,0,2|1:1,0,14,4,1,3,0,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset12;alg0;fb3;fms0;ams0;ops2|0:1,9,15,1,12,0,0,0,0,0,0,0,2,0,0,2|1:1,0,14,4,1,3,0,0,0,0,0,0,0,0,0,2",
       "type": 13
     },
     {
@@ -3013,16 +3400,41 @@
       "ams": 0,
       "chip": "YM2413",
       "fb": 3,
-      "fingerprint": "bd0232348f1c8cc9",
+      "fingerprint": "b948f06873152e69",
       "fms": 0,
       "gm": {
-        "fullName": "Square Pad",
+        "fullName": "Square Pad 2",
         "gmName": "Lead 1 (square)",
         "gmProgram": 81
       },
       "index": 36,
-      "macros": [],
-      "name": "ch8ins1",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            14,
+            5
+          ]
+        }
+      ],
+      "name": "ch8ins1-pad sq2",
       "operators": [
         {
           "am": 0,
@@ -3065,9 +3477,9 @@
           "ws": 0
         }
       ],
-      "opllPreset": 14,
+      "opllPreset": 5,
       "ops": 2,
-      "signature": "t13;preset14;alg0;fb3;fms0;ams0;ops2|0:1,21,14,4,0,3,0,0,0,0,0,0,1,0,0,2|1:1,0,9,0,0,2,0,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset5;alg0;fb3;fms0;ams0;ops2|0:1,21,14,4,0,3,0,0,0,0,0,0,1,0,0,2|1:1,0,9,0,0,2,0,0,0,0,0,0,0,0,0,2",
       "type": 13
     },
     {
@@ -3075,16 +3487,41 @@
       "ams": 0,
       "chip": "YM2413",
       "fb": 3,
-      "fingerprint": "91795c1a5f0eccbd",
+      "fingerprint": "e213096f8b505662",
       "fms": 0,
       "gm": {
-        "fullName": "Vibraphone",
+        "fullName": "Dark Vibraphone",
         "gmName": "Vibraphone",
         "gmProgram": 12
       },
       "index": 37,
-      "macros": [],
-      "name": "ch8ins2",
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            15
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 3,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            9,
+            12
+          ]
+        }
+      ],
+      "name": "ch8ins2-dark vibraphone",
       "operators": [
         {
           "am": 0,
@@ -3127,9 +3564,9 @@
           "ws": 0
         }
       ],
-      "opllPreset": 15,
+      "opllPreset": 12,
       "ops": 2,
-      "signature": "t13;preset15;alg0;fb3;fms0;ams0;ops2|0:1,9,15,1,12,0,0,0,0,0,0,0,2,0,0,2|1:1,0,14,4,1,3,0,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset12;alg0;fb3;fms0;ams0;ops2|0:1,9,15,1,12,0,0,0,0,0,0,0,2,0,0,2|1:1,0,14,4,1,3,0,0,0,0,0,0,0,0,0,2",
       "type": 13
     }
   ],

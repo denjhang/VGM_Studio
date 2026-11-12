@@ -71,13 +71,25 @@ struct GmEntry {
 
 const GmEntry kGmTable[] = {
     // 长的写前面，匹配时按前缀
+    {"clean guitar2", "Clean Electric Guitar 2", 28, "Electric Guitar (clean)", 0},
+    {"clean guitar", "Clean Electric Guitar", 28, "Electric Guitar (clean)", 0},
+    {"clean vibraphone", "Clean Vibraphone", 12, "Vibraphone", 0},
+    {"light vibraphone", "Light Vibraphone", 12, "Vibraphone", 0},
+    {"dark vibraphone", "Dark Vibraphone", 12, "Vibraphone", 0},
     {"acid bass", "Acid Bass", 39, "Synth Bass 1", 0},
+    {"synth bass", "Synth Bass", 39, "Synth Bass 1", 0},
+    {"syn bass", "Synth Bass", 39, "Synth Bass 1", 0},
+    {"pad sq2", "Square Pad 2", 81, "Lead 1 (square)", 0},
     {"pad sq", "Square Pad", 81, "Lead 1 (square)", 0},
+    {"pad sine", "Sine Pad", 89, "Pad 1 (new age)", 0},
     {"pad2", "Pad (second)", 90, "Pad 2 (warm)", 0},
     {"pad", "Pad", 89, "Pad 1 (new age)", 0},
     {"celesta", "Celesta", 9, "Celesta", 0},
+    {"trumpet", "Trumpet", 57, "Trumpet", 0},
     {"trum", "Trumpet", 57, "Trumpet", 0},
+    {"vibraphone", "Vibraphone", 12, "Vibraphone", 0},
     {"vib", "Vibraphone", 12, "Vibraphone", 0},
+    {"guitar", "Electric Guitar", 27, "Electric Guitar (jazz)", 0},
     {"sanmi", "Shamisen", 107, "Shamisen", 0},
     {"bd", "Bass Drum", 0, "Bass Drum 1", 36},
     {"hh", "Hi-Hat", 0, "Closed Hi-Hat", 42},
@@ -99,11 +111,17 @@ std::string TagOf(const std::string& name) {
 const GmEntry* LookupGm(const std::string& name) {
     const std::string tag = TagOf(name);
     if (tag.empty()) return nullptr;
+    // 前缀匹配可能误中（"pad" 会吃掉 "pad2"），所以先求最长匹配
+    const GmEntry* best = nullptr;
+    size_t bestLen = 0;
     for (const GmEntry& e : kGmTable) {
         const size_t n = std::strlen(e.tag);
-        if (tag.size() >= n && tag.compare(0, n, e.tag) == 0) return &e;
+        if (tag.size() >= n && tag.compare(0, n, e.tag) == 0 && n > bestLen) {
+            best = &e;
+            bestLen = n;
+        }
     }
-    return nullptr;
+    return best;
 }
 
 // 目标侧乐器（ch1ins1）本身不带标签，GM 名继承自同名的源侧乐器
@@ -432,6 +450,29 @@ int main(int argc, char** argv) {
                             "dt2=%-2d ksr=%d am=%d vib=%d egt=%d ksl=%d ws=%d sus=%d kvs=%d\n",
                             o, op.mult, op.tl, op.ar, op.dr, op.sl, op.rr, op.dt, op.dt2,
                             op.ksr, op.am, op.vib, op.egt, op.ksl, op.ws, op.sus, op.kvs);
+            }
+            // 宏：OPLL 不用 0 号自定义音色，靠 patch(音色号)/音量宏把预设
+            // 拼出更多变化，所以宏必须一起写进库
+            for (int mk = 0; mk < vgmstudio::kMacroCount; mk++) {
+                const vgmstudio::Macro& mc = v.macros[mk];
+                if (mc.val.empty()) continue;
+                std::printf("     %-6s speed=%-2d delay=%-2d loop=%-3d rel=%-3d vals:",
+                            MacroName(mk), mc.speed, mc.delay, mc.loop, mc.rel);
+                for (size_t k = 0; k < mc.val.size() && k < 32; k++)
+                    std::printf(" %d", mc.val[k]);
+                if (mc.val.size() > 32) std::printf(" ...(%zu)", mc.val.size());
+                std::printf("\n");
+            }
+            for (int o = 0; o < 4; o++) {
+                for (int j = 0; j < vgmstudio::kOpMacroCount; j++) {
+                    const vgmstudio::Macro& mc = v.opMacros[o][j];
+                    if (mc.val.empty()) continue;
+                    std::printf("     op%d %-5s speed=%-2d delay=%-2d vals:", o,
+                                OpMacroName(j), mc.speed, mc.delay);
+                    for (size_t k = 0; k < mc.val.size() && k < 32; k++)
+                        std::printf(" %d", mc.val[k]);
+                    std::printf("\n");
+                }
             }
         }
         std::printf("```\n");

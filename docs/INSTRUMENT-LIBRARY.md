@@ -36,58 +36,130 @@ t<type>;preset<opllPreset>;alg<alg>;fb<fb>;fms<fms>;ams<ams>;ops<ops>
 ## 2. 标签怎么读（全部展开成全称 + GM 分类）
 
 标签是你在 Furnace 里手打的，格式 `<通道><序号>[-标签]`。
-下表把每个缩写展开成完整英文名，并给出最接近的 General MIDI 分类
+下表把每个标签展开成完整英文名，并给出最接近的 General MIDI 分类
 （GM program 是官方 1..128 编号；打击乐在 GM 里是通道 10 的固定音符号，不是 program）。
 
 | 标签 | 完整名 | GM 分类 |
 |---|---|---|
-| `pad` | Pad（铺底 / 长音） | Pad 1 (new age)，GM 89 |
 | `pad sq` | Square Pad（方波铺底） | Lead 1 (square)，GM 81 |
+| `pad sq2` | Square Pad 2（方波铺底，第二个） | Lead 1 (square)，GM 81 |
+| `pad sine` | Sine Pad（正弦铺底） | Pad 1 (new age)，GM 89 |
+| `pad` | Pad（铺底 / 长音） | Pad 1 (new age)，GM 89 |
 | `pad2` | Pad，第二个 | Pad 2 (warm)，GM 90 |
 | `celesta` | Celesta（钢片琴，衰减快、偏亮） | Celesta，GM 9 |
-| `trum` | Trumpet（小号，铜管、起音硬） | Trumpet，GM 57 |
-| `vib` | Vibraphone（颤音琴，带音高颤动的金属音） | Vibraphone，GM 12 |
+| `trumpet` / `trum` | Trumpet（小号，铜管、起音硬） | Trumpet，GM 57 |
+| `vibraphone` / `vib` | Vibraphone（颤音琴） | Vibraphone，GM 12 |
+| `clean vibraphone` | Clean Vibraphone（干净、无过载的颤音琴） | Vibraphone，GM 12 |
+| `light vibraphone` | Light Vibraphone（轻、亮） | Vibraphone，GM 12 |
+| `dark vibraphone` | Dark Vibraphone（暗、闷） | Vibraphone，GM 12 |
+| `guitar` | Electric Guitar（电吉他） | Electric Guitar (jazz)，GM 27 |
+| `clean guitar` | Clean Electric Guitar（清音电吉他） | Electric Guitar (clean)，GM 28 |
+| `clean guitar2` | Clean Electric Guitar 2 | Electric Guitar (clean)，GM 28 |
 | `sanmi` | Shamisen（三味线，拨弦） | Shamisen，GM 107 |
-| `acid bass` | Acid Bass（酸性贝斯，共振重、滑音多） | Synth Bass 1，GM 39 |
+| `acid bass` | Acid Bass（酸性贝斯，共振重） | Synth Bass 1，GM 39 |
+| `synth bass` / `syn bass` | Synth Bass（合成贝斯） | Synth Bass 1，GM 39 |
 | `bd` | Bass Drum（低音鼓 / 贝斯鼓） | Bass Drum 1，打击乐音符 36 |
 | `hh` | Hi-Hat（踩镲） | Closed Hi-Hat，打击乐音符 42 |
 | `sd` | Snare Drum（军鼓） | Acoustic Snare，打击乐音符 38 |
 | `ch1ins2` | 第 1 个源通道（YM2151 的 ch1）的第 2 个音色 | — |
 
-序号由 `opm2opll` 按音色首次出现顺序编。
+序号由 `opm2opll` 按音色首次出现顺序编。匹配按**最长前缀**，
+所以 `pad sq2` 不会被 `pad` 抢先匹配、`clean guitar2` 不会被 `clean guitar` 抢先。
 
-**同一标签在源侧和目标侧成对出现**：`ch1ins1-pad`（YM2151，type 33）是源音色，
-`ch1ins1`（YM2413，type 13）是它转换后的目标音色。目标侧名字不带标签，
-GM 分类从同名的源侧乐器继承。`opm2opll --fur` 也按同名取目标音色。
+**同一基名在源侧和目标侧成对出现**：`ch1ins1-pad`（YM2151，type 33）是源音色，
+`ch1ins1-pad sq`（YM2413，type 13）是它转换后的目标音色。`opm2opll --fur`
+按 `chXinsY` 基名取目标音色，后缀随意。
 
 ---
 
-## 3. 转换映射（源 → 目标 → GM）
+## 3. ★ OPLL 侧不用 0 号自定义音色
 
-`opm2opll` 的匹配结果。`program` 是 YM2413 的 ROM 预置号（0 = 唯一可写的用户槽）。
+这一版的目标侧**完全不碰 0x00-0x07 用户音色槽**，实测输出里对 0x00-0x07 的写为 **0 次**。
+音色的丰富度靠两件事：
 
-三列名字各有各的意思，别混：
-- **标签 / 完整名**：曲目里这个乐器是什么（按 FM 参数 + 你打的标判断）
-- **ROM 预置**：YM2413 芯片上实际播放的那一号音色
+1. **预设乐器**：19 个目标音色全部落在 ROM 的 15 个预置上（preset 1..15，无 0）
+2. **patch 宏 + 音量宏**：同一个音符内部切换 preset、拉伸音量包络，
+   造出 ROM 预置之外的听感
+
+实测 patch 宏生效的证据（每个音符内部出现多个不同 preset）：
+
+| 通道 | 音符数 | 音符内切换 preset 的音符数 |
+|---|---|---|
+| FM1 | 327 | 0（单音色，未加 patch 宏） |
+| FM2 | 240 | 231 |
+| FM3 | 327 | 309 |
+| FM4 | 291 | 80 |
+| FM5 | 388 | 388（鼓组，全部） |
+| FM6 | 291 | 80 |
+| FM7 | 326 | 325 |
+| FM8 | 325 | 324 |
+| FM9 | 0 | — |
+
+鼓组（FM5）是这套做法的典型：`ch5ins1-bd` preset=14 + 音量宏
+`0 15 15 15 15 15 15 15 13 10 8 0 …`（快速衰减）+ arp 宏
+`0 -5 -10 -14 … -41`（音高坠落）+ wave 宏 `10 4 6`（快速换 preset）。
+三者叠在一起才做出鼓的"砰"，单靠 ROM 预设做不到。
+
+### 3.1 预设使用分布（全曲 0x30 高 4 位统计）
+
+| preset | ROM 音色名 | 写入次数 |
+|---|---|---|
+| 1 | Violin | 18 |
+| 2 | Guitar | 1108 |
+| 3 | Piano | 240 |
+| 4 | Flute | 1711 |
+| 5 | Clarinet | 8597 |
+| 6 | Oboe | 757 |
+| 7 | Trumpet | 27 |
+| 8 | Organ | 108 |
+| 9 | Horn | 18 |
+| 10 | Synthesizer | 680 |
+| 11 | Harpsichord | 3378 |
+| 12 | Vibraphone | 1901 |
+| 13 | Synth Bass | 224 |
+| 14 | Acoustic Bass | 1804 |
+| 15 | Electric Guitar | 188 |
+| **0** | **User（自定义）** | **0（未使用）** |
+
+（名称取自 `FmVoice.cpp:395` 的 `kYm2413Names`，16–18 是节奏音色，本曲未用。）
+
+---
+
+### 3.2 转换映射（源 → 目标 → GM）
+
+`opm2opll` 的匹配结果。三列名字各有各的意思，别混：
+- **源标签**：曲目里这个乐器原本是什么
+- **目标 preset**：YM2413 芯片上实际播放的 ROM 预置
 - **GM**：那个预置在 General MIDI 里最接近的对应物
 
-| 标签 | 完整名 | 源 alg/fb | program | ROM 预置名 | GM 音色 | 音符数 |
-|---|---|---|---|---|---|---|
-| `ch1ins1-pad` | Pad | 2 / 6 | 5 | Clarinet | Clarinet (GM 72) | 318 |
-| `ch1ins2-celesta` | Celesta | 0 / 0 | 12 | Vibraphone | Vibraphone (GM 12) | 240 |
-| `ch2ins1-trum` | Trumpet | 5 / 7 | 7 | Trumpet | Trumpet (GM 57) | 9 |
-| `ch3ins1-trum` | Trumpet | 5 / 7 | 3 | Piano | Acoustic Grand Piano (GM 1) | 18 |
-| `ch3ins2-sanmi` | Shamisen | 2 / 4 | 15 | Electric Guitar | Electric Guitar (clean) (GM 28) | 487 |
-| `ch4ins1-acid bass` | Acid Bass | 0 / 2 | 10 | Synthesizer | Synth Bass 1 (GM 39) | 422 |
-| `ch5ins1-bd` | Bass Drum | 5 / 2 | 2 | Guitar | Bass Drum 1 (perc 36) | 348 |
-| `ch5ins4-pad2` | Pad | 4 / 2 | 14 | Acoustic Bass | Acoustic Bass (GM 33) | 673 |
+| 源标签 | 目标乐器名 | preset | ROM 预置 | GM 音色 | 宏 |
+|---|---|---|---|---|---|
+| `ch1ins1-pad` | `ch1ins1-pad sq` | 5 | Clarinet | Clarinet (GM 72) | 1 |
+| `ch1ins2-celesta` | `ch1ins2-vibraphone` | 12 | Vibraphone | Vibraphone (GM 12) | 0 |
+| `ch2ins1-trum` | `ch2ins1-trumpet` | 7 | Trumpet | Trumpet (GM 57) | 0 |
+| `ch2ins2-vib` | `ch2ins2-clean vibraphone` | 12 | Vibraphone | Vibraphone (GM 12) | 2 |
+| `ch3ins1-trum` | `ch3ins1-trum` | 7 | Trumpet | Trumpet (GM 57) | 0 |
+| `ch3ins2-sanmi` | `ch3ins2-clean guitar` | 2 | Guitar | Electric Guitar (clean) (GM 28) | 2 |
+| `ch3ins3-sanmi2` | `ch3ins3-guitar` | 15 | Electric Guitar | Electric Guitar (jazz) (GM 27) | 2 |
+| `ch4ins1-acid bass` | `ch4ins1-synth bass` | 10 | Synthesizer | Synth Bass 1 (GM 39) | 0 |
+| `ch4ins2-sanmi` | `ch4ins2-clean guitar2` | 15 | Electric Guitar | Electric Guitar (clean) (GM 28) | 2 |
+| `ch5ins1-bd` | `ch5ins1-bd` | 14 | Acoustic Bass | Bass Drum 1 (perc 36) | 3 |
+| `ch5ins2-hh` | `ch5ins2-hh` | 2 | Guitar | Closed Hi-Hat (perc 42) | 2 |
+| `ch5ins3-sd` | `ch5ins3-sd` | 14 | Acoustic Bass | Acoustic Snare (perc 38) | 3 |
+| `ch5ins4-pad2` | `ch5ins4-pad2` | 14 | Acoustic Bass | Pad 2 (GM 90) | 2 |
+| `ch6ins1-acid bass` | `ch6ins1-syn bass` | 10 | Synthesizer | Synth Bass 1 (GM 39) | 0 |
+| `ch6ins2-sanmi` | `ch6ins2-clean guitar` | 2 | Guitar | Electric Guitar (clean) (GM 28) | 2 |
+| `ch7ins1-pad sq` | `ch7ins1-pad sine` | 5 | Clarinet | Sine Pad (GM 89) | 2 |
+| `ch7ins2-vib` | `ch7ins2-light vibraphone` | 12 | Vibraphone | Light Vibraphone (GM 12) | 2 |
+| `ch8ins1-pad sq` | `ch8ins1-pad sq2` | 5 | Clarinet | Square Pad 2 (GM 81) | 2 |
+| `ch8ins2-vib` | `ch8ins2-dark vibraphone` | 12 | Vibraphone | Dark Vibraphone (GM 12) | 2 |
 
-其余 11 个音色与上表同 program 的乐器**共用**同一份 ROM 预置
-（指纹相同 = 同一音色 = 同一预置）。
+**为什么标签和 ROM 预置对不上**：`bd` 落到 Acoustic Bass、`pad` 落到 Clarinet——
+YM2413 是 2 算子芯片，没有真正的鼓、没有真正的铺底。真正的差距由宏补：
+鼓靠音量宏 + arp 宏做衰减和音高坠落，铺底靠 patch 宏在音符内换预置。
 
-**为什么标签和 ROM 预置对不上**：`pad` 落到 Clarinet、`bd` 落到 Guitar——
-YM2413 是 2 算子芯片，没有真正的鼓、没有真正的铺底，只能拿 ROM 里最接近的顶替。
-这是芯片能力受限的妥协，不是识别错误。
+**同名乐器共用预置**：指纹相同即同一音色，共用同一份 ROM 预置
+（如 `ch1ins1-pad sq` / `ch7ins1-pad sine` / `ch8ins1-pad sq2` 都是 preset 5）。
 
 ---
 
@@ -130,25 +202,25 @@ YM2413 是 2 算子芯片，没有真正的鼓、没有真正的铺底，只能�
 
 | # | 标签 | GM 音色 | preset | alg | fb | 指纹 | 参数 |
 |---|---|---|---|---|---|---|---|
-| 19 | `ch1ins1` | Pad 1 (new age) (89) | 5 | 0 | 3 | `b948f06873152e69` | op0: ml=1 tl=21 ar=14 dr=4 sl=0 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=1 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=9 dr=0 sl=0 rr=2 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 20 | `ch1ins2` | Celesta (9) | 12 | 0 | 3 | `e213096f8b505662` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 21 | `ch2ins1` | Trumpet (57) | 7 | 0 | 0 | `203029e11972d7d3` | op0: ml=3 tl=25 ar=15 dr=2 sl=2 rr=1 dt=0 ksr=1 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=13 dr=4 sl=2 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 22 | `ch2ins2-vib` | Vibraphone (12) | 12 | 0 | 3 | `e213096f8b505662` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 23 | `ch3ins1` | Trumpet (57) | 3 | 0 | 0 | `8a43a9e9b36fbedf` | op0: ml=3 tl=25 ar=15 dr=2 sl=2 rr=1 dt=0 ksr=1 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=13 dr=4 sl=2 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 24 | `ch3ins2` | Shamisen (107) | 15 | 0 | 3 | `91795c1a5f0eccbd` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 25 | `ch3ins3` | Shamisen (107) | 15 | 0 | 3 | `91795c1a5f0eccbd` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 26 | `ch4ins1` | Synth Bass 1 (39) | 10 | 0 | 0 | `47ed160944acebc3` | op0: ml=1 tl=11 ar=8 dr=5 sl=8 rr=1 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=15 dr=0 sl=0 rr=7 dt=0 ksr=0 am=0 vib=0 egt=1 ksl=0 sus=0 kvs=2 |
-| 27 | `ch4ins2` | Shamisen (107) | 15 | 0 | 3 | `91795c1a5f0eccbd` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 28 | `ch5ins1` | Bass Drum 1 (perc 36) | 2 | 0 | 5 | `c5e05bfe922f346f` | op0: ml=3 tl=26 ar=13 dr=8 sl=2 rr=3 dt=0 ksr=1 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=15 dr=7 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 29 | `ch5ins2` | Closed Hi-Hat (perc 42) | 2 | 0 | 5 | `c5e05bfe922f346f` | op0: ml=3 tl=26 ar=13 dr=8 sl=2 rr=3 dt=0 ksr=1 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=15 dr=7 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 30 | `ch5ins3` | Acoustic Snare (perc 38) | 2 | 0 | 5 | `c5e05bfe922f346f` | op0: ml=3 tl=26 ar=13 dr=8 sl=2 rr=3 dt=0 ksr=1 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=15 dr=7 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 31 | `ch5ins4` | Pad 2 (warm) (90) | 14 | 0 | 3 | `bd0232348f1c8cc9` | op0: ml=1 tl=21 ar=14 dr=4 sl=0 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=1 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=9 dr=0 sl=0 rr=2 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 32 | `ch6ins1` | Synth Bass 1 (39) | 10 | 0 | 0 | `47ed160944acebc3` | op0: ml=1 tl=11 ar=8 dr=5 sl=8 rr=1 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=15 dr=0 sl=0 rr=7 dt=0 ksr=0 am=0 vib=0 egt=1 ksl=0 sus=0 kvs=2 |
-| 33 | `ch6ins2` | Shamisen (107) | 15 | 0 | 3 | `91795c1a5f0eccbd` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 34 | `ch7ins1` | Lead 1 (square) (81) | 14 | 0 | 3 | `bd0232348f1c8cc9` | op0: ml=1 tl=21 ar=14 dr=4 sl=0 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=1 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=9 dr=0 sl=0 rr=2 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 35 | `ch7ins2` | Vibraphone (12) | 15 | 0 | 3 | `91795c1a5f0eccbd` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 36 | `ch8ins1` | Lead 1 (square) (81) | 14 | 0 | 3 | `bd0232348f1c8cc9` | op0: ml=1 tl=21 ar=14 dr=4 sl=0 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=1 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=9 dr=0 sl=0 rr=2 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
-| 37 | `ch8ins2` | Vibraphone (12) | 15 | 0 | 3 | `91795c1a5f0eccbd` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 19 | `ch1ins1-pad sq` | Lead 1 (square) (81) | 5 | 0 | 3 | `b948f06873152e69` | op0: ml=1 tl=21 ar=14 dr=4 sl=0 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=1 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=9 dr=0 sl=0 rr=2 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 20 | `ch1ins2-vibraphone` | Vibraphone (12) | 12 | 0 | 3 | `e213096f8b505662` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 21 | `ch2ins1-trumpet` | Trumpet (57) | 7 | 0 | 0 | `203029e11972d7d3` | op0: ml=3 tl=25 ar=15 dr=2 sl=2 rr=1 dt=0 ksr=1 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=13 dr=4 sl=2 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 22 | `ch2ins2-clean vibraphone` | Vibraphone (12) | 12 | 0 | 3 | `e213096f8b505662` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 23 | `ch3ins1-trum` | Trumpet (57) | 7 | 0 | 0 | `203029e11972d7d3` | op0: ml=3 tl=25 ar=15 dr=2 sl=2 rr=1 dt=0 ksr=1 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=13 dr=4 sl=2 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 24 | `ch3ins2-clean guitar` | Electric Guitar (clean) (28) | 2 | 0 | 3 | `10239b9037cc9a83` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 25 | `ch3ins3-guitar` | Electric Guitar (jazz) (27) | 15 | 0 | 3 | `91795c1a5f0eccbd` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 26 | `ch4ins1-synth bass` | Synth Bass 1 (39) | 10 | 0 | 0 | `47ed160944acebc3` | op0: ml=1 tl=11 ar=8 dr=5 sl=8 rr=1 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=15 dr=0 sl=0 rr=7 dt=0 ksr=0 am=0 vib=0 egt=1 ksl=0 sus=0 kvs=2 |
+| 27 | `ch4ins2-clean guitar2` | Electric Guitar (clean) (28) | 15 | 0 | 3 | `91795c1a5f0eccbd` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 28 | `ch5ins1-bd` | Bass Drum 1 (perc 36) | 14 | 0 | 7 | `fbeb787c1c42118d` | op0: ml=1 tl=27 ar=15 dr=3 sl=15 rr=15 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=8 dr=3 sl=15 rr=15 dt=6 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 29 | `ch5ins2-hh` | Closed Hi-Hat (perc 42) | 2 | 0 | 7 | `8a233a658b948e1c` | op0: ml=1 tl=27 ar=15 dr=3 sl=15 rr=15 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=15 dr=3 sl=15 rr=15 dt=6 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 30 | `ch5ins3-sd` | Acoustic Snare (perc 38) | 14 | 0 | 7 | `fbeb787c1c42118d` | op0: ml=1 tl=27 ar=15 dr=3 sl=15 rr=15 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=8 dr=3 sl=15 rr=15 dt=6 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 31 | `ch5ins4-pad2` | Pad 2 (warm) (90) | 14 | 0 | 3 | `bd0232348f1c8cc9` | op0: ml=1 tl=21 ar=14 dr=4 sl=0 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=1 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=9 dr=0 sl=0 rr=2 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 32 | `ch6ins1-syn bass` | Synth Bass 1 (39) | 10 | 0 | 0 | `47ed160944acebc3` | op0: ml=1 tl=11 ar=8 dr=5 sl=8 rr=1 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=15 dr=0 sl=0 rr=7 dt=0 ksr=0 am=0 vib=0 egt=1 ksl=0 sus=0 kvs=2 |
+| 33 | `ch6ins2-clean guitar` | Electric Guitar (clean) (28) | 2 | 0 | 3 | `10239b9037cc9a83` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 34 | `ch7ins1-pad sine` | Pad 1 (new age) (89) | 5 | 0 | 3 | `b948f06873152e69` | op0: ml=1 tl=21 ar=14 dr=4 sl=0 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=1 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=9 dr=0 sl=0 rr=2 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 35 | `ch7ins2-light vibraphone` | Vibraphone (12) | 12 | 0 | 3 | `e213096f8b505662` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 36 | `ch8ins1-pad sq2` | Lead 1 (square) (81) | 5 | 0 | 3 | `b948f06873152e69` | op0: ml=1 tl=21 ar=14 dr=4 sl=0 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=1 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=9 dr=0 sl=0 rr=2 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
+| 37 | `ch8ins2-dark vibraphone` | Vibraphone (12) | 12 | 0 | 3 | `e213096f8b505662` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
 
 ## 明文参数清单
 
@@ -248,63 +320,92 @@ YM2413 是 2 算子芯片，没有真正的鼓、没有真正的铺底，只能�
      op1 ml=14 tl=39  ar=31 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
      op2 ml=14 tl=30  ar=31 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
      op3 ml=2  tl=21  ar=31 dr=12 sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[19] ch1ins1          YM2413  Pad                        preset=5  alg=0 fb=3 fms=0 ams=0 ops=2 fp=b948f06873152e69
+[19] ch1ins1-pad sq   YM2413  Square Pad                 preset=5  alg=0 fb=3 fms=0 ams=0 ops=2 fp=b948f06873152e69
      op0 ml=1  tl=21  ar=14 dr=4  sl=0  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=1 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=9  dr=0  sl=0  rr=2  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[20] ch1ins2          YM2413  Celesta                    preset=12 alg=0 fb=3 fms=0 ams=0 ops=2 fp=e213096f8b505662
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+[20] ch1ins2-vibraphone YM2413  Vibraphone                 preset=12 alg=0 fb=3 fms=0 ams=0 ops=2 fp=e213096f8b505662
      op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[21] ch2ins1          YM2413  Trumpet                    preset=7  alg=0 fb=0 fms=0 ams=0 ops=2 fp=203029e11972d7d3
+[21] ch2ins1-trumpet  YM2413  Trumpet                    preset=7  alg=0 fb=0 fms=0 ams=0 ops=2 fp=203029e11972d7d3
      op0 ml=3  tl=25  ar=15 dr=2  sl=2  rr=1  dt=0  dt2=0  ksr=1 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=13 dr=4  sl=2  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[22] ch2ins2-vib      YM2413  Vibraphone                 preset=12 alg=0 fb=3 fms=0 ams=0 ops=2 fp=e213096f8b505662
+[22] ch2ins2-clean vibraphone YM2413  Clean Vibraphone           preset=12 alg=0 fb=3 fms=0 ams=0 ops=2 fp=e213096f8b505662
      op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[23] ch3ins1          YM2413  Trumpet                    preset=3  alg=0 fb=0 fms=0 ams=0 ops=2 fp=8a43a9e9b36fbedf
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 5 12
+[23] ch3ins1-trum     YM2413  Trumpet                    preset=7  alg=0 fb=0 fms=0 ams=0 ops=2 fp=203029e11972d7d3
      op0 ml=3  tl=25  ar=15 dr=2  sl=2  rr=1  dt=0  dt2=0  ksr=1 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=13 dr=4  sl=2  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[24] ch3ins2          YM2413  Shamisen                   preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+[24] ch3ins2-clean guitar YM2413  Clean Electric Guitar      preset=2  alg=0 fb=3 fms=0 ams=0 ops=2 fp=10239b9037cc9a83
      op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[25] ch3ins3          YM2413  Shamisen                   preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 14 11
+[25] ch3ins3-guitar   YM2413  Electric Guitar            preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
      op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[26] ch4ins1          YM2413  Acid Bass                  preset=10 alg=0 fb=0 fms=0 ams=0 ops=2 fp=47ed160944acebc3
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 2 11
+[26] ch4ins1-synth bass YM2413  Synth Bass                 preset=10 alg=0 fb=0 fms=0 ams=0 ops=2 fp=47ed160944acebc3
      op0 ml=1  tl=11  ar=8  dr=5  sl=8  rr=1  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=1 sus=0 kvs=2
      op1 ml=1  tl=0   ar=15 dr=0  sl=0  rr=7  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=1 ksl=0 ws=1 sus=0 kvs=2
-[27] ch4ins2          YM2413  Shamisen                   preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+[27] ch4ins2-clean guitar2 YM2413  Clean Electric Guitar 2    preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
      op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[28] ch5ins1          YM2413  Bass Drum                  preset=2  alg=0 fb=5 fms=0 ams=0 ops=2 fp=c5e05bfe922f346f
-     op0 ml=3  tl=26  ar=13 dr=8  sl=2  rr=3  dt=0  dt2=0  ksr=1 am=0 vib=0 egt=0 ksl=0 ws=1 sus=0 kvs=2
-     op1 ml=1  tl=0   ar=15 dr=7  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[29] ch5ins2          YM2413  Hi-Hat                     preset=2  alg=0 fb=5 fms=0 ams=0 ops=2 fp=c5e05bfe922f346f
-     op0 ml=3  tl=26  ar=13 dr=8  sl=2  rr=3  dt=0  dt2=0  ksr=1 am=0 vib=0 egt=0 ksl=0 ws=1 sus=0 kvs=2
-     op1 ml=1  tl=0   ar=15 dr=7  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[30] ch5ins3          YM2413  Snare Drum                 preset=2  alg=0 fb=5 fms=0 ams=0 ops=2 fp=c5e05bfe922f346f
-     op0 ml=3  tl=26  ar=13 dr=8  sl=2  rr=3  dt=0  dt2=0  ksr=1 am=0 vib=0 egt=0 ksl=0 ws=1 sus=0 kvs=2
-     op1 ml=1  tl=0   ar=15 dr=7  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[31] ch5ins4          YM2413  Pad (second)               preset=14 alg=0 fb=3 fms=0 ams=0 ops=2 fp=bd0232348f1c8cc9
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 3 11
+[28] ch5ins1-bd       YM2413  Bass Drum                  preset=14 alg=0 fb=7 fms=0 ams=0 ops=2 fp=fbeb787c1c42118d
+     op0 ml=1  tl=27  ar=15 dr=3  sl=15 rr=15 dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=8  dr=3  sl=15 rr=15 dt=6  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15 15 15 15 15 15 15 13 10 8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+     arp    speed=1  delay=0  loop=255 rel=255 vals: 0 -5 -10 -14 -17 -20 -23 -26 -28 -30 -32 -34 -36 -37 -38 -39 -41
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 10 4 6
+[29] ch5ins2-hh       YM2413  Hi-Hat                     preset=2  alg=0 fb=7 fms=0 ams=0 ops=2 fp=8a233a658b948e1c
+     op0 ml=1  tl=27  ar=15 dr=3  sl=15 rr=15 dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=15 dr=3  sl=15 rr=15 dt=6  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 10 8 5 3 2 0
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 11 4
+[30] ch5ins3-sd       YM2413  Snare Drum                 preset=14 alg=0 fb=7 fms=0 ams=0 ops=2 fp=fbeb787c1c42118d
+     op0 ml=1  tl=27  ar=15 dr=3  sl=15 rr=15 dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=8  dr=3  sl=15 rr=15 dt=6  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 12 15 14 12 9 6 3 2 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+     arp    speed=1  delay=0  loop=255 rel=255 vals: 0 -5 -10 -14 -17 -20 -23 -26 -28 -30 -32 -34 -36 -37 -38 -39 -41
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 8 4 4 4
+[31] ch5ins4-pad2     YM2413  Pad (second)               preset=14 alg=0 fb=3 fms=0 ams=0 ops=2 fp=bd0232348f1c8cc9
      op0 ml=1  tl=21  ar=14 dr=4  sl=0  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=1 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=9  dr=0  sl=0  rr=2  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[32] ch6ins1          YM2413  Acid Bass                  preset=10 alg=0 fb=0 fms=0 ams=0 ops=2 fp=47ed160944acebc3
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 3 13
+[32] ch6ins1-syn bass YM2413  Synth Bass                 preset=10 alg=0 fb=0 fms=0 ams=0 ops=2 fp=47ed160944acebc3
      op0 ml=1  tl=11  ar=8  dr=5  sl=8  rr=1  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=1 sus=0 kvs=2
      op1 ml=1  tl=0   ar=15 dr=0  sl=0  rr=7  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=1 ksl=0 ws=1 sus=0 kvs=2
-[33] ch6ins2          YM2413  Shamisen                   preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+[33] ch6ins2-clean guitar YM2413  Clean Electric Guitar      preset=2  alg=0 fb=3 fms=0 ams=0 ops=2 fp=10239b9037cc9a83
      op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[34] ch7ins1          YM2413  Square Pad                 preset=14 alg=0 fb=3 fms=0 ams=0 ops=2 fp=bd0232348f1c8cc9
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 14 11
+[34] ch7ins1-pad sine YM2413  Sine Pad                   preset=5  alg=0 fb=3 fms=0 ams=0 ops=2 fp=b948f06873152e69
      op0 ml=1  tl=21  ar=14 dr=4  sl=0  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=1 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=9  dr=0  sl=0  rr=2  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[35] ch7ins2          YM2413  Vibraphone                 preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 4 5
+[35] ch7ins2-light vibraphone YM2413  Light Vibraphone           preset=12 alg=0 fb=3 fms=0 ams=0 ops=2 fp=e213096f8b505662
      op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[36] ch8ins1          YM2413  Square Pad                 preset=14 alg=0 fb=3 fms=0 ams=0 ops=2 fp=bd0232348f1c8cc9
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 1 12
+[36] ch8ins1-pad sq2  YM2413  Square Pad 2               preset=5  alg=0 fb=3 fms=0 ams=0 ops=2 fp=b948f06873152e69
      op0 ml=1  tl=21  ar=14 dr=4  sl=0  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=1 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=9  dr=0  sl=0  rr=2  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
-[37] ch8ins2          YM2413  Vibraphone                 preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 14 5
+[37] ch8ins2-dark vibraphone YM2413  Dark Vibraphone            preset=12 alg=0 fb=3 fms=0 ams=0 ops=2 fp=e213096f8b505662
      op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
      op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     vol    speed=1  delay=0  loop=255 rel=255 vals: 0 15
+     wave   speed=1  delay=0  loop=255 rel=255 vals: 9 12
 ```
 
 ---
