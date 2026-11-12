@@ -76,9 +76,11 @@ t<type>;preset<opllPreset>;alg<alg>;fb<fb>;fms<fms>;ams<ams>;ops<ops>
 
 ---
 
-## 4. 参数表（自动生成）
+## 4. 参数表与明文清单（自动生成）
 
-<!-- 以下表格由 `fuitool lib out/2151-2413.fur` 自动生成，勿手改 -->
+生成命令：`cli/build/fuitool.exe lib out/2151-2413.fur --json=docs/instrument-library.json`
+
+<!-- 以下内容由 `fuitool lib out/2151-2413.fur` 自动生成，勿手改 -->
 
 来源 `out/2151-2413.fur`，Furnace 版本 228，hz=60.00，共 38 个乐器。
 
@@ -133,6 +135,162 @@ t<type>;preset<opllPreset>;alg<alg>;fb<fb>;fms<fms>;ams<ams>;ops<ops>
 | 36 | `ch8ins1` | 14 | 0 | 3 | `bd0232348f1c8cc9` | op0: ml=1 tl=21 ar=14 dr=4 sl=0 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=1 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=9 dr=0 sl=0 rr=2 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
 | 37 | `ch8ins2` | 15 | 0 | 3 | `91795c1a5f0eccbd` | op0: ml=1 tl=9 ar=15 dr=1 sl=12 rr=0 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=2 sus=0 kvs=2<br>op1: ml=1 tl=0 ar=14 dr=4 sl=1 rr=3 dt=0 ksr=0 am=0 vib=0 egt=0 ksl=0 sus=0 kvs=2 |
 
+## 明文参数清单
+
+```text
+[00] ch1ins1-pad      YM2151  preset=0  alg=2 fb=6 fms=0 ams=0 ops=4 fp=2de2a59c97e16bbe
+     op0 ml=4  tl=29  ar=22 dr=8  sl=15 rr=15 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=4  tl=31  ar=24 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=4  tl=32  ar=24 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=2  tl=13  ar=24 dr=4  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[01] ch1ins2-celesta  YM2151  preset=0  alg=0 fb=0 fms=0 ams=0 ops=4 fp=b0136ef80269e73d
+     op0 ml=14 tl=31  ar=22 dr=8  sl=15 rr=15 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=14 tl=39  ar=31 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=14 tl=30  ar=31 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=2  tl=13  ar=31 dr=12 sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[02] ch2ins1-trum     YM2151  preset=0  alg=5 fb=7 fms=0 ams=0 ops=4 fp=123eba3e75aad50f
+     op0 ml=4  tl=27  ar=15 dr=8  sl=2  rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=4  tl=21  ar=28 dr=11 sl=15 rr=10 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=4  tl=21  ar=31 dr=7  sl=15 rr=10 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=8  tl=19  ar=31 dr=7  sl=12 rr=10 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[03] ch2ins2-vib      YM2151  preset=0  alg=0 fb=0 fms=0 ams=0 ops=4 fp=b0136ef80269e73d
+     op0 ml=14 tl=31  ar=22 dr=8  sl=15 rr=15 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=14 tl=39  ar=31 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=14 tl=30  ar=31 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=2  tl=13  ar=31 dr=12 sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[04] ch3ins1-trum     YM2151  preset=0  alg=5 fb=7 fms=0 ams=0 ops=4 fp=123eba3e75aad50f
+     op0 ml=4  tl=27  ar=15 dr=8  sl=2  rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=4  tl=21  ar=28 dr=11 sl=15 rr=10 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=4  tl=21  ar=31 dr=7  sl=15 rr=10 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=8  tl=19  ar=31 dr=7  sl=12 rr=10 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[05] ch3ins2-sanmi    YM2151  preset=0  alg=2 fb=4 fms=0 ams=0 ops=4 fp=2cb947fcefb07d7d
+     op0 ml=12 tl=25  ar=24 dr=14 sl=12 rr=10 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=2  tl=35  ar=31 dr=9  sl=12 rr=10 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=4  tl=32  ar=24 dr=10 sl=1  rr=10 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=2  tl=15  ar=31 dr=10 sl=12 rr=15 dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[06] ch3ins3-sanmi2   YM2151  preset=0  alg=0 fb=2 fms=0 ams=0 ops=4 fp=e54dd50c2ee4b0fc
+     op0 ml=8  tl=30  ar=31 dr=10 sl=10 rr=12 dt=2  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=4  tl=34  ar=31 dr=15 sl=12 rr=12 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=8  tl=31  ar=31 dr=12 sl=1  rr=12 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=4  tl=13  ar=31 dr=12 sl=1  rr=12 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[07] ch4ins1-acid bass YM2151  preset=0  alg=0 fb=2 fms=0 ams=0 ops=4 fp=04d2e94f6a4f0e50
+     op0 ml=0  tl=19  ar=22 dr=12 sl=12 rr=15 dt=5  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=0  tl=16  ar=25 dr=10 sl=15 rr=12 dt=6  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=2  tl=33  ar=26 dr=13 sl=14 rr=15 dt=1  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=1  tl=16  ar=31 dr=3  sl=8  rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[08] ch4ins2-sanmi    YM2151  preset=0  alg=2 fb=4 fms=0 ams=0 ops=4 fp=bfbc9d008b9579fe
+     op0 ml=12 tl=25  ar=24 dr=14 sl=12 rr=10 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=2  tl=35  ar=31 dr=9  sl=12 rr=10 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=4  tl=32  ar=24 dr=10 sl=1  rr=10 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=2  tl=18  ar=31 dr=10 sl=12 rr=15 dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[09] ch5ins1-bd       YM2151  preset=0  alg=5 fb=2 fms=0 ams=0 ops=4 fp=cb6f7eec392ac96f
+     op0 ml=1  tl=11  ar=25 dr=16 sl=3  rr=15 dt=3  dt2=1  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=17  ar=31 dr=15 sl=3  rr=15 dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=1  tl=21  ar=31 dr=14 sl=10 rr=15 dt=5  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=1  tl=17  ar=31 dr=15 sl=2  rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[10] ch5ins2-hh       YM2151  preset=0  alg=3 fb=6 fms=0 ams=0 ops=4 fp=056a53811ae50a12
+     op0 ml=14 tl=15  ar=28 dr=0  sl=5  rr=12 dt=6  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=8  tl=16  ar=29 dr=16 sl=9  rr=12 dt=6  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=14 tl=14  ar=28 dr=13 sl=15 rr=12 dt=6  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=10 tl=13  ar=31 dr=19 sl=6  rr=12 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[11] ch5ins3-sd       YM2151  preset=0  alg=5 fb=6 fms=0 ams=0 ops=4 fp=5eb092e9362bb342
+     op0 ml=15 tl=8   ar=25 dr=13 sl=5  rr=12 dt=2  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=9  tl=18  ar=31 dr=14 sl=1  rr=12 dt=5  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=9  tl=21  ar=29 dr=14 sl=1  rr=12 dt=1  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=9  tl=13  ar=31 dr=13 sl=1  rr=12 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[12] ch5ins4-pad2     YM2151  preset=0  alg=4 fb=2 fms=0 ams=0 ops=4 fp=89894146583c5475
+     op0 ml=14 tl=32  ar=22 dr=13 sl=10 rr=12 dt=2  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=14 tl=32  ar=22 dr=13 sl=12 rr=12 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=4  tl=17  ar=31 dr=15 sl=1  rr=12 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=4  tl=13  ar=31 dr=15 sl=1  rr=12 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[13] ch6ins1-acid bass YM2151  preset=0  alg=0 fb=2 fms=0 ams=0 ops=4 fp=2a690374eaff04a5
+     op0 ml=0  tl=19  ar=22 dr=12 sl=12 rr=15 dt=5  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=0  tl=16  ar=25 dr=10 sl=15 rr=12 dt=6  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=2  tl=33  ar=26 dr=13 sl=14 rr=15 dt=1  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=1  tl=24  ar=31 dr=3  sl=8  rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[14] ch6ins2-sanmi    YM2151  preset=0  alg=2 fb=4 fms=0 ams=0 ops=4 fp=978971a12b3076b7
+     op0 ml=12 tl=25  ar=24 dr=14 sl=12 rr=10 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=2  tl=35  ar=31 dr=9  sl=12 rr=10 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=4  tl=32  ar=24 dr=10 sl=1  rr=10 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=2  tl=26  ar=31 dr=10 sl=12 rr=15 dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[15] ch7ins1-pad sq   YM2151  preset=0  alg=2 fb=6 fms=0 ams=0 ops=4 fp=0d061b136bc2eefd
+     op0 ml=4  tl=29  ar=22 dr=8  sl=15 rr=15 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=4  tl=31  ar=24 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=4  tl=32  ar=24 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=2  tl=21  ar=24 dr=4  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[16] ch7ins2-vib      YM2151  preset=0  alg=0 fb=0 fms=0 ams=0 ops=4 fp=3f6ea3537308f9f4
+     op0 ml=14 tl=31  ar=22 dr=8  sl=15 rr=15 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=14 tl=39  ar=31 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=14 tl=30  ar=31 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=2  tl=21  ar=31 dr=12 sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[17] ch8ins1-pad sq   YM2151  preset=0  alg=2 fb=6 fms=0 ams=0 ops=4 fp=0d061b136bc2eefd
+     op0 ml=4  tl=29  ar=22 dr=8  sl=15 rr=15 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=4  tl=31  ar=24 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=4  tl=32  ar=24 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=2  tl=21  ar=24 dr=4  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[18] ch8ins2-vib      YM2151  preset=0  alg=0 fb=0 fms=0 ams=0 ops=4 fp=3f6ea3537308f9f4
+     op0 ml=14 tl=31  ar=22 dr=8  sl=15 rr=15 dt=4  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op1 ml=14 tl=39  ar=31 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op2 ml=14 tl=30  ar=31 dr=3  sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+     op3 ml=2  tl=21  ar=31 dr=12 sl=15 rr=15 dt=3  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[19] ch1ins1          YM2413  preset=5  alg=0 fb=3 fms=0 ams=0 ops=2 fp=b948f06873152e69
+     op0 ml=1  tl=21  ar=14 dr=4  sl=0  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=1 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=9  dr=0  sl=0  rr=2  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[20] ch1ins2          YM2413  preset=12 alg=0 fb=3 fms=0 ams=0 ops=2 fp=e213096f8b505662
+     op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[21] ch2ins1          YM2413  preset=7  alg=0 fb=0 fms=0 ams=0 ops=2 fp=203029e11972d7d3
+     op0 ml=3  tl=25  ar=15 dr=2  sl=2  rr=1  dt=0  dt2=0  ksr=1 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=13 dr=4  sl=2  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[22] ch2ins2-vib      YM2413  preset=12 alg=0 fb=3 fms=0 ams=0 ops=2 fp=e213096f8b505662
+     op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[23] ch3ins1          YM2413  preset=3  alg=0 fb=0 fms=0 ams=0 ops=2 fp=8a43a9e9b36fbedf
+     op0 ml=3  tl=25  ar=15 dr=2  sl=2  rr=1  dt=0  dt2=0  ksr=1 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=13 dr=4  sl=2  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[24] ch3ins2          YM2413  preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+     op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[25] ch3ins3          YM2413  preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+     op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[26] ch4ins1          YM2413  preset=10 alg=0 fb=0 fms=0 ams=0 ops=2 fp=47ed160944acebc3
+     op0 ml=1  tl=11  ar=8  dr=5  sl=8  rr=1  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=1 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=15 dr=0  sl=0  rr=7  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=1 ksl=0 ws=1 sus=0 kvs=2
+[27] ch4ins2          YM2413  preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+     op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[28] ch5ins1          YM2413  preset=2  alg=0 fb=5 fms=0 ams=0 ops=2 fp=c5e05bfe922f346f
+     op0 ml=3  tl=26  ar=13 dr=8  sl=2  rr=3  dt=0  dt2=0  ksr=1 am=0 vib=0 egt=0 ksl=0 ws=1 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=15 dr=7  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[29] ch5ins2          YM2413  preset=2  alg=0 fb=5 fms=0 ams=0 ops=2 fp=c5e05bfe922f346f
+     op0 ml=3  tl=26  ar=13 dr=8  sl=2  rr=3  dt=0  dt2=0  ksr=1 am=0 vib=0 egt=0 ksl=0 ws=1 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=15 dr=7  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[30] ch5ins3          YM2413  preset=2  alg=0 fb=5 fms=0 ams=0 ops=2 fp=c5e05bfe922f346f
+     op0 ml=3  tl=26  ar=13 dr=8  sl=2  rr=3  dt=0  dt2=0  ksr=1 am=0 vib=0 egt=0 ksl=0 ws=1 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=15 dr=7  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[31] ch5ins4          YM2413  preset=14 alg=0 fb=3 fms=0 ams=0 ops=2 fp=bd0232348f1c8cc9
+     op0 ml=1  tl=21  ar=14 dr=4  sl=0  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=1 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=9  dr=0  sl=0  rr=2  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[32] ch6ins1          YM2413  preset=10 alg=0 fb=0 fms=0 ams=0 ops=2 fp=47ed160944acebc3
+     op0 ml=1  tl=11  ar=8  dr=5  sl=8  rr=1  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=1 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=15 dr=0  sl=0  rr=7  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=1 ksl=0 ws=1 sus=0 kvs=2
+[33] ch6ins2          YM2413  preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+     op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[34] ch7ins1          YM2413  preset=14 alg=0 fb=3 fms=0 ams=0 ops=2 fp=bd0232348f1c8cc9
+     op0 ml=1  tl=21  ar=14 dr=4  sl=0  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=1 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=9  dr=0  sl=0  rr=2  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[35] ch7ins2          YM2413  preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+     op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[36] ch8ins1          YM2413  preset=14 alg=0 fb=3 fms=0 ams=0 ops=2 fp=bd0232348f1c8cc9
+     op0 ml=1  tl=21  ar=14 dr=4  sl=0  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=1 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=9  dr=0  sl=0  rr=2  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+[37] ch8ins2          YM2413  preset=15 alg=0 fb=3 fms=0 ams=0 ops=2 fp=91795c1a5f0eccbd
+     op0 ml=1  tl=9   ar=15 dr=1  sl=12 rr=0  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=2 ws=0 sus=0 kvs=2
+     op1 ml=1  tl=0   ar=14 dr=4  sl=1  rr=3  dt=0  dt2=0  ksr=0 am=0 vib=0 egt=0 ksl=0 ws=0 sus=0 kvs=2
+```
 
 ---
 
@@ -150,8 +308,10 @@ alg=2 fb=4 互为近亲，目标侧统一映射到 program=15（Electric Guitar�
 ## 6. 这份库怎么更新
 
 ```bash
-# 改完 out/2151-2413.fur 之后
-cli/build/fuitool.exe lib out/2151-2413.fur    # 看 stdout，或替换 §4
+# 改完 out/2151-2413.fur 之后，同时刷新文档与 JSON
+cli/build/fuitool.exe lib out/2151-2413.fur --json=docs/instrument-library.json
+#   stdout  = 本文件 §4 的 Markdown（表格 + 明文参数清单）
+#   --json  = docs/instrument-library.json（机器可读、可 diff）
 
 # 只想看工程里有什么（含指纹）
 cli/build/fuitool.exe fur out/2151-2413.fur
@@ -159,3 +319,26 @@ cli/build/fuitool.exe fur out/2151-2413.fur
 # 看单个音色的完整参数 + 宏 + 指纹
 cli/build/fuitool.exe dump out/ch1ins1_ym2413.fui
 ```
+
+`docs/instrument-library.json` 的结构：
+
+```jsonc
+{
+  "format": "vgm-studio/instrument-library",
+  "version": 1,
+  "source": "out/2151-2413.fur",
+  "furVersion": 228, "hz": 60.0,
+  "instruments": [
+    {
+      "index": 19, "name": "ch1ins1", "type": 13, "chip": "YM2413",
+      "opllPreset": 5, "alg": 0, "fb": 3, "fms": 0, "ams": 0, "ops": 2,
+      "operators": [ {"index":0,"mult":1,"tl":21,"ar":14,...}, ... ],
+      "macros":    [ {"macro":0,"type":0,"values":[0,15],"speed":1,...} ],
+      "fingerprint": "b948f06873152e69",
+      "signature":   "t13;preset5;alg0;fb3;fms0;ams0;ops2|0:1,21,14,..."
+    }
+  ]
+}
+```
+
+`operators` 里是**明文数字**，任何工具都能直接读，不必解析 `.fui` 二进制。

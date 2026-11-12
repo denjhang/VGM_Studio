@@ -10,9 +10,13 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <cstdlib>
+
+#include <nlohmann/json.hpp>
+#include <fmt/format.h>
 
 #include "FuiVoice.h"
 #include "FurFile.h"
@@ -32,11 +36,9 @@ void Usage() {
         "  fuitool fur <project.fur>\n"
         "      列出 Furnace 工程里的全部乐器（与 opm2opll --fur 同一读取路径）\n"
         "\n"
-        "  fuitool lib <project.fur>\n"
-        "      导出乐器库 Markdown（参数 + 指纹 + 标签名），改动后可重新生成本地库文档\n"
-        "\n"
-        "  fuitool lib <project.fur> --json=OUT.json\n"
-        "      同上，但输出机器可读的乐器库 JSON\n"
+        "  fuitool lib <project.fur> [--json=OUT.json]\n"
+        "      导出乐器库：stdout 是 Markdown（表格 + 明文参数清单），\n"
+        "      --json=FILE 另存一份机器可读的 JSON\n"
         "\n"
         "  fuitool rewrite <in.fui> <out.fui> [--name=...] [--alg=N] [--fb=N]\n"
         "      读入 → 改几个字段 → 写回（验证编解码往返无损）\n"
@@ -133,6 +135,76 @@ int DumpVoice(const vgmstudio::FuiVoice& v, const std::string& label, int tickRa
     return 0;
 }
 
+// 乐器库 JSON：机器可读、可 diff、可被别的工具直接吃。
+// 结构：每条 = 标签 + 类型 + preset + 全部 FM 参数（明文数字）+ 指纹 + 签名。
+bool WriteLibraryJson(const vgmstudio::FurSong& song, const std::string& source,
+                      const std::string& path, std::string* err) {
+    nlohmann::json ins = nlohmann::json::array();
+    for (size_t i = 0; i < song.instruments.size(); i++) {
+        const vgmstudio::FurInstrument& fi = song.instruments[i];
+        const vgmstudio::FuiVoice& v = fi.voice;
+        nlohmann::json ops = nlohmann::json::array();
+        const int shown = v.ops >= 2 ? v.ops : 2;
+        for (int o = 0; o < shown; o++) {
+            const vgmstudio::FuiOperator& op = v.op[o];
+            ops.push_back({
+                {"index", o},
+                {"mult", op.mult}, {"tl", op.tl}, {"ar", op.ar}, {"dr", op.dr},
+                {"sl", op.sl}, {"rr", op.rr}, {"dt", op.dt}, {"dt2", op.dt2},
+                {"ksr", op.ksr}, {"am", op.am}, {"vib", op.vib}, {"egt", op.egt},
+                {"ksl", op.ksl}, {"ws", op.ws}, {"sus", op.sus}, {"kvs", op.kvs},
+                {"enable", op.enable},
+            });
+        }
+        // 有宏的乐器把宏也带上（OPLL 的 0 号槽 + patch 宏是音色的一部分）
+        nlohmann::json macros = nlohmann::json::array();
+        for (int m = 0; m < vgmstudio::kMacroCount; m++) {
+            const vgmstudio::Macro& mc = v.macros[m];
+            if (mc.val.empty()) continue;
+            macros.push_back({{"macro", m},
+                              {"type", mc.type},
+                              {"values", mc.val},
+                              {"speed", mc.speed},
+                              {"delay", mc.delay},
+                              {"loop", mc.loop},
+                              {"rel", mc.rel}});
+        }
+        ins.push_back({
+            {"index", i},
+            {"name", fi.name},
+            {"type", fi.type},
+            {"chip", fi.type == vgmstudio::kFuiInsOpm
+                         ? "YM2151"
+                         : (fi.type == vgmstudio::kFuiInsOpll ? "YM2413" : "other")},
+            {"opllPreset", v.opllPreset},
+            {"alg", v.alg}, {"fb", v.fb}, {"fms", v.fms}, {"ams", v.ams},
+            {"ops", v.ops},
+            {"operators", ops},
+            {"macros", macros},
+            {"fingerprint", fmt::format("{:016x}", vgmstudio::VoiceFingerprint(v))},
+            {"signature", vgmstudio::VoiceSignature(v)},
+        });
+    }
+    nlohmann::json root = {
+        {"format", "vgm-studio/instrument-library"},
+        {"version", 1},
+        {"source", source},
+        {"furVersion", song.version},
+        {"hz", song.hz},
+        {"songName", song.name},
+        {"songAuthor", song.author},
+        {"note", "身份靠参数（operators + preset），指纹只是签名串的哈希"},
+        {"instruments", ins},
+    };
+    std::ofstream f(path);
+    if (!f) {
+        *err = "cannot write " + path;
+        return false;
+    }
+    f << root.dump(2) << "\n";
+    return f.good();
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -149,6 +221,7 @@ int main(int argc, char** argv) {
     int tickRate = 60;
     std::vector<std::string> args;
     std::string newName;
+    std::string jsonOut;   // --json=OUT.json（仅 lib 用）
     int newAlg = -1, newFb = -1;
     for (int i = 2; i < argc; i++) {
         const char* a = argv[i];
@@ -160,6 +233,8 @@ int main(int argc, char** argv) {
             newAlg = std::atoi(a + 6);
         } else if (std::strncmp(a, "--fb=", 5) == 0) {
             newFb = std::atoi(a + 5);
+        } else if (std::strncmp(a, "--json=", 7) == 0) {
+            jsonOut = a + 7;
         } else if (a[0] == '-') {
             std::fprintf(stderr, "unknown option: %s\n", a);
             return 1;
@@ -195,7 +270,15 @@ int main(int argc, char** argv) {
             std::fprintf(stderr, "error: %s\n", err.c_str());
             return 2;
         }
-        std::printf("<!-- 以下表格由 `fuitool lib %s` 自动生成，勿手改 -->\n\n",
+        if (!jsonOut.empty()) {
+            std::string jerr;
+            if (!WriteLibraryJson(song, args[0], jsonOut, &jerr)) {
+                std::fprintf(stderr, "error: %s\n", jerr.c_str());
+                return 2;
+            }
+            std::fprintf(stderr, "json written: %s\n", jsonOut.c_str());
+        }
+        std::printf("<!-- 以下内容由 `fuitool lib %s` 自动生成，勿手改 -->\n\n",
                     args[0].c_str());
         std::printf("来源 `%s`，Furnace 版本 %d，hz=%.2f，共 %zu 个乐器。\n\n",
                     args[0].c_str(), song.version, song.hz, song.instruments.size());
@@ -232,6 +315,31 @@ int main(int argc, char** argv) {
             }
             std::printf("\n");
         }
+
+        // 明文清单：表格里的 <br> 不好复制，这里给每件乐器一段等宽文本
+        std::printf("## 明文参数清单\n\n");
+        std::printf("```text\n");
+        for (size_t i = 0; i < song.instruments.size(); i++) {
+            const vgmstudio::FurInstrument& fi = song.instruments[i];
+            const vgmstudio::FuiVoice& v = fi.voice;
+            std::printf("[%02zu] %-16s %-7s preset=%-2d alg=%d fb=%d fms=%d ams=%d ops=%d "
+                        "fp=%016llx\n",
+                        i, fi.name.c_str(),
+                        fi.type == vgmstudio::kFuiInsOpm
+                            ? "YM2151"
+                            : (fi.type == vgmstudio::kFuiInsOpll ? "YM2413" : "other"),
+                        v.opllPreset, v.alg, v.fb, v.fms, v.ams, v.ops,
+                        (unsigned long long)vgmstudio::VoiceFingerprint(v));
+            const int shown = v.ops >= 2 ? v.ops : 2;
+            for (int o = 0; o < shown; o++) {
+                const vgmstudio::FuiOperator& op = v.op[o];
+                std::printf("     op%d ml=%-2d tl=%-3d ar=%-2d dr=%-2d sl=%-2d rr=%-2d dt=%-2d "
+                            "dt2=%-2d ksr=%d am=%d vib=%d egt=%d ksl=%d ws=%d sus=%d kvs=%d\n",
+                            o, op.mult, op.tl, op.ar, op.dr, op.sl, op.rr, op.dt, op.dt2,
+                            op.ksr, op.am, op.vib, op.egt, op.ksl, op.ws, op.sus, op.kvs);
+            }
+        }
+        std::printf("```\n");
         return 0;
     }
 
