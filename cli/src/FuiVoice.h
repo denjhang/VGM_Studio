@@ -26,6 +26,9 @@ namespace vgmstudio {
 struct Macro {
     std::vector<int> val;  // 序列模式的值；ADSR/LFO 模式是参数表（见下）
     int type = 0;
+    // Furnace 的 DivInstrumentMacro::mode。pitch 宏：0=绝对值，1=累加增量
+    // （arcade.cpp:344-352 / opll.cpp:189-197）。arp 宏在 v112 之后固定为 0。
+    int mode = 0;
     int loop = 255;
     int rel = 255;
     int delay = 0;

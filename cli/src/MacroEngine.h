@@ -56,9 +56,20 @@ struct MacroRetrigger {
     int opMask = 0x0F;   // OPM 的 0x08 数据（slot 掩码）；OPLL 忽略，只重写 key 位
 };
 
+// OPLL 专用：alg 宏在 OPLL 上没有 ALG 寄存器，它驱动的是 0x20 的 bit5（SUS / EG-S），
+// 该位在每次写 0x20（key-on / 频率变化）时随 fnum 高位一起吐出（opll.cpp:258）。
+// Furnace 只在 preset==0 时额外置 freqChanged（opll.cpp:207-209），也就是「立刻重写」；
+// ROM 预置下不立刻写，要等下一个 key-on / freq 变化才生效。
+struct MacroSus {
+    uint32_t atSample = 0;
+    int sus = 0;            // 0 = 清 bit5，1 = 置 bit5
+    bool immediate = false; // true = 立刻写 0x20（Furnace 的 freqChanged）
+};
+
 struct MacroExpandOutput {
     std::vector<MacroWrite> writes;
     std::vector<MacroPitch> pitches;        // arp / pitch 宏的音高偏移
+    std::vector<MacroSus> susPoints;        // OPLL 的 alg→SUS
     std::vector<MacroRetrigger> retriggers; // phaseReset / ex4
 };
 

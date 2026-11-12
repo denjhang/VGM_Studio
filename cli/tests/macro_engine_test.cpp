@@ -188,11 +188,12 @@ int main(){
     int n=0; for(int r:regs) if(r<=0x07) n++;
     check("opll op macros 0x00-0x06", n>=5);
   }
-  // 20. OPLL 的 alg 宏写 0x20 的 SUS 位
+  // 20. OPLL 的 alg 宏 → 0x20 的 SUS 位（opll.cpp:205-210 只置 freqChanged，
+  //     这个位真正落盘是在下一次写 0x20 时，所以引擎只产出 susPoints）
   {
     FuiVoice v=Base(true,2); v.opllPreset=0; v.macros[kMacroAlg]=Seq({0,1},4);
     in.opll=true; auto o=ExpandMacros(v,in);
-    bool found=false; for(auto&w:o.writes) if(w.reg==0x20 && (w.val&0x20)) found=true;
+    bool found=false; for(auto&p:o.susPoints) if(p.sus==1) found=true;
     check("opll alg -> sus bit", found);
   }
   // 21. OPLL patch 切换（wave 宏）：0x30 高 4 位换成新音色号
@@ -224,6 +225,153 @@ int main(){
     auto o=ExpandMacros(v,in);
     check("retrigger points for OPLL", o.retriggers.size()>=2);
   }
+  // ── 24..43. OPLL 实际消费的 20 条宏，逐条断言 ─────────────────────────
+  // 通道级 9 条：vol / arp / pitch / wave / alg / fb / fms / ams / phaseReset
+  // 算子级 11 条：am / ar / dr / mult / rr / sl / tl / egt / ksl / vib / ksr
+  auto RegWrites=[&](const MacroExpandOutput& o,int reg){
+    std::vector<uint8_t> v; for(auto&w:o.writes) if(w.reg==reg) v.push_back(w.val); return v;
+  };
+  in.opll=true;
+  // 24. vol → 0x30 低 4 位。注意 OPLL 的该字段是**衰减值**（0=最响、15=静音），
+  //     Furnace 的式子是 15 - VOL_SCALE_LOG(outVol, 15-载波TL, 15)（opll.cpp:170），
+  //     所以 baseVol=15 时应等于载波 TL（此例 10），baseVol 变小则衰减变大。
+  { FuiVoice v=Base(true,2); v.opllPreset=6; v.macros[kMacroVol]=Seq({15,7},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x30);
+    check("OPLL vol 0x30 low nibble", r.size()>=2 && (r[0]&15)==10 && (r[1]&15)==15); }
+  // 25. arp → 音高变化点，单位是半音（×128 → 1/128 半音）
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.macros[kMacroArp]=Seq({0,12},2);
+    auto o=ExpandMacros(v,in);
+    check("OPLL arp 12 semitones", o.pitches.size()>=2 && o.pitches[1].offset128==12*128); }
+  // 26. pitch → 1/128 半音，绝对值模式
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.macros[kMacroPitch]=Seq({0,256},2);
+    auto o=ExpandMacros(v,in);
+    check("OPLL pitch 1/128 semitone", o.pitches.size()>=2 && o.pitches[1].offset128==256); }
+  // 27. pitch mode=1 → 累加
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0;
+    v.macros[kMacroPitch]=Seq({100,100,100},2); v.macros[kMacroPitch].mode=1;
+    auto o=ExpandMacros(v,in);
+    check("OPLL pitch accumulate", o.pitches.size()>=3 && o.pitches[2].offset128==300); }
+  // 28. wave → patch 切换（0x30 高 4 位）
+  { FuiVoice v=Base(true,2); v.opllPreset=1; in.opllPreset=1; v.macros[kMacroWave]=Seq({12},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x30);
+    check("OPLL wave = patch", !r.empty() && ((r[0]>>4)&15)==12); }
+  // 29. alg → SUS bit（0x20 bit5），用户音色下是 immediate
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.macros[kMacroAlg]=Seq({1},2);
+    auto o=ExpandMacros(v,in);
+    check("OPLL alg SUS on",
+          !o.susPoints.empty() && o.susPoints[0].sus==1 && o.susPoints[0].immediate); }
+  // 30. alg 在 ROM 预设上仍然改变 SUS 状态，但不立即重写寄存器
+  //     （opll.cpp:205-210：state.alg 无条件保存，freqChanged 只在 preset==0 时置）
+  { FuiVoice v=Base(true,2); v.opllPreset=5; in.opllPreset=5; v.macros[kMacroAlg]=Seq({1},2);
+    auto o=ExpandMacros(v,in);
+    check("OPLL alg rom preset deferred",
+          !o.susPoints.empty() && o.susPoints[0].sus==1 && !o.susPoints[0].immediate); }
+  // 31. fb → 0x03 低 3 位
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.macros[kMacroFb]=Seq({7},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x03);
+    check("OPLL fb 0x03", !r.empty() && (r[0]&7)==7); }
+  // 32. fms → 0x03 bit4
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.macros[kMacroFms]=Seq({1},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x03);
+    check("OPLL fms bit4", !r.empty() && (r[0]&0x10)!=0); }
+  // 33. ams → 0x03 bit3
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.macros[kMacroAms]=Seq({1},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x03);
+    check("OPLL ams bit3", !r.empty() && (r[0]&0x08)!=0); }
+  // 34. phaseReset → 重触发点
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.macros[kMacroPhaseReset]=Seq({1},4);
+    auto o=ExpandMacros(v,in);
+    check("OPLL phaseReset retrig", o.retriggers.size()>=1); }
+  // 35. op.am → 0x00/0x01 bit7
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.opMacros[1][kOpAm]=Seq({1},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x01);
+    check("OPLL op am bit7", !r.empty() && (r[0]&0x80)!=0); }
+  // 36. op.ar → 0x04/0x05 高 4 位
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.opMacros[0][kOpAr]=Seq({0xF},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x04);
+    check("OPLL op ar high nibble", !r.empty() && ((r[0]>>4)&15)==0xF); }
+  // 37. op.dr → 0x04/0x05 低 4 位
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.opMacros[1][kOpDr]=Seq({0xD},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x05);
+    check("OPLL op dr low nibble", !r.empty() && (r[0]&15)==0xD); }
+  // 38. op.mult → 0x00/0x01 低 4 位
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.opMacros[0][kOpMult]=Seq({9},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x00);
+    check("OPLL op mult", !r.empty() && (r[0]&15)==9); }
+  // 39. op.rr → 0x06/0x07 低 4 位
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.opMacros[0][kOpRr]=Seq({11},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x06);
+    check("OPLL op rr", !r.empty() && (r[0]&15)==11); }
+  // 40. op.sl → 0x06/0x07 高 4 位
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.opMacros[1][kOpSl]=Seq({0xE},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x07);
+    check("OPLL op sl", !r.empty() && ((r[0]>>4)&15)==0xE); }
+  // 41. op.tl：调制器 → 0x02（6 位），载波 → 0x30（4 位，任何预设都写）
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0;
+    v.opMacros[0][kOpTl]=Seq({40},2); v.opMacros[1][kOpTl]=Seq({5},2);
+    auto o=ExpandMacros(v,in);
+    auto r2=RegWrites(o,0x02); auto r30=RegWrites(o,0x30);
+    check("OPLL op tl mod 0x02", !r2.empty() && (r2[0]&63)==40);
+    check("OPLL op tl car 0x30", !r30.empty()); }
+  // 42. op.tl 载波在 ROM 预设上也写（它同时是通道音量）
+  { FuiVoice v=Base(true,2); v.opllPreset=7; in.opllPreset=7; v.opMacros[1][kOpTl]=Seq({3},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x30);
+    check("OPLL car tl on rom preset", !r.empty()); }
+  // 43. op.egt → 0x00/0x01 bit5（ssgEnv&8 << 2）
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.opMacros[0][kOpEgt]=Seq({1},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x00);
+    check("OPLL op egt bit5", !r.empty() && (r[0]&0x20)!=0); }
+  // 44. op.ksl：两个算子共用一对寄存器（0x02 = 调制器 KSL+TL，0x03 = 载波
+  //     KSL+FMS+AMS+FB），所以改一个就必须重写含对方的那个（opll.cpp:289-298）：
+  //     调制器 KSL 变 → 重写 0x03；载波 KSL 变 → 重写 0x02。
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0;
+    v.opMacros[0][kOpKsl]=Seq({3},2); v.opMacros[1][kOpKsl]=Seq({2},4);
+    auto o=ExpandMacros(v,in);
+    bool r3=false,r2=false;
+    for(auto&w:o.writes){ if(w.reg==0x03) r3=true; if(w.reg==0x02) r2=true; }
+    check("OPLL op ksl mod->0x03", r3);
+    check("OPLL op ksl car->0x02", r2); }
+  // 45. op.vib → 0x00/0x01 bit6
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.opMacros[1][kOpVib]=Seq({1},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x01);
+    check("OPLL op vib bit6", !r.empty() && (r[0]&0x40)!=0); }
+  // 46. op.ksr → 0x00/0x01 bit4
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0; v.opMacros[0][kOpKsr]=Seq({1},2);
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x00);
+    check("OPLL op ksr bit4", !r.empty() && (r[0]&0x10)!=0); }
+  // 47. OPLL 不消费的 13 条通道宏：duty / panL / panR / ex1..ex3 / ex4 / ex5..ex10
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0;
+    v.macros[kMacroDuty]=Seq({5},2);
+    v.macros[kMacroPanL]=Seq({3},2);
+    v.macros[kMacroPanR]=Seq({3},2);
+    v.macros[kMacroEx1]=Seq({0x20},2);
+    v.macros[kMacroEx2]=Seq({0x20},2);
+    v.macros[kMacroEx3]=Seq({0xC2},2);
+    v.macros[kMacroEx4]=Seq({3},2);
+    v.macros[kMacroEx5]=Seq({1},2);
+    v.macros[kMacroEx6]=Seq({1},2);
+    v.macros[kMacroEx7]=Seq({1},2);
+    v.macros[kMacroEx8]=Seq({1},2);
+    v.macros[kMacroEx9]=Seq({1},2);
+    v.macros[kMacroEx10]=Seq({1},2);
+    auto o=ExpandMacros(v,in);
+    check("OPLL ignores 13 unused ch macros",
+          o.writes.empty() && o.pitches.empty() && o.retriggers.empty()); }
+  // 48. OPLL 不消费的 9 条算子宏：dt / dt2 / d2r / rs / ssg / dam / dvb / sus / ws
+  { FuiVoice v=Base(true,2); v.opllPreset=0; in.opllPreset=0;
+    v.opMacros[0][kOpDt]=Seq({7},2);
+    v.opMacros[0][kOpDt2]=Seq({3},2);
+    v.opMacros[0][kOpD2r]=Seq({31},2);
+    v.opMacros[0][kOpRs]=Seq({3},2);
+    v.opMacros[0][kOpSsg]=Seq({8},2);
+    v.opMacros[0][kOpDam]=Seq({1},2);
+    v.opMacros[0][kOpDvb]=Seq({1},2);
+    v.opMacros[0][kOpSus]=Seq({1},2);
+    v.opMacros[0][kOpWs]=Seq({1},2);
+    auto o=ExpandMacros(v,in);
+    check("OPLL ignores 9 unused op macros", o.writes.empty()); }
+  in.opll=false;
+
   std::printf("\n%s (%d fail)\n", fails? "FAILED":"ALL PASS", fails);
   return fails?1:0;
 }

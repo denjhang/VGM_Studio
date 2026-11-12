@@ -138,7 +138,7 @@ std::vector<uint8_t> EncodeFui(const FuiVoice& v) {
         m->rel = (unsigned char)s.rel;
         m->delay = (unsigned char)s.delay;
         m->speed = (unsigned char)s.speed;
-        m->mode = 0;
+        m->mode = (unsigned int)(s.mode & 7);
         m->open = (unsigned char)(((s.type & 3) << 1) | (s.activeRelease ? 8 : 0));
     }
     for (int i = 0; i < 4; i++) {
@@ -216,6 +216,7 @@ bool DecodeFui(const uint8_t* data, size_t len, FuiVoice* out, std::string* err)
         s.delay = m->delay;
         s.speed = m->speed;
         s.type = (m->open >> 1) & 3;
+        s.mode = (int)m->mode;
         s.activeRelease = (m->open & 8) != 0;
         s.linger = (i == kMacroVol);
     }

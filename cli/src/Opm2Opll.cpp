@@ -130,6 +130,11 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
     }
     const double clockRatio = 3579545.0 / static_cast<double>(srcClock);
 
+    // 0 号预设（唯一可写的用户音色）的内容：只有用户把某个 .fui 的 opllPreset
+    // 改成 0 时才有值，此时把它的算子参数写进 0x00-0x07 全局段。
+    FuiVoice userVoice;
+    bool haveUserVoice = false;
+
     Document& doc = out.doc;
     doc.format = "vgm-studio/song";
     doc.version = 1;
@@ -227,6 +232,8 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
 
                 // ★ 用户改过的 .fui 优先：同名 ym2413.fui 存在且开了 useEditedFui 时，
                 //   用它的 program（音色号）覆盖自动匹配结果。
+                //   opllPreset == 0 是合法的：0 号槽是唯一可写的用户音色，
+                //   只有它能被算子级宏改动，也正是 patch 切换之外 OPLL 唯一的自由音色。
                 bool usedEdited = false;
                 FuiVoice editedVoice;
                 if (opt.useEditedFui) {
@@ -235,11 +242,15 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     const std::string path = opt.fuiDir.empty() ? fn : (opt.fuiDir + "/" + fn);
                     std::string ferr;
                     if (LoadFui(path, &editedVoice, &ferr)) {
-                        if (editedVoice.opllPreset > 0 && editedVoice.opllPreset < 19) {
+                        if (editedVoice.opllPreset >= 0 && editedVoice.opllPreset < 19) {
                             m.program = editedVoice.opllPreset;
                         }
                         usedEdited = true;
                         out.fuiApplied.push_back(path);
+                        if (m.program == 0 && !haveUserVoice) {
+                            userVoice = editedVoice;
+                            haveUserVoice = true;
+                        }
                     }
                 }
 
@@ -343,7 +354,10 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     mi.ch = ch;
                     mi.baseKc = kc;
                     mi.baseKf = kf;
-                    mi.baseVol = 127;
+                    // OPLL 的通道音量满量程是 15（opll.cpp:1144 chan[i].vol=15），
+                    // 把已算好的目标音量 vol 直接当 baseVol 传进去，音量宏才是
+                    // 在「当前音符音量」上做相对衰减，而不是从满量程重算。
+                    mi.baseVol = vol;
                     mi.startSample = n.startSample;
                     mi.endSample = n.endSample;
                     mi.sampleRate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
@@ -366,13 +380,28 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     //   所以必须先 key-off 再 key-on，两条写落在同一采样点、按顺序执行
                     //   （这正是 Furnace arcade.cpp:484-533 的做法：先 immWrite(0x08,i)，
                     //    随后 immWrite(0x08,(opMask<<3)|i)）。
+                    // OPLL 的 alg 宏 = 0x20 的 bit5（SUS / EG-S），与 preset 无关：
+                    // 它总在**下一次**写 0x20 时随 fnum 高位一起吐出（opll.cpp:258）。
+                    // 只有用户音色（preset==0）Furnace 才额外置 freqChanged → 立即重写。
+                    // 所以这里按时间顺序取「截至该采样点最新的 sus 值」，并只对
+                    // immediate 的那些点额外补一次独立写。
+                    auto susAt = [&mo](uint32_t at) {
+                        int s = 0;
+                        for (const MacroSus& p : mo.susPoints) {
+                            if (p.atSample > at) break;
+                            s = p.sus;
+                        }
+                        return s != 0 ? 0x20 : 0x00;
+                    };
+
                     for (const MacroRetrigger& rt : mo.retriggers) {
                         Segment seg;
                         seg.atSample = rt.atSample;
+                        const uint8_t sus = static_cast<uint8_t>(susAt(rt.atSample));
                         seg.regs.push_back(Rv(0x20 + ch,
-                                              static_cast<uint8_t>(dhBase)));        // key off
+                                              static_cast<uint8_t>(dhBase | sus)));  // key off
                         seg.regs.push_back(Rv(0x20 + ch,
-                                              static_cast<uint8_t>(dhBase | 0x10))); // key on
+                                              static_cast<uint8_t>(dhBase | sus | 0x10))); // key on
                         dn.segments.push_back(seg);
                     }
 
@@ -388,7 +417,19 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                         seg.regs.push_back(Rv(0x10 + ch, fn2.fnumLow));
                         seg.regs.push_back(Rv(0x20 + ch,
                                               static_cast<uint8_t>((bO << 1) |
-                                                                   ((fn2.fnum >> 8) & 1) | 0x10)));
+                                                                   ((fn2.fnum >> 8) & 1) | 0x10 |
+                                                                   susAt(p.atSample))));
+                        dn.segments.push_back(seg);
+                    }
+                    // immediate 的 sus 变化点（用户音色）：单独写一次 0x20，
+                    // 保住 fnum 与 key 位。ROM 预置下 Furnace 不立即写，等下次 key。
+                    for (const MacroSus& p : mo.susPoints) {
+                        if (!p.immediate) continue;
+                        Segment seg;
+                        seg.atSample = p.atSample;
+                        seg.regs.push_back(Rv(0x20 + ch,
+                                              static_cast<uint8_t>(dhBase | 0x10 |
+                                                                   (p.sus ? 0x20 : 0x00))));
                         dn.segments.push_back(seg);
                     }
                     std::stable_sort(dn.segments.begin(), dn.segments.end(),
@@ -420,8 +461,19 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
         }
     }
 
-    // 用户音色槽（可选）：把最后一个音色写成 0x00-0x07（仅单音色曲目合理）
-    if (opt.useUserVoice && !src.channels.empty()) {
+    // 用户音色槽（0 号预设）
+    //   ① 用户把某个 .fui 的 opllPreset 改成 0 → 用它那份算子参数（最高优先级）
+    //   ② 否则沿用 --user-voice，把源通道 0 的音色写进 0x00-0x07
+    if (haveUserVoice) {
+        uint8_t uv[256] = {0};
+        FuiToOpllUserVoice(userVoice, uv);
+        GlobalSegment gs;
+        gs.atSample = 0;
+        for (int i = 0; i < 8; i++) gs.regs.push_back(Rv(static_cast<uint8_t>(i), uv[i]));
+        doc.globals.push_back(gs);
+        doc.meta.unhandled.push_back(
+            "userVoice: 0x00-0x07 取自用户编辑的 .fui（opllPreset=0）");
+    } else if (opt.useUserVoice && !src.channels.empty()) {
         uint8_t shadow[256] = {0};
         for (const Orphan& o : src.channels[0].orphans)
             for (const RegValue& r : o.regs) shadow[r.reg] = r.val;

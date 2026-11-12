@@ -226,24 +226,73 @@ fms/ams       : 0 / 0   (ops=2, opllPreset=14)
 | 通道级（MA 块） | 22 条 | `arcade.cpp:292-480` / `opll.cpp:150-340` |
 | 算子级（O1..O4 块） | 4 × 20 条 | 同上（`chan[i].std.op[j]`） |
 
-### 8.5.1 通道级宏 → 寄存器
+### 8.5.1 ★ OPLL 到底消费几条宏（清单）
+
+`.fui` 格式为所有芯片定义了 22 条通道级宏 + 4×20 条算子级宏，但**每条平台的 `tick()`
+只读其中一部分**。OPLL（`furnace/src/engine/platform/opll.cpp:150-340`）实际消费：
+
+**通道级 9 条**
+
+| # | 宏 | 代码位置 | OPLL 上的作用 |
+|---|---|---|---|
+| 1 | `vol` | `opll.cpp:157-172` | 写 `0x30` 低 4 位（通道音量） |
+| 2 | `arp` | `opll.cpp:174-181` | 改 baseFreq，重算 fnum |
+| 3 | `wave` | `opll.cpp:182-188` | **patch 切换**：写 `0x30` 高 4 位 |
+| 4 | `pitch` | `opll.cpp:189-197` | 加到 pitch2，重算 fnum |
+| 5 | `phaseReset` | `opll.cpp:198-203` | 重触发（key-off → key-on） |
+| 6 | `alg` | `opll.cpp:205-210` | 只存 state.alg；用户音色时置 freqChanged。下次写 `0x20` 时变成 **bit5（SUS/EG-S）**，见 `:258` |
+| 7 | `fb` | `opll.cpp:211-216` | 写 `0x03` bit0-2（仅 preset==0） |
+| 8 | `fms` | `opll.cpp:217-222` | 写 `0x03` bit4（仅 preset==0） |
+| 9 | `ams` | `opll.cpp:223-228` | 写 `0x03` bit3（仅 preset==0） |
+
+**算子级 11 条**（`opll.cpp:230-311`，只对前 2 个算子）
+
+| # | 宏 | 落点（preset==0） |
+|---|---|---|
+| 10 | `am` | `0x00+j` bit7 |
+| 11 | `ar` | `0x04+j` 高 4 位 |
+| 12 | `dr` | `0x04+j` 低 4 位 |
+| 13 | `mult` | `0x00+j` 低 4 位 |
+| 14 | `rr` | `0x06+j` 低 4 位 |
+| 15 | `sl` | `0x06+j` 高 4 位 |
+| 16 | `tl` | 调制器 → `0x02` 低 6 位；载波 → `0x30` 低 4 位（**任何 preset 都写**，它同时是通道音量） |
+| 17 | `egt` | `0x00+j` bit5（Furnace 内部 `ssgEnv=(val&1)?8:0`，写时 `(ssgEnv&8)<<2`） |
+| 18 | `ksl` | 调制器 KSL 变 → 重写 `0x03`；载波 KSL 变 → 重写 `0x02`（两个寄存器互相持有对方的 KSL） |
+| 19 | `vib` | `0x00+j` bit6 |
+| 20 | `ksr` | `0x00+j` bit4 |
+
+**合计 9 + 11 = 20 条**。
+
+**OPLL 不消费的 22 条**（不是漏实现，`grep "std\.<名字>" opll.cpp` 为零命中）：
+
+| 组 | 宏 | 原因 |
+|---|---|---|
+| 通道级 13 条 | `duty`、`panL`、`panR`、`ex1`、`ex2`、`ex3`、`ex4`、`ex5..ex10` | OPLL 没有占空比、没有左右声道、没有 LFO 深度/波形寄存器、没有 slot 掩码。`panL`/`panR` 只有 OPM 用（`arcade.cpp:334-342`），且 **`panR` 连 OPM 都不消费** |
+| 算子级 9 条 | `dt`、`dt2`、`d2r`、`rs`、`ssg`、`dam`、`dvb`、`sus`、`ws` | OPLL 的 2-op 算子没有 detune/DT2/D2R/RS；`ssg`/`dam`/`dvb`/`ws` 是 OPN/OPL/OPZ 的字段；`sus` 在 OPLL 上是通道级 `0x20` bit5，由 `alg` 宏承担 |
+
+> 正因为 15 个 ROM 预置不可改，**`wave`（换 patch）和 `phaseReset`（重触发）才是 OPLL
+> 上最有价值的宏**：前者在 16 个音色间切换，后者在同一个音色上制造第二次 attack。
+> 其余算子级宏只在 `preset == 0`（0 号用户槽）时才落地。
+
+### 8.5.2 通道级宏 → 寄存器
 
 | 宏 | OPM 落到 | OPLL 落到 |
 |---|---|---|
 | `vol` | 4 个算子的 `0x60+j*8`（按 KVS 决定是否叠音量） | `0x30` 低 4 位 |
-| `arp` / `pitch` | 音高偏移（1/128 半音），调用方重算 fnum | 同 |
+| `arp` / `pitch` | 音高偏移（arp 半音 ×128，pitch 1/128 半音），调用方重算 fnum | 同 |
 | `duty` | `0x0F` | — |
 | `wave` | `0x1B`（LFO 波形） | `0x30` 高 4 位（换音色号） |
-| `alg` | `0x20` bit0-2 | `0x20` bit5（SUS） |
+| `alg` | `0x20` bit0-2 | 不写寄存器；驱动 `0x20` bit5（SUS），只在用户音色生效 |
 | `fb` | `0x20` bit3-5 | `0x03` bit0-2 |
 | `fms` / `ams` | `0x38` | `0x03` bit4 / bit3 |
-| `panL` / `panR` | `0x20` bit6/7 | — |
+| `panL` | `0x20` bit6/7 | — |
+| `panR` | 两个平台都不消费 | — |
 | `ex1` / `ex2` / `ex3` | `0x19`（PMD）/ `0x19\|0x80`（AMD）/ `0x18`（LFO 频率） | — |
 | `phaseReset` | 重触发（重写 key 位） | 同 |
 | `ex4` | 改算子掩码 + 重触发 | — |
 | `ex5..ex10` | 两个平台都不消费 | — |
 
-### 8.5.2 算子级宏 → 寄存器
+### 8.5.3 算子级宏 → 寄存器
 
 | 宏 | OPM | OPLL（preset=0 时） |
 |---|---|---|
@@ -255,13 +304,13 @@ fms/ams       : 0 / 0   (ops=2, opllPreset=14)
 | `dt` | `0x40` 高 4 位（经 `dtTable`） | — |
 | `dt2` / `d2r` | `0xC0` | — |
 | `rs` | `0x80` bit6-7 | — |
-| `ksr` | `0x60` bit7 | `0x00+j` bit4 |
-| `ksl` | — | `0x02` / `0x03` |
-| `vib` / `egt` | — | `0x00+j` |
-| `sus` | — | `0x20` bit5（key 段负责） |
+| `ksr` | — （`arcade.cpp` 无 `m.ksr.had`） | `0x00+j` bit4 |
+| `ksl` | — | 调制器变 → `0x03`；载波变 → `0x02` |
+| `vib` / `egt` | — | `0x00+j` bit6 / bit5 |
+| `sus` | — | 通道级 `0x20` bit5，由 `alg` 宏驱动 |
 | `ssg` / `dam` / `dvb` / `ws` | OPM/OPLL 不支持 | — |
 
-### 8.5.3 音量缩放公式
+### 8.5.4 音量缩放公式
 
 Furnace 的 `compatFlags.newVolumeScaling` 默认 `true`（`song.cpp:1165`），所以：
 
@@ -272,7 +321,7 @@ VOL_SCALE_LOG_BROKEN(x, y, range) = CLAMP(x + y - range, 0, range)
 - OPM：`range=127`，`x=127-op.tl`，`y=通道音量`
 - OPLL：`range=15`，`x=15-carrierTl`，`y=通道音量`
 
-### 8.5.4 OPLL 的两个常用宏：patch 切换与重触发
+### 8.5.5 OPLL 的两个常用宏：patch 切换与重触发
 
 这两个在 OPLL 上最常用，语义和 OPM 不同，单独说明。
 
@@ -343,35 +392,54 @@ segs 6
    7480  ['20=0B']                    ← 音符结束 key-off
 ```
 
-### 8.5.5 验证
+### 8.5.6 验证
 
-`cli/tests/macro_engine_test.cpp`（24 条断言，`cli/build/macro_test.exe`）：
+`cli/tests/macro_engine_test.cpp`（52 条断言，`cli/build/macro_test.exe`）：
+
+- 前 23 条：通用宏（序列 / ADSR / LFO 三种模式、OPM 全部落点、patch 切换、重触发）
+- 后 29 条：**逐条覆盖 OPLL 消费的 20 条宏**，并反向断言另外 22 条在 OPLL 上不产生任何写
 
 ```
+$ ./build/macro_test.exe
 vol seq timing               PASS  ← speed=2 @60Hz → 0/1470/2940 采样
 vol changes carrier TL       PASS  ← 127→30→93，调制器 TL 不变
 pitch emits offsets          PASS
-alg writes 0x20              PASS
-fb writes 0x20               PASS
-fms writes 0x38              PASS
-duty->0x0F wave->0x1B        PASS
-ex1/ex2/ex3 LFO regs         PASS
-op tl macro (opm)            PASS
-op ar/dr macros              PASS
-opll vol writes 0x30         PASS
-opll wave->preset            PASS
-ADSR runs                    PASS
-LFO triangle runs            PASS
-no macros => no writes       PASS
-phaseReset retriggers        PASS
-ex4 changes opMask           PASS
-op dt/dt2/d2r/rs/sl/am/mult  PASS
-opll op macros 0x00-0x06     PASS
-opll alg -> sus bit          PASS
-opll patch switch 0x30       PASS  ← wave 宏切音色号
-patch switch gates op macros PASS  ← 切到 ROM 后算子参数宏停写
-retrigger points for OPLL    PASS  ← phaseReset 出重触发点
-ALL PASS (0 fail)
+...
+OPLL vol 0x30 low nibble     PASS  ← 15 → 0x30 衰减=10（=载波 TL），7 → 15
+OPLL arp 12 semitones        PASS  ← arp 单位是半音，输出 12×128
+OPLL pitch 1/128 semitone    PASS  ← pitch 单位是 1/128 半音
+OPLL pitch accumulate        PASS  ← mode=1 是累加（100,100,100 → 300）
+OPLL wave = patch            PASS
+OPLL alg SUS on              PASS  ← 用户音色下 immediate=true，立刻重写 0x20
+OPLL alg rom preset deferred PASS  ← ROM 预置下 state.alg 照样存，但不立刻写
+OPLL fb 0x03                 PASS
+OPLL fms bit4 / ams bit3     PASS
+OPLL phaseReset retrig       PASS
+OPLL op am/ar/dr/mult/rr/sl  PASS
+OPLL op tl mod 0x02          PASS
+OPLL op tl car 0x30          PASS
+OPLL car tl on rom preset    PASS  ← 载波 TL 就是通道音量，ROM 预置也写
+OPLL op egt bit5             PASS
+OPLL op ksl mod->0x03        PASS
+OPLL op ksl car->0x02        PASS
+OPLL op vib bit6             PASS
+OPLL op ksr bit4             PASS
+OPLL ignores 13 unused ch macros PASS
+OPLL ignores 9 unused op macros  PASS
+ALL PASS (0 fail)   ← 52 条
+```
+
+**端到端实测**（`--use-edited-fui`，把 `ch1ins1_ym2413.fui` 的 `opllPreset` 改成 0
+并加 `vol={15,10,5}` + `alg={0,1}`）：
+
+```
+$ ./cli/build/opm2opll.exe song.json -o out.json --fui --use-edited-fui --tick-rate=60 --vgm=out.vgm
+fui applied   : 19 edited voices
+preview vgm   : out.vgm (49408 bytes)
+
+globals  = 00=01 01=01 02=55 03=03 04=E4 05=90 06=03 07=02   ← 用户音色 0 号槽
+ch1 note1: 2940 ['20=3B']  ← 0x20 = 0b0011_1011：bit5 = SUS 置位（alg=1）
+…共 18 处带 SUS 的 0x20 写
 ```
 
 ---
@@ -382,13 +450,18 @@ ALL PASS (0 fail)
 |---|---|
 | 通道级 22 条宏 | ✅ 全部实现（序列 / ADSR / LFO 三种模式） |
 | 算子级 4×20 条宏 | ✅ 全部实现 |
-| 音高类宏（arp / pitch） | ✅ 输出音高偏移点，调用方按 1/128 半音重算 fnum |
-| 重触发类（phaseReset / ex4） | ✅ 输出重触发点 |
+| OPLL 实际消费的 20 条 | ✅ 逐条实现并有断言，见 §8.5.1 |
+| OPLL 不消费的 22 条 | ✅ 展开为空，有反向断言 |
+| 音高类宏（arp / pitch） | ✅ 输出音高偏移点，单位已按平台语义区分（arp=半音、pitch=1/128 半音，pitch 支持累加模式） |
+| 重触发类（phaseReset / ex4） | ✅ 输出重触发点（OPLL 只有 phaseReset，ex4 不消费） |
+| OPLL 载波 TL 宏 | ✅ 任何 preset 都写 `0x30`（它同时是通道音量），只是 ROM 预置下改了不改变音色 |
 | `.fui` 的采样/波表块 | 不涉及（FM 音色没有） |
 | 鼓（OPLL preset 16） | 导出为普通音色，鼓位映射未做 |
 
 **已知偏差**（都是 Furnace 语义本身决定的，不是漏实现）：
 
-1. `ex5..ex10` 在 OPM/OPLL 两个平台都不被消费（`arcade.cpp`/`opll.cpp` 里没有引用），所以展开为空。
-2. OPLL 的 `sus` 位由 key 段写（`0x20` bit5），不是独立寄存器。
-3. `ssg / dam / dvb / ws` 是 OPN/OPL/OPZ 的参数，OPM/OPLL 没有对应寄存器。
+1. `ex5..ex10` 在 OPM/OPLL 两个平台都不被消费（`grep "std.ex[5-9]\|std.ex10"` 零命中），展开为空。
+2. `panR` 在 OPM 上也不被消费（`arcade.cpp` 只有 `std.panL`），只有 `panL` 会同时设左右声道。
+3. OPLL 的 `sus` 位由 `0x20` bit5 承担、由 `alg` 宏驱动，是 `MacroSus` 事件而不是普通寄存器写——因为它必须等下一次 0x20 写入时才带出去（`opll.cpp:258`）。
+4. `ssg / dam / dvb / ws` 是 OPN/OPL/OPZ 的参数，OPM/OPLL 没有对应寄存器。
+5. OPLL 的 `ksl` 是双寄存器耦合：`0x02` 存调制器 KSL+TL，`0x03` 存载波 KSL+FMS+AMS+FB，改任一个都要重写含对方的那个。
