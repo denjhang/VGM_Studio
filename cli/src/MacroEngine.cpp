@@ -260,7 +260,15 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
     int arpOff = 0, pitch2Accum = 0;
     bool arpDirty = false;
 
+    // ★ warm-up（接续）阶段：重放从真实 key-on 到本块起点之间已经过去的 tick。
+    //   宏只在真实 key-on 上启动一次；NoteSplitter 把同一次发声切成多个块时，
+    //   后续块只能把状态推进到正确相位，绝不能重新 Init 一遍——
+    //   重新启动会让 vol 宏立刻吐它的第一帧（很多音色的第一帧是 0，等于静音一拍），
+    //   也会让 arp 宏从 0 重新扫一遍（听感就是每个块一次颤音/弯音）。
+    bool warming = false;
+
     auto emit = [&](uint32_t at, int reg, int val) {
+        if (warming) return;
         out.writes.push_back(MacroWrite{at, static_cast<uint8_t>(reg & 0xFF),
                                         static_cast<uint8_t>(val & 0xFF)});
     };
@@ -293,10 +301,15 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                            ((curAms & 1) << 3) | (curFb & 7));
     };
 
-    for (int t = 0; t < ticks; t++) {
-        const uint32_t at = in.startSample + static_cast<uint32_t>(t * samplesPerTick + 0.5);
+    const int warmTicks = in.skipTicks > 0 ? in.skipTicks : 0;
+    warming = warmTicks > 0;
+
+    for (int t = -warmTicks; t < ticks; t++) {
+        const uint32_t rel = t <= 0 ? 0 : static_cast<uint32_t>(t * samplesPerTick + 0.5);
+        const uint32_t at = in.startSample + rel;
         if (at >= in.endSample) break;
-        const bool lastTick = (t == ticks - 1);
+        const bool lastTick = in.releaseAtEnd && (t == ticks - 1);
+        if (t >= 0) warming = false;
 
         // ── 22 条通道级宏 ────────────────────────────────────────
         for (int mi = 0; mi < kMacroCount; mi++) {
@@ -349,8 +362,9 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         arpDirty = true;
                     }
                     if (arpDirty) {
-                        out.pitches.push_back(
-                            MacroPitch{at, arpOff * 128 + pitch2Accum});
+                        if (!warming)
+                            out.pitches.push_back(
+                                MacroPitch{at, arpOff * 128 + pitch2Accum});
                         arpDirty = false;
                     }
                     break;
@@ -381,8 +395,9 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                         //      与 preset 无关（ROM 预置下也照样生效）；
                         //   2) 只有用户音色（preset==0）才额外置 freqChanged → 立刻重写 0x20。
                         curSus = curAlg ? 1 : 0;
-                        out.susPoints.push_back(
-                            MacroSus{at, curSus, curPreset == 0});
+                        if (!warming)
+                            out.susPoints.push_back(
+                                MacroSus{at, curSus, curPreset == 0});
                     } else {
                         emitPanFbAlg(at);
                     }
@@ -439,7 +454,8 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                 case kMacroPhaseReset:
                     // arcade.cpp:355-359 / opll.cpp:196-199：值 ==1 且通道在用 → 重触发
                     if (v == 1) {
-                        out.retriggers.push_back(MacroRetrigger{at, curOpMask});
+                        if (!warming)
+                            out.retriggers.push_back(MacroRetrigger{at, curOpMask});
                     }
                     break;
                 case kMacroEx4:
@@ -448,7 +464,8 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
                     //   它的 key 段只有 0x0e（鼓）和 0x20（普通通道），没有 slot 掩码概念。
                     if (!in.opll) {
                         curOpMask = v & 15;
-                        out.retriggers.push_back(MacroRetrigger{at, curOpMask});
+                        if (!warming)
+                            out.retriggers.push_back(MacroRetrigger{at, curOpMask});
                     }
                     break;
                 default:

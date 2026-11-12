@@ -222,6 +222,8 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
         // 该通道的 key 位当前是否置位。legato 切块（KC 跳变产生，源里没有 key 事件）
         // 必须沿用上一块的状态，否则会凭空产生一次 key-off + key-on。
         bool keyDown = false;
+        // 当前这次发声的真实 key-on 时刻（宏从这里启动一次）
+        uint32_t keyOnSample = 0;
         for (const Note& n : sc.notes) {
             // 重放到音符起始
             while (cur < stream.size() && stream[cur].at <= n.startSample) {
@@ -380,10 +382,28 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             (void)hadKeyOff;
 
             // 先把落在音符起点及之前的 key 事件结清，起点段才知道 key 位该是什么。
+            const bool keyDownBefore = keyDown;
             size_t kev = 0;
             while (kev < keyEvents.size() && keyEvents[kev].first <= n.startSample) {
                 keyDown = keyEvents[kev].second;
                 kev++;
+            }
+
+            // ★ 宏的相位基准：只有 0→1 的真实 key 上升沿才启动一次宏。
+            //   NoteSplitter 在 KC 跳变时切出的块没有 key 事件，它们是同一次发声的
+            //   延续，宏必须接着走，而不是从这里重新开始。
+            if (keyDown && !keyDownBefore) keyOnSample = n.startSample;
+            const int blockSkipTicks =
+                (keyDown && n.startSample > keyOnSample)
+                    ? static_cast<int>(std::lround(
+                          (n.startSample - keyOnSample) * tickRate * 1.0 /
+                          (doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100)))
+                    : 0;
+            // 本块末尾若没有真实 key-off（下一个块接着发声），宏不能进 release。
+            bool endsWithKeyOff = false;
+            for (size_t k = kev; k < keyEvents.size(); k++) {
+                if (keyEvents[k].first > n.endSample) break;
+                if (!keyEvents[k].second) endsWithKeyOff = true;
             }
 
             // key-on 段：音高 + 音色 + 音量，全部写原值。
@@ -506,14 +526,21 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     mi.ch = ch;
                     mi.baseKc = kc;
                     mi.baseKf = kf;
-                    // OPLL 的通道音量满量程是 15（opll.cpp:1144 chan[i].vol=15），
-                    // 把已算好的目标音量 vol 直接当 baseVol 传进去，音量宏才是
-                    // 在「当前音符音量」上做相对衰减，而不是从满量程重算。
-                    mi.baseVol = vol;
+                    // ★ 极性：`vol` 是 0x30 低 4 位的**衰减值**（0=最响，15=最轻），
+                    //   而 baseVol 走 Furnace 的 chan.vol 语义（15=最响）。
+                    //   必须转成 15-vol，否则衰减值被当音量用，等于额外加了一次
+                    //   反向衰减：vol=2 会变成 15-2=13 的衰减（几乎没声）。
+                    mi.baseVol = 15 - vol;
                     mi.startSample = n.startSample;
                     mi.endSample = n.endSample;
                     mi.sampleRate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
                     mi.tickRate = tickRate;
+                    // ★ 宏只在真实 key-on 启动一次。legato 块（源里无 key 事件）
+                    //   必须沿用上一次发声的相位，否则 vol 宏会重新吐第一帧
+                    //   （很多音色第一帧是 0 → 每个块开头静音一拍），
+                    //   arp 宏也会从 0 重扫（听感就是块边界处一次多余的弯音）。
+                    mi.skipTicks = blockSkipTicks;
+                    mi.releaseAtEnd = endsWithKeyOff;
                     mi.opll = true;
                     mi.opllPreset = m.program;
                     const MacroExpandOutput mo = ExpandMacros(*fv, mi);

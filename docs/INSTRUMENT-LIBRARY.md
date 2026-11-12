@@ -123,6 +123,19 @@ t<type>;preset<opllPreset>;alg<alg>;fb<fb>;fms<fms>;ams<ams>;ops<ops>
 
 （名称取自 `FmVoice.cpp:395` 的 `kYm2413Names`，16–18 是节奏音色，本曲未用。）
 
+### 3.1a 宏的两个硬约束（v7–v9 踩过的坑）
+
+**① `baseVol` 与 `0x30` 低 4 位极性相反。** `0x30` 低 4 位写的是**衰减量**
+（0=最响，15=静音），而 `ExpandMacros` 的 `baseVol` 走 Furnace 的 `chan.vol`
+（15=最响）。必须 `mi.baseVol = 15 - vol`，否则音量宏反向工作，通道几乎无声。
+
+**② 宏只在真实 key-on 启动一次。** 音量宏常见的写法是第一帧 0、第二帧 15
+（先用静音占一拍再起音）。`NoteSplitter` 因 KC 跳变切出的 legato 块在源里
+没有 key 事件，如果每块都重新 `Init` 宏，就会在块边界重放第一帧——听感是
+「每个音中间被掐掉一拍」。正确处理是用 `skipTicks` 接续相位（见
+[VOICE-FUI.md §8.5.4](VOICE-FUI.md)）。
+
+
 ---
 
 ### 3.2 转换映射（源 → 目标 → GM）

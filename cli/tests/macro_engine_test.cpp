@@ -372,6 +372,46 @@ int main(){
     check("OPLL ignores 9 unused op macros", o.writes.empty()); }
   in.opll=false;
 
+  // 49. ★ 宏只在真实 key-on 启动一次。legato 块（源里没有 key 事件）必须
+  //     用 skipTicks 把相位推进到正确位置，绝不许重新吐第一帧。
+  //     vol={0,15} speed=1：第一帧音量 0（0x30 低 4 位 = 15 = 静音），第二帧 15。
+  { FuiVoice v=Base(true,2); v.opllPreset=6; in.opllPreset=6; in.opll=true;
+    v.macros[kMacroVol]=Seq({0,15},1);
+    in.skipTicks=0; in.releaseAtEnd=true;
+    auto o=ExpandMacros(v,in); auto r=RegWrites(o,0x30);
+    check("vol frame0 mutes", !r.empty() && (r[0]&15)==15);
+    in.skipTicks=1;
+    auto o2=ExpandMacros(v,in); auto r2=RegWrites(o2,0x30);
+    check("skipTicks no re-mute", !r2.empty() && (r2[0]&15)==10,
+          "接续块不许再吐第一帧");
+    in.skipTicks=0; in.opll=false; }
+  // 50. ★ arp 宏同样不许在 legato 块边界重扫：skipTicks=1 → 第一点不是 0
+  { FuiVoice v=Base(true,2); v.opllPreset=6; in.opllPreset=6; in.opll=true;
+    v.macros[kMacroArp]=Seq({0,7,12},1);
+    in.skipTicks=0;
+    auto a=ExpandMacros(v,in);
+    check("arp starts at 0", !a.pitches.empty() && a.pitches[0].offset128==0);
+    in.skipTicks=1;
+    auto b=ExpandMacros(v,in);
+    check("skipTicks skips arp frame0",
+          !b.pitches.empty() && b.pitches[0].offset128==7*128);
+    in.skipTicks=0; in.opll=false; }
+  // 51. ★ releaseAtEnd：只有真实 key-off 才进 release。
+  //     宏 vals={15,0,0,15} rel=3。块只有 2 拍：第 2 拍若进 release，
+  //     pos 跳到 rel=3 → 值 15（0x30 低 4 位 10，响）；不进 release 则停在
+  //     vals[1]=0（0x30 低 4 位 15，静音）。区别可观测。
+  { FuiVoice v=Base(true,2); v.opllPreset=6; in.opllPreset=6; in.opll=true;
+    v.macros[kMacroVol]=Seq({15,0,0,15},1); v.macros[kMacroVol].rel=3;
+    v.macros[kMacroVol].activeRelease=true;
+    in.endSample=1471;
+    in.releaseAtEnd=true;
+    auto a=ExpandMacros(v,in); auto ra=RegWrites(a,0x30);
+    in.releaseAtEnd=false;
+    auto b=ExpandMacros(v,in); auto rb=RegWrites(b,0x30);
+    check("real key-off releases macro", !ra.empty() && (ra.back()&15)==10);
+    check("legato block keeps macro running", !rb.empty() && (rb.back()&15)==15);
+    in.releaseAtEnd=true; in.endSample=44100; in.opll=false; }
+
   std::printf("\n%s (%d fail)\n", fails? "FAILED":"ALL PASS", fails);
   return fails?1:0;
 }

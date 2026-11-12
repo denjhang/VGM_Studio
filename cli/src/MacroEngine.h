@@ -44,6 +44,14 @@ struct MacroExpandInput {
     uint32_t endSample = 0;
     int sampleRate = 44100;
     int tickRate = 60;          // ← 一秒多少 tick（Furnace 的 song.hz）
+    // ★ 宏的相位。宏只在真实 key-on 上启动一次；同一次发声被 NoteSplitter
+    //   切成多个块（legato 块）时，后续块必须**接续**，不能重新启动。
+    //   skipTicks = 从起始 key-on 到本块起点已经过去的 tick 数，
+    //   引擎会把这几拍空跑一遍（只推进状态、不输出写）。
+    int skipTicks = 0;
+    // 本块末尾是否真的结束发声（真实 key-off）。legato 块的末尾不能 release，
+    // 否则 ADSR / 带 release 点的序列宏会在半路掉到释放值。
+    bool releaseAtEnd = true;
     bool opll = false;          // false = OPM(4-op)，true = OPLL(2-op)
     int opllPreset = 0;         // OPLL：0 = 用户音色（0x00-0x07），≠0 = ROM
     int chVolL = 1, chVolR = 1;

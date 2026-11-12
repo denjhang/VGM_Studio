@@ -355,6 +355,61 @@ VOL_SCALE_LOG_BROKEN(x, y, range) = CLAMP(x + y - range, 0, range)
 - OPM：`range=127`，`x=127-op.tl`，`y=通道音量`
 - OPLL：`range=15`，`x=15-carrierTl`，`y=通道音量`
 
+#### ★ 两个音量域的极性相反（踩过的坑）
+
+| 域 | 单位 | 0 | 15 / 127 |
+|---|---|---|---|
+| `chan.vol` / `outVol`（Furnace 内部音量） | 音量 | 静音 | **最响** |
+| `0x30` 低 4 位（OPLL 寄存器音量） | **衰减量** | **最响** | 静音 |
+| `0x60` 低 7 位（OPM 的 TL） | **衰减量** | **最响** | 静音 |
+
+`opll.cpp:168` 的换算是 `0x30低4位 = 15 - VOL_SCALE_LOG(outVol, 15-carrierTl, 15)`。
+也就是说寄存器里写的是「衰减」，越大越轻。
+
+**调用 `ExpandMacros` 时的 `baseVol` 必须传「音量」域的值**（0=静音，15=最响），
+而转换器算出的 `vol` 是「衰减」域（0=最响）。二者必须转换：
+
+```cpp
+mi.baseVol = 15 - vol;   // ✅  直接把 vol 当 baseVol 会反向衰减
+```
+
+**踩坑后果**（v7 实测）：源音量衰减 `vol=2`（很响）被当成 `baseVol=2`（很轻），
+`VOL_SCALE_LOG(2, 15-0, 15)` 只剩 2，于是 `0x30` 写成 `15-2=13`——本应最响的音符
+变成几乎听不见。所有带音量宏的通道平均寄存器音量从 2 掉到 12（0=最响），
+听感就是「很多通道声音非常小」。修正后 v8 平均回到 3.5–6.6，与源 RMS 对齐。
+
+#### ★ 宏只在真实 key-on 启动一次（v8 的「颤音/弯音回归」）
+
+`NoteSplitter` 在源 KC 跳变 >0.5 半音时会切出新块，但那些块**在源里没有 key 事件**——
+它们是同一次发声的 legato 延续（见 §5.5b）。最初的实现给每个块都从 `t=0` 调用一次
+`ExpandMacros`，等于把宏重新 `Init` 一遍：
+
+| 后果 | 表现 |
+|---|---|
+| `vol` 宏重新吐第一帧 | 很多音色的第一帧是 0 → **每个块边界静音一拍（16.7 ms）** |
+| `arp` 宏从 0 重新扫 | 每个块边界多一次向下的音高扫掠 → **听起来像颤音/弯音** |
+| 带 `rel` 的宏被当成新音符 | 半路掉到释放值，音量突变 |
+
+实测 `31 Grass Maze`：ch1 有 125 个 legato 块、ch7/ch8 各 123/124 个，
+v8 在整曲的 legato 块起点总共写了 371 次「音量 15 = 静音」的一拍。
+
+**正确做法**：块不是发声单元，**真实 key 上升沿才是**。转换器为每块传两个参数：
+
+```cpp
+// 从真实 key-on 到这个块起点已经过去了多少 tick
+mi.skipTicks   = round((n.startSample - keyOnSample) * tickRate / sampleRate);
+// 这个块末尾有没有真实 key-off（legato 块没有 → 不许进 release）
+mi.releaseAtEnd = endsWithKeyOff;
+```
+
+引擎把 `skipTicks` 拍**空跑**一遍（只推进宏状态，`warming=true` 时 `emit()` 直接丢弃，
+`pitches/susPoints/retriggers` 也不记录），然后从第 0 拍开始正常输出。宏的相位因此
+连续，`vol` 不会回到 0，`arp` 不会重扫，`rel` 只在真 key-off 时触发。
+
+v9 实测：legato 块边界的静音帧从 **371 个降到 1 个**；所有旋律通道的音高轨迹与 v5
+逐写入一致（FM1 808、FM2 240、FM3 327、FM4/6 333、FM7 801、FM8 798），
+只有鼓通道 FM5 因为 arp 宏本就连续扫描而变化（388 → 1648 次 fnum 写）。
+
 ### 8.5.5 OPLL 的两个常用宏：patch 切换与重触发
 
 这两个在 OPLL 上最常用，语义和 OPM 不同，单独说明。
