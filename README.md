@@ -22,7 +22,8 @@
 |---|---|
 | [`cli/`](cli/) | **本项目自己的代码**：导入、结构化、跨芯片转换、输出、音高验证 |
 | [`docs/`](docs/) | 设计文档（每个主题一个文件，见 [`docs/README.md`](docs/README.md)） |
-| [`listen/`](listen/) | 试听产物与说明，见 [`listen/README.md`](listen/README.md) |
+| [`out/`](out/) | **全部生成物**（JSON / FUI / VGM / MIDI / WAV），见 [`out/README.md`](out/README.md) |
+| [`listen/`](listen/) | 早期试听成品（仅存档，新工作一律走 `out/`） |
 | `0x808/` `libvgm/` `furnace/` 等 | 外部参考工程（各自带 `.git`，不纳入本仓库） |
 
 ---
@@ -43,16 +44,19 @@ cmake --build cli/build
 
 ### 跑通全链路
 
+**所有产物都写到 `out/`**（目录说明见 [`out/README.md`](out/README.md)）。
+
 ```bash
 B=cli/build
 V="vgm/Spindizzy_II_(Sharp_X68000)/31 Grass Maze.vgm"
+mkdir -p out
 
-$B/vgm2json.exe  "$V" -o song.json                 # VGM → JSON
-$B/json2mid.exe  song.json -o src.mid --report     # JSON → MIDI（原芯片）
-$B/opm2opll.exe  song.json -o song.ym2413.json \
-                 --vgm=dst.vgm                     # JSON → JSON + 试听 VGM
-$B/json2mid.exe  song.ym2413.json -o dst.mid --report
-libvgm/build/bin/vgm2wav.exe dst.vgm dst.wav       # VGM → WAV，直接用耳朵核对
+$B/vgm2json.exe  "$V" -o out/song.json              # VGM → JSON
+$B/json2mid.exe  out/song.json -o out/03_original_OPM.mid --report
+$B/opm2opll.exe  out/song.json -o out/song.ym2413.json \
+                 --vgm=out/song.ym2413.vgm           # JSON → JSON + 试听 VGM
+$B/json2mid.exe  out/song.ym2413.json -o out/04_converted_OPLL.mid --report
+libvgm/build/bin/vgm2wav.exe out/song.ym2413.vgm out/02_converted_OPLL_YM2413.wav
 ```
 
 ### 音色（`.fui`）
@@ -60,11 +64,12 @@ libvgm/build/bin/vgm2wav.exe dst.vgm dst.wav       # VGM → WAV，直接用耳�
 每个 JSON 都配一套 Furnace 音色文件，用户直接在 Furnace 里改，改完再重新生成：
 
 ```bash
-$B/vgm2json.exe  "$V" -o song.json --fui            # 出 chXinsY_ym2151.fui
-$B/opm2opll.exe  song.json -o song.ym2413.json --fui # 出 chXinsY_ym2413.fui
-$B/fuitool.exe   dump ch1ins1_ym2413.fui             # 看一眼
-#   ……在 Furnace 里改 ch1ins1_ym2413.fui……
-$B/opm2opll.exe  song.json -o song.v2.json --use-edited-fui --vgm=song.v2.vgm
+$B/vgm2json.exe  "$V" -o out/song.json --fui              # 出 chXinsY_ym2151.fui
+$B/opm2opll.exe  out/song.json -o out/song.ym2413.json --fui  # 出 chXinsY_ym2413.fui
+$B/fuitool.exe   dump out/ch1ins1_ym2413.fui --tick-rate=60   # 看一眼
+#   ……在 Furnace 里改 out/ch1ins1_ym2413.fui……
+$B/opm2opll.exe  out/song.json -o out/song.ym2413.json \
+                 --fui --use-edited-fui --vgm=out/song.ym2413.vgm
 ```
 
 **`.fui` 里不含中断速率**：宏只存「每步几个 tick」，一秒几个 tick 来自 `.fur` 工程

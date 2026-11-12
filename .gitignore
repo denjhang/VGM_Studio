@@ -30,6 +30,10 @@ vgm/*
 listen/*.wav
 listen/song*.json
 
+# 所有生成物统一落在 out/，只有说明文件入库
+out/*
+!out/README.md
+
 # 系统
 .DS_Store
 Thumbs.db

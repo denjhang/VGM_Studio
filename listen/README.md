@@ -1,4 +1,7 @@
-# 试听文件
+# 试听文件（存档）
+
+> **新工作一律用 [`out/`](../out/README.md)。** 本目录只保留下面这几个已入库的历史成品，
+> 不再新增内容；生成物统一落到 `out/`，避免两处并存、命令对不上。
 
 全部由 `31 Grass Maze.vgm`（Spindizzy II / Sharp X68000）生成，同一首曲子。
 
@@ -32,20 +35,5 @@
 
 ## 重新生成
 
-```bash
-cd E:/working/zcode-projects/VGM_Studio
-B=cli/build
-V="vgm/Spindizzy_II_(Sharp_X68000)/31 Grass Maze.vgm"
-
-# 1) 原曲
-libvgm/build/bin/vgm2wav.exe --loops 1 --fade 3 "$V" listen/01_original_OPM_YMF2151.wav
-
-# 2) 转换链
-$B/vgm2json.exe "$V" -o listen/song.json
-$B/opm2opll.exe listen/song.json -o listen/song.ym2413.json --vgm=listen/02_converted_OPLL_YM2413.vgm
-$B/json2mid.exe listen/song.json -o listen/03_original_OPM.mid
-$B/json2mid.exe listen/song.ym2413.json -o listen/04_converted_OPLL.mid
-
-# 3) 转换后的 WAV
-libvgm/build/bin/vgm2wav.exe --loops 1 --fade 3 listen/02_converted_OPLL_YM2413.vgm listen/02_converted_OPLL_YM2413.wav
-```
+**不要在这里重新生成。** 上表只是历史存档，重新生成一律写 `out/`，
+完整命令见 [`out/README.md`](../out/README.md)。
