@@ -32,8 +32,7 @@ struct ConvertOptions {
     // ── .fur 工程（一次性读出全部音色，优先级高于 --use-edited-fui）──
     // 在 Furnace 里把 19 个目标音色都改进一个工程存盘，按乐器名
     // "chXinsY" 精确匹配。工程里的 hz 会覆盖 tickRate（宏速率来自工程）。
-    std::string furPath;
-    bool useFur = false;
+    std::string furPath;  // 非空即启用
 
     // ── 宏执行 ──
     // .fui 里只有 speed/delay（每步几个 tick），「一秒几个 tick」由工程决定，
