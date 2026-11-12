@@ -66,6 +66,21 @@
 
 **没有 bpm 字段。** 需要网格显示时，BPM 由 `IGridMapper` 在 UI 层假设（例如"假定 120 BPM"），且必须在界面上标出"这是假设值"。
 
+### 4.1 `loopSample` 是「起点」，不是「长度」
+
+VGM 头 `0x20`（`loopTicks`）存的是**循环段长度**，不是循环起点位置。
+导入时换算：
+
+```
+loopSample = (loopTicks > 0) ? totalSamples - loopTicks : -1
+导出时反向：
+loopTicks  = totalSamples - loopSample
+```
+
+`31 Grass Maze` 实测：`loopTicks = 2393734`、`totalSamples = 2406316`，
+所以 `loopSample = 12582`（0.29 秒前奏）。**如果把长度直接当位置存，会得到一个
+贴着曲末的假循环点**——这个 bug 曾在 `Importer.cpp` 里存在。
+
 ---
 
 ## 5. `chips`
@@ -253,14 +268,32 @@
 ```jsonc
 "raw": {
   "dataOffset": 128,
-  "commands": "base64:H4sIAAAA...",   // 完整原命令字节（v1.51 数据段）
-  "gd3": "base64:..."                  // 可选，GD3 元数据
+  "eofOffset": 77910,
+  "header":   "base64:...",   // [0, dataOffset)
+  "commands": "base64:...",   // [dataOffset, eofOffset)
+  "tail":     "base64:..."    // [eofOffset, 文件末尾)
+},
+"tags": {
+  "gd3": "base64:..."         // 可选，GD3 标签的完整原始字节（含 "Gd3 " 头和长度字段）
 }
 ```
 
 **用途**：位精确往返。不编辑任何东西时，直接输出 `raw.commands` 就能得到字节级相同的 VGM。
 
 **不是** "结构化失败后的兜底"——它是**位精确的合同**。结构化再完美，重建出的 VGM 也可能因为寄存器写顺序微调而字节不同（例如 furnace 的 `rWrite` 去重机制），`raw` 保证了不改的时候一定一样。
+
+### 8.1 `tags.gd3` 必须跨芯片透传
+
+GD3 是曲名 / 作者 / 日期 / 备注（UTF-16LE 字符串表）。它不是音频数据，
+跨芯片转换（`opm2opll`）与重新写出 VGM 时必须**逐字节原样搬运**：
+
+- 导入：从 VGM 头 `0x14`（相对 0x14 的偏移）定位 `"Gd3 "` 块，取 `12 + length` 字节
+- 转换：`doc.tags = src.tags`（`Opm2Opll.cpp`）
+- 导出：把它追加在 `0x66`（EOF 命令）之后，并把头 `0x14` 写成
+  「相对 0x14 的偏移」。注意 `0x04`（EOF 偏移）仍指向 `0x66` 之后、GD3 之前。
+
+`31 Grass Maze` 实测：源 268 字节，输出也是 268 字节，`cmp` 完全一致，
+曲名 "Grass Maze"、机种 "Sharp X68000" 等中文/日文字段全部保留。
 
 ---
 

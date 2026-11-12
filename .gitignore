@@ -26,11 +26,7 @@ build/
 vgm/*
 !vgm/README.md
 
-# 生成的试听大文件（WAV 每首 10MB，用 listen/README.md 里的命令重新生成）
-listen/*.wav
-listen/song*.json
-
-# 所有生成物统一落在 out/，只有说明文件入库
+# 所有生成物统一落在 out/，一个版本一个子目录；只有说明文件入库
 out/*
 !out/README.md
 

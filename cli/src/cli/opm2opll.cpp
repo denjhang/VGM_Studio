@@ -22,8 +22,15 @@ void Usage() {
         "  --bank=ym2413          音色库：ym2413 | vrc7 | ymf281b\n"
         "  --clock=3579545        YM2413 时钟\n"
         "  --volume-bias=0        音量偏移叠加（-15..15）\n"
+        "  --transpose=0          整体移调（半音，降八度用 -12）\n"
         "  --user-voice           额外把音色写进 0x00-0x07 用户槽（仅单音色曲目合理）\n"
-        "  --report               打印逐音符匹配报告\n");
+        "  --report               打印逐音符匹配报告\n"
+        "  --fui                  为每个源音色写 chXinsY_ym2413.fui\n"
+        "  --fui-dir=DIR          .fui 输出目录（隐含 --fui）\n"
+        "  --use-edited-fui       读同目录下改过的 .fui 覆盖自动匹配\n"
+        "  --tick-rate=60         宏的 tick 速率（Furnace 的 song.hz）\n"
+        "  --no-macros            不执行 .fui 里的宏\n"
+        "  --vgm=OUT.vgm          同时输出试听 VGM\n");
 }
 
 std::string DefaultOutput(const std::string& in) {
@@ -63,6 +70,8 @@ int main(int argc, char** argv) {
             opt.targetClock = static_cast<uint32_t>(std::strtoul(a + 8, nullptr, 10));
         } else if (std::strncmp(a, "--volume-bias=", 14) == 0) {
             opt.volumeOffsetBias = std::atoi(a + 14);
+        } else if (std::strncmp(a, "--transpose=", 12) == 0) {
+            opt.transposeSemitones = std::atoi(a + 12);
         } else if (std::strcmp(a, "--user-voice") == 0) {
             opt.useUserVoice = true;
         } else if (std::strcmp(a, "--report") == 0) {

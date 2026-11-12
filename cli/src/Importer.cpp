@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstring>
 #include <ctime>
 #include <fstream>
 #include <map>
@@ -99,8 +100,16 @@ ImportOutcome BuildDocument(const std::string& vgmPath, const ImportOptions& opt
 
     doc.timeBase.sampleRate = 44100;
     doc.timeBase.totalSamples = imported.header.totalSamples;
-    doc.timeBase.loopSample =
-        imported.header.loopOffset ? static_cast<int64_t>(imported.header.loopSamples) : -1;
+    // ★ VGM 头 0x20 存的是「循环段长度」，不是循环起点位置。
+    //   循环一直跑到曲末，所以起点 = 总采样数 − 循环长度。
+    //   （此前直接把长度当位置存进来，会得到一个接近曲末的假循环点。）
+    if (imported.header.loopOffset != 0 && imported.header.loopSamples > 0 &&
+        imported.header.loopSamples <= imported.header.totalSamples) {
+        doc.timeBase.loopSample = static_cast<int64_t>(imported.header.totalSamples -
+                                                       imported.header.loopSamples);
+    } else {
+        doc.timeBase.loopSample = -1;
+    }
     doc.timeBase.vgmRate = imported.header.recordHz ? imported.header.recordHz : 60;
 
     int chipIdx = 0;
@@ -135,6 +144,35 @@ ImportOutcome BuildDocument(const std::string& vgmPath, const ImportOptions& opt
             doc.raw.tailBase64 = Base64Encode(bytes.data() + eofOfs, bytes.size() - eofOfs);
         } else {
             doc.meta.unhandled.push_back("raw 分段失败：header 偏移越界");
+        }
+    }
+
+    // ── GD3 标签（曲名/作者/日期等）原样取出，供目标 JSON/VGM 透传 ──
+    // 头部 0x14 存的是「相对 0x14 的偏移」；0 表示没有标签。
+    {
+        const uint32_t gd3Rel = (bytes.size() >= 0x18)
+                                    ? (static_cast<uint32_t>(bytes[0x14]) |
+                                       (static_cast<uint32_t>(bytes[0x15]) << 8) |
+                                       (static_cast<uint32_t>(bytes[0x16]) << 16) |
+                                       (static_cast<uint32_t>(bytes[0x17]) << 24))
+                                    : 0;
+        const uint32_t gd3Ofs = gd3Rel ? (0x14 + gd3Rel) : 0;
+        if (gd3Ofs != 0 && gd3Ofs + 12 <= bytes.size() &&
+            std::memcmp(bytes.data() + gd3Ofs, "Gd3 ", 4) == 0) {
+            const uint32_t len =
+                static_cast<uint32_t>(bytes[gd3Ofs + 8]) |
+                (static_cast<uint32_t>(bytes[gd3Ofs + 9]) << 8) |
+                (static_cast<uint32_t>(bytes[gd3Ofs + 10]) << 16) |
+                (static_cast<uint32_t>(bytes[gd3Ofs + 11]) << 24);
+            const size_t end = static_cast<size_t>(gd3Ofs) + 12 + len;
+            if (end <= bytes.size()) {
+                doc.tags.gd3Base64 =
+                    Base64Encode(bytes.data() + gd3Ofs, end - gd3Ofs);
+            } else {
+                doc.meta.unhandled.push_back("GD3 标签长度越界，已跳过");
+            }
+        } else if (gd3Rel != 0) {
+            doc.meta.unhandled.push_back("GD3 偏移指向非法位置，已跳过");
         }
     }
 

@@ -144,6 +144,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
     doc.meta.unhandled.clear();
 
     doc.timeBase = src.timeBase;  // 采样数原样搬运，不量化
+    doc.tags = src.tags;          // GD3 标签原样透传（曲名/作者/日期）
 
     ChipEntry chip;
     chip.id = "ym2413.0";
@@ -196,6 +197,9 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
         std::map<uint64_t, int> voiceOrdinal;
         std::map<uint64_t, OpllMatch> voiceProgram;  // 音色 → 首次匹配结果（含 program/volume/octave）
         std::map<uint64_t, FuiVoice> voiceFui;       // 音色 → 用户改过的 .fui（含宏）
+        // 该通道的 key 位当前是否置位。legato 切块（KC 跳变产生，源里没有 key 事件）
+        // 必须沿用上一块的状态，否则会凭空产生一次 key-off + key-on。
+        bool keyDown = false;
         for (const Note& n : sc.notes) {
             // 重放到音符起始
             while (cur < stream.size() && stream[cur].at <= n.startSample) {
@@ -289,7 +293,13 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             // 音高：KC/KF → Hz → OPLL block/fnum
             const uint8_t kc = shadow[0x28 + ch];
             const uint8_t kf = (shadow[0x30 + ch] >> 2) & 0x3F;
-            const double freq = OpmKcKfToFreq(kc, kf, clockRatio);
+            // 整体移调（--transpose=N，单位半音）：直接作用在频率上，
+            // 比改 block 精确（block 只能整八度，半音靠 fnum）。
+            const double transposeRatio =
+                opt.transposeSemitones != 0
+                    ? std::pow(2.0, opt.transposeSemitones / 12.0)
+                    : 1.0;
+            const double freq = OpmKcKfToFreq(kc, kf, clockRatio) * transposeRatio;
             const OpllFnum fn = FreqToOpllFnum(freq, opt.targetClock);
             // 八度补偿：源的载波 ML 与目标 ROM 的载波 ML 不同，
             // 实际发声基频就差 log2(ML比) 个八度，必须加回 block。
@@ -305,13 +315,106 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             dn.startSample = n.startSample;
             dn.endSample = n.endSample;
 
-            // key-on 段：音高 + 音色 + 音量，全部写原值
+            // ★ key 事件完全按源重放，不再自己合成。
+            //   NoteSplitter 会在 KC 跳变 >0.5 半音时切出新块，那些块在源里既没有
+            //   key-on 也没有 key-off，是同一个发声过程的延续（legato）。过去每个块
+            //   都补一对 key-off/key-on，听感就是「音符被擅自切开」
+            //   （实测源 ch1 只有 202 次真实 key-on，327 个块会变成 327 次重触发）。
+            //   源里音符内部也可能有真实的 key-on（重触发），这里一并按原时刻重放。
+            std::vector<std::pair<uint32_t, bool>> keyEvents;  // (atSample, isOn)
+            for (const Segment& s : n.segments)
+                for (const RegValue& r : s.regs)
+                    if (r.reg == 0x08) keyEvents.push_back({s.atSample, (r.val & 0x78) != 0});
+            std::stable_sort(keyEvents.begin(), keyEvents.end(),
+                             [](const auto& a, const auto& b) { return a.first < b.first; });
+            const bool hadKeyOff = !keyEvents.empty() && !keyEvents.back().second;
+            (void)hadKeyOff;
+
+            // 先把落在音符起点及之前的 key 事件结清，起点段才知道 key 位该是什么。
+            size_t kev = 0;
+            while (kev < keyEvents.size() && keyEvents[kev].first <= n.startSample) {
+                keyDown = keyEvents[kev].second;
+                kev++;
+            }
+
+            // key-on 段：音高 + 音色 + 音量，全部写原值。
+            // legato 延续块只改 fnum/block，key 位沿用上一块的状态。
             Segment ks;
             ks.atSample = n.startSample;
             ks.regs.push_back(Rv(0x10 + ch, fn.fnumLow));
-            ks.regs.push_back(Rv(0x20 + ch, static_cast<uint8_t>(dhBase | 0x10)));  // key on
+            ks.regs.push_back(Rv(0x20 + ch,
+                                 static_cast<uint8_t>(dhBase | (keyDown ? 0x10 : 0x00))));
             ks.regs.push_back(Rv(0x30 + ch, static_cast<uint8_t>((m.program << 4) | vol)));
             dn.segments.push_back(ks);
+
+            // ★ 音符中间的音高轨迹（弯音 / 颤音 / 滑音）必须跟随。
+            //   OPM 的 0x28+ch 是 KC（音名），0x30+ch 是 KF（1/64 半音细调）。
+            //   源里音符内部可能有上百次 KF 写（ch1 实测 482 次），只写起始 fnum
+            //   会把整条轨迹压成一个固定音高，听感就是「被量化成半音阶」。
+            //   音高写与 key 事件必须按时间合并成一条时间线，否则 key 位会错。
+            struct PitchPoint {
+                uint32_t at;
+                int fnumLow;
+                int dh;
+            };
+            std::vector<PitchPoint> pitchPoints;
+            int curKc = kc;
+            int curKf = kf;
+            int lastFnumLow = fn.fnumLow;
+            int lastFnumHigh = dhBase;
+            for (const Segment& s : n.segments) {
+                if (s.atSample <= n.startSample) continue;
+                bool pitchMoved = false;
+                for (const RegValue& r : s.regs) {
+                    if (r.reg == 0x28 + ch) {
+                        curKc = r.val;
+                        pitchMoved = true;
+                    } else if (r.reg == 0x30 + ch) {
+                        curKf = (r.val >> 2) & 0x3F;
+                        pitchMoved = true;
+                    }
+                }
+                if (!pitchMoved) continue;
+                const double f2 =
+                    OpmKcKfToFreq(static_cast<uint8_t>(curKc),
+                                  static_cast<uint8_t>(curKf), clockRatio) *
+                    transposeRatio;
+                const OpllFnum fn2 = FreqToOpllFnum(f2, opt.targetClock);
+                const int b2 =
+                    std::min(7, std::max(0, static_cast<int>(fn2.block) + octaveOffset));
+                const int dh2 = (b2 << 1) | ((fn2.fnum >> 8) & 1);
+                if (fn2.fnumLow == lastFnumLow && dh2 == lastFnumHigh) continue;
+                lastFnumLow = fn2.fnumLow;
+                lastFnumHigh = dh2;
+                pitchPoints.push_back(PitchPoint{s.atSample, fn2.fnumLow, dh2});
+            }
+
+            // 合并时间线：同一采样点上，先写 fnum、再写 key 状态。
+            size_t pi = 0, ki = kev;
+            while (pi < pitchPoints.size() || ki < keyEvents.size()) {
+                const bool takePitch =
+                    ki >= keyEvents.size() ||
+                    (pi < pitchPoints.size() && pitchPoints[pi].at <= keyEvents[ki].first);
+                Segment seg;
+                if (takePitch) {
+                    seg.atSample = pitchPoints[pi].at;
+                    seg.regs.push_back(Rv(0x10 + ch,
+                                          static_cast<uint8_t>(pitchPoints[pi].fnumLow)));
+                    seg.regs.push_back(Rv(0x20 + ch,
+                                          static_cast<uint8_t>(pitchPoints[pi].dh |
+                                                               (keyDown ? 0x10 : 0x00))));
+                    pi++;
+                } else {
+                    const bool on = keyEvents[ki].second;
+                    ki++;
+                    if (on == keyDown) continue;
+                    keyDown = on;
+                    seg.atSample = keyEvents[ki - 1].first;
+                    seg.regs.push_back(Rv(0x20 + ch,
+                                          static_cast<uint8_t>(dhBase | (on ? 0x10 : 0x00))));
+                }
+                dn.segments.push_back(seg);
+            }
 
             // 音符中间若源 TL 变化，跟随写 0x30（值变了才写）
             int lastVol = vol;
@@ -403,6 +506,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                         seg.regs.push_back(Rv(0x20 + ch,
                                               static_cast<uint8_t>(dhBase | sus | 0x10))); // key on
                         dn.segments.push_back(seg);
+                        keyDown = true;
                     }
 
                     // arp / pitch 宏：按偏移重算 fnum，落在变化点
@@ -439,11 +543,10 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 }
             }
 
-            // key-off 段：0x20 去掉 bit4
-            Segment ko;
-            ko.atSample = n.endSample;
-            ko.regs.push_back(Rv(0x20 + ch, dhBase));  // key off
-            dn.segments.push_back(ko);
+            // key-off 不再另行合成：源里真实的 key-off 已经在上面的 keyEvents
+            // 重放里按原时刻写进 0x20，重放结束后 keyDown 就是源的真实状态。
+            // legato 切块到这里 keyDown 仍为 true（源里从未 key-off），
+            // 不补写 —— 补写就会把同一个音切成两段独立起音。
 
             dc.notes.push_back(dn);
             out.notesConverted++;

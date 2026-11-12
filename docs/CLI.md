@@ -226,32 +226,45 @@ json2vgm <input.json> -o <output.vgm> [--chip=ym2151|ym2413] [--check]
 ```bash
 json2json <source.json> -o <target.json> \
     --target=ym2413 \
-    --mapping=opm2opll.map.json \
-    [--extract-instruments=DIR] \
-    [--report=report.txt]
+    [--bank=ym2413] [--clock=3579545] \
+    [--volume-bias=0] [--transpose=-12] \
+    [--fui | --fui-dir=DIR] [--use-edited-fui] \
+    [--tick-rate=60] [--no-macros] \
+    [--user-voice] [--report] [--vgm=OUT.vgm]
 ```
 
 | 选项 | 说明 |
 |---|---|
 | `--target` | 目标芯片（`ym2413` / `ym2151` / ...） |
-| `--mapping` | **映射表文件**（JSON，见 §5） |
-| `--report` | 输出有损报告 |
-| `--extract-instruments` | 导出映射后的音色为 `.fui` |
+| `--bank` | OPLL 音色库：`ym2413` / `vrc7` / `ymf281b` |
+| `--clock` | 目标芯片时钟（默认 3579545） |
+| `--volume-bias` | 音量偏移，叠加在匹配结果上（-15..15） |
+| `--transpose` | 整体移调（半音）。**默认 -12**：实测不降这一八度会比源高一个八度 |
+| `--fui` / `--fui-dir` | 为每个源音色写出 `chXinsY_ym2413.fui` |
+| `--use-edited-fui` | 读同目录下改过的 `.fui` 覆盖自动匹配（含宏） |
+| `--tick-rate` | 宏的 tick 速率（Furnace 的 `song.hz`，默认 60）。**`.fui` 里没有这个数** |
+| `--no-macros` | 不执行 `.fui` 里的宏 |
+| `--report` | 输出逐音符有损报告 |
+| `--vgm` | 同时写一份试听 VGM（含循环点与 GD3 透传） |
 
 **内部流程**：
 
 ```
 1. 读 source.json
 2. 时域映射：原样搬 startSample/endSample（零工作量）
-3. 通道映射：按 mapping 的 channelMap（8 → 9，一一对应）
+3. 通道映射：8 → 9 一一对应
 4. 音色映射：
-   a. 对每个源音色，按 mapping 的规则找目标音色
-   b. 若 mapping 里有显式条目（hash → program + volumeOffset），直接用
-   c. 否则自动匹配（ROM 预置最近邻）
-   d. 生成 target 的 .fui
-5. 音量映射：载波 TL → 目标芯片音量（按位宽降精度）
-6. 生成 target.json（同一 schema，chips 换成目标芯片）
-7. 输出有损报告
+   a. 对每个源音色，按源寄存器指纹（不含 TL）去重编号 chXinsY
+   b. 自动匹配 ROM 预置（最近邻）；有 --use-edited-fui 时以 .fui 的
+      opllPreset 为准（含 0 = 用户槽）
+   c. 生成/读入 target 的 .fui，展开其中的宏
+5. 音量映射：载波 TL → 0x30 低 4 位
+6. 音高映射（关键）：
+   · 起点：KC/KF → Hz → OPLL block/fnum，叠加 ML 八度补偿与 --transpose
+   · 音符内部：逐点跟随源的 0x28(KC)/0x30(KF)，重算 fnum
+   · key 事件：按源 0x08 逐条重放，不给 legato 切块补 key-on/off
+7. 生成 target.json（同一 schema，chips 换成目标芯片，tags 原样搬）
+8. 输出有损报告
 ```
 
 **为什么映射表是文件而不是代码**：这是与 vgm-conv/vgmtransmute 的根本区别。用户改 JSON 就能换映射，不用重新编译。

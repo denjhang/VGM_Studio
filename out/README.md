@@ -1,68 +1,81 @@
-# 产物目录（`out/`）
+# `out/` —— 全部生成物，一个版本一个子目录
 
-**所有生成物一律落在这里，不再散落到 `listen/`。** 一条命令一条链，可反复重跑覆盖。
+**规则：每次生成都新建一个版本子目录（`v1/`、`v2/`……），绝不在根下堆放产物。**
+这样任意两个版本可以并存对比，不会互相覆盖。
 
-`listen/` 只保留历史上那 4 个已入库的成品文件（2 个 MIDI + 1 个 VGM），
-不再新增内容；新工作全部用 `out/`。
+```
+out/
+├── README.md                    ← 本文件
+├── 2151-2413.fur                ← Furnace 工程（在 Furnace 里改音色的入口）
+├── ch*_ym2151.fui               ← 当前源侧音色（19 个，正在用的那一份）
+├── ch*_ym2413.fui               ← 当前目标侧音色（19 个，改这几个）
+├── 00_reference/                ← 与版本无关的参照物
+│   ├── 01_original_OPM_YMF2151.wav
+│   ├── 03_original_OPM.mid
+│   └── 04_converted_OPLL.mid
+├── v1/                          ← ① 原芯片导入
+├── v2/                          ← ② 首次跨芯片转换（自动匹配）
+├── v3/ … v4/                    ← 中间修正
+└── v5/                          ← ★ 当前正确版本
+```
 
-## 目录内容
+`.fui` 在根下是**当前工作副本**（在 Furnace 里改的就是这几个）；
+每个版本目录里另存一份**当时的快照**，便于回溯。改完 `.fui` 重新生成时，
+把根下的 `.fui` 拷进新的版本目录即可（见下）。
 
-| 文件 | 是什么 |
-|---|---|
-| `ch*ins*_ym2151.fui` | 源侧音色（19 个，来自 YM2151） |
-| `ch*ins*_ym2413.fui` | 目标侧音色（19 个，ROM 匹配结果），**改这个** |
-| `song.json` | ① 原芯片结构化 JSON（YM2151） |
-| `song.ym2413.json` | ② 目标芯片结构化 JSON（YM2413） |
-| `song.ym2413.vgm` | ③ 目标 VGM（用于试听/校验） |
-| `01_original_OPM_YMF2151.wav` | 原曲渲染，YM2151 直接播原 VGM |
-| `02_converted_OPLL_YM2413.wav` | 转换后渲染，YM2413 播 ③ |
-| `03_original_OPM.mid` | 原曲 JSON → MIDI（纯音高验证） |
-| `04_converted_OPLL.mid` | 目标 JSON → MIDI（纯音高验证） |
+## 各版本做了什么
 
-`.wav` 每个约 10 MB，已被 `.gitignore` 的 `out/` 规则整体排除，不进仓库。
+| 版本 | 内容 | 已知问题 |
+|---|---|---|
+| `v1/` | `vgm2json --fui`：原 OPM JSON + 19 个 `ym2151.fui` | — |
+| `v2/` | 首次 `opm2opll --fui`，用户把 ch1/ch2 的音色号改成 5/12/7 | **音符被切开、颤音被量化成半音阶** |
+| `v3/` | 修 key 事件（按源重放，不再每块补 key-on/off） | 未降八度 |
+| `v4/` | 修音高轨迹（逐点跟随 KC/KF） | 未降八度 |
+| `v5/` | **v3+v4 + `--transpose=-12` + 循环点 + GD3** | 当前版本 |
 
-## 完整重跑（从零到全部产物）
+## 完整重跑（写进新版本目录）
 
 ```bash
 cd E:/working/zcode-projects/VGM_Studio
 B=cli/build
 V="vgm/Spindizzy_II_(Sharp_X68000)/31 Grass Maze.vgm"
-mkdir -p out
+NEW=out/v6      # ← 每次换新名字，不要复用
+mkdir -p "$NEW"
 
 # ① 原芯片 VGM → JSON + 源侧音色
-$B/vgm2json.exe "$V" -o out/song.json --fui
+$B/vgm2json.exe "$V" -o "$NEW/song.json" --fui
 
-# ② 原芯片 JSON → 目标芯片 JSON + 目标侧音色（19 个 ym2413.fui）
-$B/opm2opll.exe out/song.json -o out/song.ym2413.json --fui
+# ② 原芯片 JSON → 目标芯片 JSON + 目标侧音色
+$B/opm2opll.exe "$NEW/song.json" -o "$NEW/song.ym2413.json" \
+    --fui-dir="$NEW" --tick-rate=60
 
-# ③ 用改过的音色重新生成目标 JSON + 目标 VGM
-#    （没改过 .fui 也可以照样加 --use-edited-fui，等于原样读回）
-$B/opm2opll.exe out/song.json -o out/song.ym2413.json \
-    --fui --use-edited-fui --vgm=out/song.ym2413.vgm
+# ③ 在 Furnace 里改 "$NEW"/ch*_ym2413.fui，然后重生成（含循环点与 GD3）
+$B/opm2opll.exe "$NEW/song.json" -o "$NEW/song.ym2413.v2.json" \
+    --fui-dir="$NEW" --use-edited-fui --tick-rate=60 \
+    --vgm="$NEW/song.ym2413.v2.vgm"
 
-# ④ 两条 MIDI（纯音高验证）
-$B/json2mid.exe out/song.json        -o out/03_original_OPM.mid
-$B/json2mid.exe out/song.ym2413.json -o out/04_converted_OPLL.mid
-
-# ⑤ 两个 WAV
-libvgm/build/bin/vgm2wav.exe --loops 1 --fade 3 "$V" out/01_original_OPM_YMF2151.wav
-libvgm/build/bin/vgm2wav.exe --loops 1 --fade 3 out/song.ym2413.vgm out/02_converted_OPLL_YM2413.wav
+# ④ 试听
+libvgm/build/bin/vgm2wav.exe --loops 1 --fade 3 \
+    "$NEW/song.ym2413.v2.vgm" "$NEW/02_converted_OPLL_YM2413.wav"
 ```
 
-## 改音色的工作流
+## 关键数据（`31 Grass Maze`，源 YM2151 @4MHz → YM2413 @3.579545MHz）
 
-```bash
-# 看一眼某个目标音色（含宏，一眼就能确认 patch/vol/phaseReset 是否存在）
-$B/fuitool.exe dump out/ch1ins1_ym2413.fui --tick-rate=60
+| 项 | 源 | v5 |
+|---|---|---|
+| 音符块数 | 327（ch1） | 327 |
+| 真实 key-on 边沿 | 2107 | **2107** |
+| 真实 key-off 边沿 | 2104 | **2104** |
+| 音符内音高写入 | 483 次（ch1 的 KF） | 1513 次（全曲 fnum） |
+| 循环起点 | 采样 12582 | 采样 12582 |
+| 循环长度 | 2393734 | 2393734 |
+| GD3 | 268 字节 | **逐字节相同** |
 
-# 在 Furnace 里改完 .fui，再用它重新生成（③ 那条命令原样重跑即可）
-```
+## 两条必须记住的规则
 
-宏速率不写在 `.fui` 里，它来自 `.fur` 的 `song.hz`，所以 `--tick-rate` 必须显式给，
-且要和转换时用的值一致（默认 60）。
-
-## 已知的量化结果
-
-2500+ 个音符配对，**91.3% 音高完全相同**，其余 8.7% 差 2~4 个半音，全部落在
-ch4（源载波 ML=10，OPLL 无法表达非 2 次幂倍频）。听感上是该声部个别音略有偏差，
-不是整体走调。详见 `docs/PITCH-CONVERSION.md`。
+1. **循环点是「起点」，不是「长度」**。VGM 头 `0x20` 存的是循环段长度，
+   `loopSample = totalSamples − loopTicks`。直接拿长度当位置存，会得到一个
+   贴着曲末的假循环点。
+2. **key 事件与音高轨迹必须分开处理**。`NoteSplitter` 在 KC 跳变 >0.5 半音时
+   切新块，这些块是 legato 延续（源里没有 `0x08` 写），不能补 key-off/key-on；
+   而音符内部的 `0x28`/`0x30`（KC/KF）必须逐点跟随，否则颤音弯音全被压成固定音高。

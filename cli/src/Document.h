@@ -110,6 +110,13 @@ struct RawData {
     std::string tailBase64;
 };
 
+// GD3 标签：原样字节（base64），跨芯片转换也照搬。
+// VGM 规范里 Gd3 在 EOF 之后，头 0x14 存「相对 0x14 的偏移」。
+struct TagData {
+    std::string gd3Base64;
+    bool Empty() const { return gd3Base64.empty(); }
+};
+
 struct Document {
     std::string format = "vgm-studio/song";
     int version = 1;
@@ -120,6 +127,7 @@ struct Document {
     std::vector<GlobalSegment> globals;
     std::vector<Channel> channels;
     RawData raw;
+    TagData tags;
 
     // 完整性校验：notes ∪ orphans ∪ globals 的写数。
     size_t CountStructuredWrites() const;

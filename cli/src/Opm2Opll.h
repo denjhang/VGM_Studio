@@ -35,6 +35,11 @@ struct ConvertOptions {
     // 这里必须显式给出，否则宏无法折算成采样位置。
     int tickRate = 60;
     bool runMacros = true;           // 目标音色带宏时，把宏展开成寄存器写
+
+    // 目标整体移调（半音，正数升调）。叠加在 ML 八度补偿之上。
+    // 默认 -12：实测输出比源整体高一个八度（OPLL 载波 ML 与 OPM 的补偿差），
+    // 降一个八度后与源听感对齐。可用 --transpose=N 覆盖。
+    int transposeSemitones = -12;
 };
 
 // 单音符的转换结果（用于有损报告）

@@ -284,6 +284,9 @@ bool Document::SaveJson(const std::string& path, bool pretty, std::string* err) 
                 {"commands", raw.commandsBase64.empty() ? "" : "base64:" + raw.commandsBase64},
                 {"tail", raw.tailBase64.empty() ? "" : "base64:" + raw.tailBase64}};
 
+    // GD3 标签原样透传（跨芯片转换也不改）
+    j["tags"] = {{"gd3", tags.gd3Base64.empty() ? "" : "base64:" + tags.gd3Base64}};
+
     std::ofstream f(path, std::ios::binary);
     if (!f) {
         *err = "cannot write " + path;
@@ -405,6 +408,12 @@ bool Document::LoadJson(const std::string& path, Document* out, std::string* err
     out->raw.headerBase64 = strip(r.value("header", std::string()));
     out->raw.commandsBase64 = strip(r.value("commands", std::string()));
     out->raw.tailBase64 = strip(r.value("tail", std::string()));
+
+    // tags 是可选的：老文档没有这个键
+    auto tj = j.find("tags");
+    if (tj != j.end() && tj->is_object()) {
+        out->tags.gd3Base64 = strip(tj->value("gd3", std::string()));
+    }
 
     return true;
 }

@@ -22,8 +22,7 @@
 |---|---|
 | [`cli/`](cli/) | **本项目自己的代码**：导入、结构化、跨芯片转换、输出、音高验证 |
 | [`docs/`](docs/) | 设计文档（每个主题一个文件，见 [`docs/README.md`](docs/README.md)） |
-| [`out/`](out/) | **全部生成物**（JSON / FUI / VGM / MIDI / WAV），见 [`out/README.md`](out/README.md) |
-| [`listen/`](listen/) | 早期试听成品（仅存档，新工作一律走 `out/`） |
+| [`out/`](out/) | **全部生成物**，一个版本一个子目录（`v1/`…`v5/`），见 [`out/README.md`](out/README.md) |
 | `0x808/` `libvgm/` `furnace/` 等 | 外部参考工程（各自带 `.git`，不纳入本仓库） |
 
 ---
