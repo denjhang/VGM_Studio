@@ -230,6 +230,7 @@ json2json <source.json> -o <target.json> \
     [--volume-bias=0] [--transpose=-12] \
     [--fui | --fui-dir=DIR] [--use-edited-fui] \
     [--fur=PROJECT.fur] \
+    [--library=LIB.json] \
     [--tick-rate=60] [--no-macros] \
     [--user-voice] [--report] [--vgm=OUT.vgm]
 ```
@@ -244,6 +245,7 @@ json2json <source.json> -o <target.json> \
 | `--fui` / `--fui-dir` | 为每个源音色写出 `chXinsY_ym2413.fui` |
 | `--use-edited-fui` | 读同目录下改过的 `.fui` 覆盖自动匹配（含宏） |
 | `--fur` | **从 Furnace 工程一次读全部音色**（先按乐器名 `chXinsY`，对不上再按 OPLL 乐器顺序兜底），并用工程的 `hz` 作为宏 tick 速率。优先级高于 `--use-edited-fui`；找不到的音色会在输出里显式列出 |
+| `--library` | **跨曲目乐器库**（`fuitool lib --json=` 导出的那份）。按 **YM2151 的 FM 参数**匹配（不是指纹），命中即整套搬用已调好的目标音色 + 宏 + `note/vol/noteoff/link` 参数。优先级最高；完全一致直接命中，否则取参数最近的（距离 ≤ 48），都没命中才退回 `--fur` / ROM 自动匹配 |
 | `--tick-rate` | 宏的 tick 速率（Furnace 的 `song.hz`，默认 60）。**`.fui` 里没有这个数** |
 | `--no-macros` | 不执行 `.fui` 里的宏 |
 | `--report` | 输出逐音符有损报告 |
@@ -257,9 +259,11 @@ json2json <source.json> -o <target.json> \
 3. 通道映射：8 → 9 一一对应
 4. 音色映射：
    a. 对每个源音色，按源寄存器指纹（不含 TL）去重编号 chXinsY
-   b. 自动匹配 ROM 预置（最近邻）；有 --fur / --use-edited-fui 时以工程或
-      .fui 里的 opllPreset 为准（含 0 = 用户槽）
-   c. 生成/读入 target 的 .fui，展开其中的宏
+   b. 跨曲目库 `--library` 按 **源侧 FM 参数**（不含 TL）查表；命中就用库里的
+      目标音色 + 宏 + 名字参数
+   c. 未命中时自动匹配 ROM 预置（最近邻）；有 --fur / --use-edited-fui 时
+      以工程或 .fui 里的 opllPreset 为准（含 0 = 用户槽）
+   d. 生成/读入 target 的 .fui，展开其中的宏
 5. 音量映射：载波 TL → 0x30 低 4 位
 6. 音高映射（关键）：
    · 起点：KC/KF → Hz → OPLL block/fnum，叠加 ML 八度补偿与 --transpose

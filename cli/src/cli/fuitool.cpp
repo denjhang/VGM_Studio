@@ -20,6 +20,7 @@
 
 #include "FuiVoice.h"
 #include "FurFile.h"
+#include "InstrumentLibrary.h"
 
 namespace {
 
@@ -279,14 +280,20 @@ bool WriteLibraryJson(const vgmstudio::FurSong& song, const std::string& source,
     }
     nlohmann::json root = {
         {"format", "vgm-studio/instrument-library"},
-        {"version", 1},
+        {"version", 2},
         {"source", source},
         {"furVersion", song.version},
         {"hz", song.hz},
         {"songName", song.name},
         {"songAuthor", song.author},
-        {"note", "身份靠参数（operators + preset），指纹只是签名串的哈希"},
+        {"note",
+         "身份靠 YM2151 的 FM 参数（operators，不含 TL）；指纹只用于同一曲目内去重。"
+         "pairs 段是 源音色 → 目标音色 的跨曲目复用表。"},
         {"instruments", ins},
+        // ★ 跨曲目复用表：源侧 OPM 参数 + 目标侧 OPLL 音色/宏/名字参数。
+        //   批量转换时按源侧参数查表（InstrumentLibrary::Find），
+        //   完全一致直接用、不一致取最近的，都不会退回 ROM 自动匹配。
+        {"pairs", vgmstudio::LibraryPairsToJson(vgmstudio::BuildLibraryPairs(song))},
     };
     std::ofstream f(path);
     if (!f) {

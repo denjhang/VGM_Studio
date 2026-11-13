@@ -75,6 +75,8 @@ add_library(vgmcore STATIC
     src/FuiVoice.cpp
     src/FurFile.h
     src/FurFile.cpp
+    src/InstrumentLibrary.h
+    src/InstrumentLibrary.cpp
     src/MacroEngine.h
     src/MacroEngine.cpp
 )

@@ -30,6 +30,9 @@ void Usage() {
         "  --use-edited-fui       读同目录下改过的 .fui 覆盖自动匹配\n"
         "  --fur=FILE.fur         从 Furnace 工程读全部音色（按乐器名 chXinsY 匹配），\n"
         "                         并用工程的 hz 作为宏 tick 速率\n"
+        "  --library=FILE.json    跨曲目乐器库（fuitool lib --json= 导出）。\n"
+        "                         按 **YM2151 的 FM 参数**匹配，命中即整套搬用\n"
+        "                         已调好的目标音色 + 宏 + note/vol/noteoff 参数\n"
         "  --tick-rate=60         宏的 tick 速率（Furnace 的 song.hz）\n"
         "  --no-macros            不执行 .fui 里的宏\n"
         "  --vgm=OUT.vgm          同时输出试听 VGM\n");
@@ -94,6 +97,10 @@ int main(int argc, char** argv) {
             opt.furPath = a + 6;
         } else if (std::strcmp(a, "--fur") == 0 && i + 1 < argc) {
             opt.furPath = argv[++i];
+        } else if (std::strncmp(a, "--library=", 10) == 0) {
+            opt.libraryPath = a + 10;
+        } else if (std::strcmp(a, "--library") == 0 && i + 1 < argc) {
+            opt.libraryPath = argv[++i];
         } else if (std::strncmp(a, "--vgm=", 6) == 0) {
             previewPath = a + 6;
         } else if (a[0] == '-') {
@@ -144,8 +151,26 @@ int main(int argc, char** argv) {
     if (!r.fuiFiles.empty()) std::printf("fui           : %zu files\n", r.fuiFiles.size());
     if (!r.fuiApplied.empty())
         std::printf("fui applied   : %zu edited voices\n", r.fuiApplied.size());
-    if (r.furInstruments != 0 || !opt.furPath.empty()) {
-        std::printf("fur           : %zu instruments, %zu matched (%d tick/s)\n",
+    if (!opt.libraryPath.empty()) {
+        std::printf("library       : %s\n", opt.libraryPath.c_str());
+        std::printf("  hit exact   : %zu voices\n", r.libExact.size());
+        for (const std::string& n : r.libExact) std::printf("                %s\n", n.c_str());
+        if (!r.libApprox.empty()) {
+            std::printf("  hit nearest : %zu voices\n", r.libApprox.size());
+            for (const std::string& n : r.libApprox) std::printf("                %s\n", n.c_str());
+        }
+        if (!r.libMissing.empty()) {
+            std::printf("  miss        : %zu voices（退回 .fur / ROM 自动匹配）\n",
+                        r.libMissing.size());
+            for (const std::string& n : r.libMissing)
+                std::printf("                %s\n", n.c_str());
+        }
+    }
+    if (!r.linkApplied.empty()) {
+        std::printf("link          : %zu\n", r.linkApplied.size());
+        for (const std::string& n : r.linkApplied) std::printf("                %s\n", n.c_str());
+    }
+    if (r.furInstruments != 0 || !opt.furPath.empty()) {        std::printf("fur           : %zu instruments, %zu matched (%d tick/s)\n",
                     r.furInstruments, r.furApplied.size(), r.tickRateUsed);
         for (const std::string& n : r.furApplied) std::printf("                %s\n", n.c_str());
         if (!r.furMissing.empty()) {

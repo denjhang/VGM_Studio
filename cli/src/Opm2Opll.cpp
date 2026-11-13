@@ -11,6 +11,7 @@
 #include "FmVoice.h"
 #include "FuiVoice.h"
 #include "FurFile.h"
+#include "InstrumentLibrary.h"
 #include "MacroEngine.h"
 
 namespace vgmstudio {
@@ -31,6 +32,12 @@ constexpr int kSrcChannels = 8;
 constexpr int kTlPerOpllStep = 4;
 
 constexpr int kDstChannels = 9;
+
+// 跨曲目音色库的「相似」容差。0 = 参数完全一致。
+// 同一套曲目里同一件乐器在不同曲子上，OPM 参数常只差几个 EG 值
+// （ar/dr/sl/rr 各差 1~3），累加距离落在 10~40；alg 不同会直接返回 1000，
+// 那种情况宁可退回 ROM 自动匹配，也不硬套一个结构不同的音色。
+constexpr int kLibMaxDistance = 48;
 
 // "ch5ins3-..." → 5（1 基）→ 返回 4（0 基通道号）。解析失败返回 -1。
 int ChannelFromInstrumentName(const std::string& name) {
@@ -181,6 +188,20 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
     }
     out.tickRateUsed = tickRate;
 
+    // 跨曲目乐器库：按源侧 YM2151 FM 参数查表（不是指纹）。
+    // 这是「利用现有音色成果」的主路径——库里存的是别的曲目已经调好的目标音色、
+    // 宏与名字参数（note/vol/noteoff/link），命中就整套搬过来。
+    InstrumentLibrary lib;
+    bool haveLib = false;
+    if (!opt.libraryPath.empty()) {
+        std::string lerr;
+        if (!LoadInstrumentLibrary(opt.libraryPath, &lib, &lerr)) {
+            out.error = lerr;
+            return out;
+        }
+        haveLib = true;
+    }
+
     // 0 号预设（唯一可写的用户音色）的内容：只有用户把某个 .fui 的 opllPreset
     // 改成 0 时才有值，此时把它的算子参数写进 0x00-0x07 全局段。
     FuiVoice userVoice;
@@ -232,6 +253,11 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
     // 每个目标音符用的是哪个乐器基名（chXinsY）。link:X 只在该乐器真正发声的
     // 那些音符上联动，不能把整条通道的音符都算进去（鼓通道里有 4 个音色）。
     std::map<int, std::map<uint32_t, std::string>> noteVoiceOfChannel;
+    // 每个 (通道, 音符起点) 对应的**源音色身份键**。link 的跨曲目复用靠它认人：
+    // 库里的 link 条目记的是「叠在哪个源音色上」，本曲这个通道上未必叫同一个名字。
+    std::map<int, std::map<uint32_t, std::string>> noteKeyOfChannel;
+    // 每个 (通道, 音符起点) 在本曲里的目标乐器名，link 复制时按它改写名字。
+    std::vector<std::string> linkEntriesApplied;
     for (int ch = 0; ch < kSrcChannels && ch < static_cast<int>(src.channels.size()); ch++) {
         const Channel& sc = src.channels[ch];
         uint8_t shadow[256] = {0};
@@ -257,6 +283,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
         std::map<uint64_t, FuiVoice> voiceFui;       // 音色 → 用户改过的 .fui（含宏）
         std::map<uint64_t, InsTags> voiceTags;       // 音色 → 乐器名里的参数标签
         std::map<uint64_t, std::string> voiceFurName; // 音色 → 匹配到的 .fur 乐器全名
+        std::map<uint64_t, std::string> voiceSrcKey;  // 音色 → 源侧身份键（不含 TL）
         // 该通道的 key 位当前是否置位。legato 切块（KC 跳变产生，源里没有 key 事件）
         // 必须沿用上一块的状态，否则会凭空产生一次 key-off + key-on。
         bool keyDown = false;
@@ -292,6 +319,8 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 ordinal = static_cast<int>(voiceOrdinal.size()) + 1;
                 voiceOrdinal[vh] = ordinal;
                 m = MatchOpllRom(opl, bank);   // ← 自动匹配只在这里做一次
+                // 源音色身份键（不含 TL）。link:X 的跨曲目复用靠它认人。
+                voiceSrcKey[vh] = OpmTimbreKey(OpmShadowToFui(shadow, ch));
 
                 char baseName[32];
                 std::snprintf(baseName, sizeof(baseName), "ch%dins%d", ch + 1, ordinal);
@@ -303,7 +332,48 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 //   只有它能被算子级宏改动，也正是 patch 切换之外 OPLL 唯一的自由音色。
                 bool usedEdited = false;
                 FuiVoice editedVoice;
-                if (haveFur) {
+                // ★ 跨曲目乐器库优先于 .fur 的按名字匹配之外的一切：
+                //   库里存的是「这套 YM2151 参数 → 已经调好的 YM2413 音色 + 宏 +
+                //   note/vol/noteoff 参数」，判据是源侧 FM 参数本身，不是指纹
+                //   （指纹混了 type/preset，只适合同曲目去重）。
+                //   完全一致直接用，不完全一致取参数最近的。
+                if (!usedEdited && haveLib && !lib.Empty()) {
+                    const FuiVoice srcVoice = OpmShadowToFui(shadow, ch);
+                    const LibraryEntry* le = lib.Find(srcVoice, kLibMaxDistance, ch);
+                    if (le != nullptr) {
+                        editedVoice = le->target;
+                        if (editedVoice.opllPreset >= 0 && editedVoice.opllPreset < 19) {
+                            m.program = editedVoice.opllPreset;
+                        }
+                        usedEdited = true;
+                        voiceTags[vh] = le->tags;
+                        // 名字里的通道前缀换成本曲目的（ch5ins1-BD3 → ch2ins3-BD3），
+                        // 后面的描述与参数原样保留。
+                        std::string nm = le->targetName;
+                        const std::string base = le->tags.base;
+                        if (!base.empty() && nm.compare(0, base.size(), base) == 0) {
+                            nm = std::string(baseName) + nm.substr(base.size());
+                        } else {
+                            nm = std::string(baseName) + "-" + nm;
+                        }
+                        voiceFurName[vh] = nm;
+                        const bool exact = (le->sourceKey == OpmTimbreKey(srcVoice));
+                        out.libApplied.push_back(le->sourceName + " -> " + nm);
+                        (exact ? out.libExact : out.libApprox).push_back(le->sourceName);
+                    } else {
+                        const std::string srcKey = OpmTimbreKey(srcVoice);
+                        int dist = -1;
+                        const LibraryEntry* near = lib.Nearest(srcVoice, &dist);
+                        std::string note = std::string(baseName) + " (d=" +
+                                           std::to_string(dist);
+                        if (near != nullptr) note += ", 最近 " + near->targetName;
+                        note += ")";
+                        out.libMissing.push_back(note);
+                    }
+                }
+                // .fur 只对「库里没命中」的音色生效：库是跨曲目的成果，
+                // 当前工程的按名字匹配只覆盖这首曲子自己的那份。
+                if (!usedEdited && haveFur) {
                     // 先按名字找（chXinsY，可带后缀）；找不到再按序号兜底——
                     // 用户在 Furnace 里把乐器改成完全不同的名字时，序号仍然对应。
                     const FurInstrument* fi =
@@ -735,6 +805,9 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 auto nit = voiceFurName.find(vh);
                 if (nit != voiceFurName.end())
                     noteVoiceOfChannel[ch][n.startSample] = nit->second;
+                auto kit = voiceSrcKey.find(vh);
+                if (kit != voiceSrcKey.end())
+                    noteKeyOfChannel[ch][n.startSample] = kit->second;
             }
             out.notesConverted++;
             NoteConvertReport rep;
@@ -779,6 +852,23 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
     // 它的价值就在于叠加一个不同的层次（例如 SD2 底鼓层之上再叠一层 HF）。
     // 音高与 key 时机沿用目标音符（那已经换算成 OPLL 的 fnum/block 了），
     // 音色与包络按联动音色重新展开。
+    //
+    // ★ 两个来源：
+    //   ① .fur 工程里的 link:X（X 是本曲的通道名 "ch5ins3"）
+    //   ② 乐器库里的 link 条目（库里记的是**被联动源音色的身份键**，
+    //      跨曲目复用时那个通道名可能完全不同，所以按参数认人）
+    // 同一个通道号只取一条，先命中的优先（.fur 是本曲专用，优先）。
+    struct LinkSpec {
+        int dstCh = -1;
+        std::string srcName;     // 本曲里的被联动通道名（仅 .fur 用）
+        std::string srcKey;      // 源音色身份键（库条目用）
+        InsTags tags;
+        const FuiVoice* voice = nullptr;
+        std::string label;
+    };
+    std::vector<LinkSpec> links;
+    std::map<int, bool> linkChTaken;
+
     if (haveFur) {
         for (const FurInstrument& fi : fur.instruments) {
             if (fi.type != kFuiInsOpll) continue;
@@ -789,19 +879,68 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             if (dstCh < 0 || dstCh >= static_cast<int>(doc.channels.size())) continue;
             if (srcCh < 0 || srcCh >= static_cast<int>(doc.channels.size())) continue;
             if (srcCh == dstCh) continue;
+            if (linkChTaken[dstCh]) continue;
+            linkChTaken[dstCh] = true;
+            LinkSpec ls;
+            ls.dstCh = dstCh;
+            ls.srcName = ltags.linkTo;
+            ls.tags = ltags;
+            ls.voice = &fi.voice;
+            ls.label = fi.name + " -> " + ltags.linkTo;
+            links.push_back(ls);
+        }
+    }
+    if (haveLib) {
+        for (const LibraryEntry& le : lib.entries) {
+            if (!le.isLink) continue;
+            const int dstCh = ChannelFromInstrumentName(le.targetName);
+            if (dstCh < 0 || dstCh >= static_cast<int>(doc.channels.size())) continue;
+            if (linkChTaken[dstCh]) continue;
+            // 库里记的是源音色身份键；本曲里存在这个音色才安装这条联动
+            bool here = false;
+            for (const auto& kv : noteKeyOfChannel)
+                for (const auto& nk : kv.second)
+                    if (nk.second == le.linkSourceKey) here = true;
+            if (!here) continue;
+            linkChTaken[dstCh] = true;
+            LinkSpec ls;
+            ls.dstCh = dstCh;
+            ls.srcKey = le.linkSourceKey;
+            ls.tags = le.tags;
+            ls.voice = &le.target;
+            ls.label = le.targetName + " (库, 按源音色参数联动)";
+            links.push_back(ls);
+        }
+    }
 
+    for (const LinkSpec& lk : links) {
+        const int dstCh = lk.dstCh;
+        const InsTags& ltags = lk.tags;
+        {
             Channel& dc = doc.channels[dstCh];
-            const std::vector<Note> source = doc.channels[srcCh].notes;
-            // 只联动「确实用了 link:X 指定乐器」的那些音符。鼓通道上同时有
-            // BD/hh/SD/pad2 四个音色，不筛就会把整条通道都复制一遍。
-            auto nvIt = noteVoiceOfChannel.find(srcCh);
-            for (const Note& sn : source) {
-                if (nvIt != noteVoiceOfChannel.end()) {
-                    auto vIt = nvIt->second.find(sn.startSample);
-                    if (vIt == nvIt->second.end()) continue;
-                    const InsTags srcTags = ParseInstrumentTags(vIt->second);
-                    if (srcTags.base.compare(0, ltags.linkTo.size(), ltags.linkTo) != 0) continue;
+            // 哪些音符该被联动：
+            //   .fur  → 本曲里的名字前缀（ch5ins3）
+            //   库     → 被联动源音色的身份键（参数一致）
+            auto shouldLink = [&](int srcCh, const Note& sn) {
+                if (!lk.srcKey.empty()) {
+                    auto kit = noteKeyOfChannel.find(srcCh);
+                    if (kit == noteKeyOfChannel.end()) return false;
+                    auto vIt = kit->second.find(sn.startSample);
+                    return vIt != kit->second.end() && vIt->second == lk.srcKey;
                 }
+                auto nvIt = noteVoiceOfChannel.find(srcCh);
+                if (nvIt == noteVoiceOfChannel.end()) return false;
+                auto vIt = nvIt->second.find(sn.startSample);
+                if (vIt == nvIt->second.end()) return false;
+                const InsTags srcTags = ParseInstrumentTags(vIt->second);
+                return srcTags.base.compare(0, lk.srcName.size(), lk.srcName) == 0;
+            };
+            (void)shouldLink;
+            for (int srcCh = 0; srcCh < static_cast<int>(doc.channels.size()); srcCh++) {
+                if (srcCh == dstCh) continue;
+                const std::vector<Note> source = doc.channels[srcCh].notes;
+                for (const Note& sn : source) {
+                    if (!shouldLink(srcCh, sn)) continue;
                 Note n;
                 n.id = static_cast<int>(dc.notes.size());
                 n.startSample = sn.startSample;
@@ -843,7 +982,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 }
 
                 // ② 音色与音量：联动音色自己的 preset + vol。
-                const int program = fi.voice.opllPreset;
+                const int program = lk.voice->opllPreset;
                 // 同主循环：vol:N 是 Furnace 音量语义（15=最响），转成 0x30 的衰减 nibble。
                 int vol = ltags.hasVol ? 15 - ltags.vol : 0;
                 vol = std::max(0, std::min(15, vol));
@@ -861,7 +1000,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 uint32_t offAt = 0;
                 if (ltags.noteOffSelf) {
                     const int ticks = ltags.noteOffTicks > 0 ? ltags.noteOffTicks
-                                                             : MacroActiveTicks(fi.voice);
+                                                             : MacroActiveTicks(*lk.voice);
                     const int rate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
                     const double perTick = static_cast<double>(rate) / (tickRate > 0 ? tickRate : 60);
                     offAt = n.startSample + static_cast<uint32_t>(ticks * perTick + 0.5);
@@ -869,7 +1008,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 }
 
                 // ④ 宏：按联动音色重新展开，时间窗与目标音符相同。
-                if (opt.runMacros && HasAnyMacro(fi.voice)) {
+                if (opt.runMacros && HasAnyMacro(*lk.voice)) {
                     MacroExpandInput mi;
                     mi.ch = dstCh;
                     mi.baseVol = 15 - vol;
@@ -880,7 +1019,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     mi.releaseAtEnd = true;
                     mi.opll = true;
                     mi.opllPreset = program;
-                    const MacroExpandOutput mo = ExpandMacros(fi.voice, mi);
+                    const MacroExpandOutput mo = ExpandMacros(*lk.voice, mi);
                     for (const MacroWrite& w : mo.writes) {
                         Segment seg;
                         seg.atSample = w.atSample;
@@ -942,8 +1081,9 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                                  });
                 dc.notes.push_back(n);
                 out.notesConverted++;
+                }
             }
-            out.linkApplied.push_back(fi.name + " -> " + ltags.linkTo);
+            out.linkApplied.push_back(lk.label);
         }
     }
 

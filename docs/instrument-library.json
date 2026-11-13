@@ -2488,6 +2488,17 @@
         {
           "delay": 0,
           "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            14
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
           "macro": 1,
           "rel": 255,
           "speed": 1,
@@ -2655,28 +2666,7 @@
             15,
             15,
             15,
-            15,
-            15,
-            15,
-            13,
-            10,
-            8,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
+            1
           ]
         },
         {
@@ -2720,7 +2710,7 @@
           ]
         }
       ],
-      "name": "ch5ins1-BD3-note:B2-vol:13-noteoff:self",
+      "name": "ch5ins1-BD3-note:B2-vol:15-noteoff:6",
       "operators": [
         {
           "am": 0,
@@ -2887,23 +2877,6 @@
             11,
             9,
             6,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
             0
           ]
         },
@@ -2950,7 +2923,7 @@
           ]
         }
       ],
-      "name": "ch5ins3-SD2-note:B3-noteoff:self-vol:13",
+      "name": "ch5ins3-SD2-note:B3-noteoff:9-vol:14",
       "operators": [
         {
           "am": 0,
@@ -3098,7 +3071,30 @@
         "gmProgram": 39
       },
       "index": 32,
-      "macros": [],
+      "macros": [
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 0,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            11
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 1,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            -12
+          ]
+        }
+      ],
       "name": "ch6ins1-syn bass",
       "operators": [
         {
@@ -3587,29 +3583,73 @@
       "ams": 0,
       "chip": "YM2413",
       "fb": 7,
-      "fingerprint": "8a233a658b948e1c",
+      "fingerprint": "fbeb787c1c42118d",
       "fms": 0,
       "gm": null,
       "index": 38,
       "macros": [
         {
           "delay": 0,
-          "loop": 8,
+          "loop": 255,
           "macro": 0,
           "rel": 255,
           "speed": 1,
           "type": 0,
           "values": [
-            0,
+            12,
             15,
             14,
-            13,
-            11,
+            12,
             9,
-            7,
+            6,
             3,
+            2,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0
+          ]
+        },
+        {
+          "delay": 0,
+          "loop": 255,
+          "macro": 1,
+          "rel": 255,
+          "speed": 1,
+          "type": 0,
+          "values": [
+            0,
+            -5,
+            -10,
+            -14,
+            -17,
+            -20,
+            -23,
+            -26,
+            -28,
+            -30,
+            -32,
+            -34,
+            -36,
+            -37,
+            -38,
+            -39,
+            -41
           ]
         },
         {
@@ -3620,26 +3660,14 @@
           "speed": 1,
           "type": 0,
           "values": [
-            5,
+            8,
+            4,
+            4,
             4
-          ]
-        },
-        {
-          "delay": 0,
-          "loop": 0,
-          "macro": 4,
-          "rel": 255,
-          "speed": 1,
-          "type": 0,
-          "values": [
-            72,
-            106,
-            78,
-            92
           ]
         }
       ],
-      "name": "ch9ins1-SD2-HF-link:ch5ins3-vol:13-noteoff:self-note:C8",
+      "name": "ch9ins1-SD2-HF-link:ch5ins3-vol:14-noteoff:self-note:B3",
       "operators": [
         {
           "am": 0,
@@ -3663,7 +3691,7 @@
         },
         {
           "am": 0,
-          "ar": 15,
+          "ar": 8,
           "dr": 3,
           "dt": 6,
           "dt2": 0,
@@ -3682,15 +3710,3845 @@
           "ws": 0
         }
       ],
-      "opllPreset": 2,
+      "opllPreset": 14,
       "ops": 2,
-      "signature": "t13;preset2;alg0;fb7;fms0;ams0;ops2|0:1,27,15,3,15,15,0,0,0,0,0,0,0,0,0,2|1:1,0,15,3,15,15,6,0,0,0,0,0,0,0,0,2",
+      "signature": "t13;preset14;alg0;fb7;fms0;ams0;ops2|0:1,27,15,3,15,15,0,0,0,0,0,0,0,0,0,2|1:1,0,8,3,15,15,6,0,0,0,0,0,0,0,0,2",
       "type": 13
     }
   ],
-  "note": "身份靠参数（operators + preset），指纹只是签名串的哈希",
+  "note": "身份靠 YM2151 的 FM 参数（operators，不含 TL）；指纹只用于同一曲目内去重。pairs 段是 源音色 → 目标音色 的跨曲目复用表。",
+  "pairs": [
+    {
+      "isLink": false,
+      "source": {
+        "alg": 2,
+        "ams": 0,
+        "fb": 6,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 8,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 29,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 31,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 32,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 4,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 13,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg2;fb6;fms0;ams0|4,4,0,22,8,15,15,0,0,0,0,0|4,3,0,24,3,15,15,0,0,0,0,0|4,3,0,24,3,15,15,0,0,0,0,0|2,3,0,24,4,15,15,0,0,0,0,0",
+      "sourceName": "ch1ins1-pad",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              10,
+              5
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 1,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 0,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 9,
+            "dr": 0,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 2,
+            "rs": 0,
+            "sl": 0,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 5,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch1ins1-light pad sq"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 0,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 8,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 31,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 39,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 30,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 12,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 13,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg0;fb0;fms0;ams0|14,4,0,22,8,15,15,0,0,0,0,0|14,3,0,31,3,15,15,0,0,0,0,0|14,3,0,31,3,15,15,0,0,0,0,0|2,3,0,31,12,15,15,0,0,0,0,0",
+      "sourceName": "ch1ins2-celesta",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 1,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 2,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 0,
+            "rs": 0,
+            "sl": 12,
+            "sus": 0,
+            "tl": 9,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 1,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 12,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch1ins2-vibraphone"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 5,
+        "ams": 0,
+        "fb": 7,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 8,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 2,
+            "sl": 2,
+            "sus": 0,
+            "tl": 27,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 28,
+            "dr": 11,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 10,
+            "rs": 1,
+            "sl": 15,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 7,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 10,
+            "rs": 1,
+            "sl": 15,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 7,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 8,
+            "rr": 10,
+            "rs": 1,
+            "sl": 12,
+            "sus": 0,
+            "tl": 19,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg5;fb7;fms0;ams0|4,3,0,15,8,2,15,2,0,0,0,0|4,3,0,28,11,15,10,1,0,0,0,0|4,4,0,31,7,15,10,1,0,0,0,0|8,3,0,31,7,12,10,1,0,0,0,0",
+      "sourceName": "ch2ins1-trum",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 0,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 2,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 2,
+            "ksr": 1,
+            "kvs": 2,
+            "mult": 3,
+            "rr": 1,
+            "rs": 0,
+            "sl": 2,
+            "sus": 0,
+            "tl": 25,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 13,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 2,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 7,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch2ins1-trumpet"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 0,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 8,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 31,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 39,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 30,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 12,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 13,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg0;fb0;fms0;ams0|14,4,0,22,8,15,15,0,0,0,0,0|14,3,0,31,3,15,15,0,0,0,0,0|14,3,0,31,3,15,15,0,0,0,0,0|2,3,0,31,12,15,15,0,0,0,0,0",
+      "sourceName": "ch2ins2-vib",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              5,
+              12
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 1,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 2,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 0,
+            "rs": 0,
+            "sl": 12,
+            "sus": 0,
+            "tl": 9,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 1,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 12,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch2ins2-clean vibraphone"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 5,
+        "ams": 0,
+        "fb": 7,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 8,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 2,
+            "sl": 2,
+            "sus": 0,
+            "tl": 27,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 28,
+            "dr": 11,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 10,
+            "rs": 1,
+            "sl": 15,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 7,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 10,
+            "rs": 1,
+            "sl": 15,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 7,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 8,
+            "rr": 10,
+            "rs": 1,
+            "sl": 12,
+            "sus": 0,
+            "tl": 19,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg5;fb7;fms0;ams0|4,3,0,15,8,2,15,2,0,0,0,0|4,3,0,28,11,15,10,1,0,0,0,0|4,4,0,31,7,15,10,1,0,0,0,0|8,3,0,31,7,12,10,1,0,0,0,0",
+      "sourceName": "ch3ins1-trum",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 0,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 2,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 2,
+            "ksr": 1,
+            "kvs": 2,
+            "mult": 3,
+            "rr": 1,
+            "rs": 0,
+            "sl": 2,
+            "sus": 0,
+            "tl": 25,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 13,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 2,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 7,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch3ins1-trum"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 2,
+        "ams": 0,
+        "fb": 4,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 14,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 12,
+            "rr": 10,
+            "rs": 2,
+            "sl": 12,
+            "sus": 0,
+            "tl": 25,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 9,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 10,
+            "rs": 1,
+            "sl": 12,
+            "sus": 0,
+            "tl": 35,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 10,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 10,
+            "rs": 2,
+            "sl": 1,
+            "sus": 0,
+            "tl": 32,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 10,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 2,
+            "sl": 12,
+            "sus": 0,
+            "tl": 15,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg2;fb4;fms0;ams0|12,3,0,24,14,12,10,2,0,0,0,0|2,3,0,31,9,12,10,1,0,0,0,0|4,4,0,24,10,1,10,2,0,0,0,0|2,0,0,31,10,12,15,2,0,0,0,0",
+      "sourceName": "ch3ins2-sanmi",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              14,
+              11
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 1,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 2,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 0,
+            "rs": 0,
+            "sl": 12,
+            "sus": 0,
+            "tl": 9,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 1,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 2,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch3ins2-clean guitar"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 2,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 10,
+            "dt": 2,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 8,
+            "rr": 12,
+            "rs": 2,
+            "sl": 10,
+            "sus": 0,
+            "tl": 30,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 15,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 12,
+            "rs": 2,
+            "sl": 12,
+            "sus": 0,
+            "tl": 34,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 12,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 8,
+            "rr": 12,
+            "rs": 2,
+            "sl": 1,
+            "sus": 0,
+            "tl": 31,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 12,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 12,
+            "rs": 1,
+            "sl": 1,
+            "sus": 0,
+            "tl": 13,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg0;fb2;fms0;ams0|8,2,0,31,10,10,12,2,0,0,0,0|4,4,0,31,15,12,12,2,0,0,0,0|8,3,0,31,12,1,12,2,0,0,0,0|4,3,0,31,12,1,12,1,0,0,0,0",
+      "sourceName": "ch3ins3-sanmi2",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              2,
+              11
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 1,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 2,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 0,
+            "rs": 0,
+            "sl": 12,
+            "sus": 0,
+            "tl": 9,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 1,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 15,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch3ins3-guitar"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 2,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 12,
+            "dt": 5,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 0,
+            "rr": 15,
+            "rs": 1,
+            "sl": 12,
+            "sus": 0,
+            "tl": 19,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 25,
+            "dr": 10,
+            "dt": 6,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 0,
+            "rr": 12,
+            "rs": 1,
+            "sl": 15,
+            "sus": 0,
+            "tl": 16,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 26,
+            "dr": 13,
+            "dt": 1,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 1,
+            "sl": 14,
+            "sus": 0,
+            "tl": 33,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 1,
+            "sl": 8,
+            "sus": 0,
+            "tl": 16,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg0;fb2;fms0;ams0|0,5,0,22,12,12,15,1,0,0,0,0|0,6,0,25,10,15,12,1,0,0,0,0|2,1,0,26,13,14,15,1,0,0,0,0|1,3,0,31,3,8,15,1,0,0,0,0",
+      "sourceName": "ch4ins1-acid bass",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 0,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              14
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 1,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              -12
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 8,
+            "dr": 5,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 1,
+            "rs": 0,
+            "sl": 8,
+            "sus": 0,
+            "tl": 11,
+            "vib": 0,
+            "ws": 1
+          },
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 0,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 1,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 7,
+            "rs": 0,
+            "sl": 0,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 1
+          }
+        ],
+        "opllPreset": 10,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch4ins1-synth bass"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 2,
+        "ams": 0,
+        "fb": 4,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 14,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 12,
+            "rr": 10,
+            "rs": 2,
+            "sl": 12,
+            "sus": 0,
+            "tl": 25,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 9,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 10,
+            "rs": 1,
+            "sl": 12,
+            "sus": 0,
+            "tl": 35,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 10,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 10,
+            "rs": 2,
+            "sl": 1,
+            "sus": 0,
+            "tl": 32,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 10,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 2,
+            "sl": 12,
+            "sus": 0,
+            "tl": 18,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg2;fb4;fms0;ams0|12,3,0,24,14,12,10,2,0,0,0,0|2,3,0,31,9,12,10,1,0,0,0,0|4,4,0,24,10,1,10,2,0,0,0,0|2,0,0,31,10,12,15,2,0,0,0,0",
+      "sourceName": "ch4ins2-sanmi",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              3,
+              11
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 1,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 2,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 0,
+            "rs": 0,
+            "sl": 12,
+            "sus": 0,
+            "tl": 9,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 1,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 15,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch4ins2-clean guitar2"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 5,
+        "ams": 0,
+        "fb": 2,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 25,
+            "dr": 16,
+            "dt": 3,
+            "dt2": 1,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 1,
+            "sl": 3,
+            "sus": 0,
+            "tl": 11,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 15,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 1,
+            "sl": 3,
+            "sus": 0,
+            "tl": 17,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 14,
+            "dt": 5,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 1,
+            "sl": 10,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 15,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 1,
+            "sl": 2,
+            "sus": 0,
+            "tl": 17,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg5;fb2;fms0;ams0|1,3,1,25,16,3,15,1,0,0,0,0|1,0,0,31,15,3,15,1,0,0,0,0|1,5,0,31,14,10,15,1,0,0,0,0|1,3,0,31,15,2,15,1,0,0,0,0",
+      "sourceName": "ch5ins1-bd",
+      "tags": {
+        "link": null,
+        "note": 47,
+        "noteoff": 6,
+        "vol": 15
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 7,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15,
+              15,
+              15,
+              15,
+              1
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 1,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              -5,
+              -10,
+              -14,
+              -17,
+              -20,
+              -23,
+              -26,
+              -28,
+              -30,
+              -32,
+              -34,
+              -36,
+              -37,
+              -38,
+              -39,
+              -41
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              10,
+              4,
+              6
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 3,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 27,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 8,
+            "dr": 3,
+            "dt": 6,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 14,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch5ins1-BD3-note:B2-vol:15-noteoff:6"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 3,
+        "ams": 0,
+        "fb": 6,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 28,
+            "dr": 0,
+            "dt": 6,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 12,
+            "rs": 1,
+            "sl": 5,
+            "sus": 0,
+            "tl": 15,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 29,
+            "dr": 16,
+            "dt": 6,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 8,
+            "rr": 12,
+            "rs": 2,
+            "sl": 9,
+            "sus": 0,
+            "tl": 16,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 28,
+            "dr": 13,
+            "dt": 6,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 12,
+            "rs": 1,
+            "sl": 15,
+            "sus": 0,
+            "tl": 14,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 19,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 10,
+            "rr": 12,
+            "rs": 2,
+            "sl": 6,
+            "sus": 0,
+            "tl": 13,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg3;fb6;fms0;ams0|14,6,0,28,0,5,12,1,0,0,0,0|8,6,0,29,16,9,12,2,0,0,0,0|14,6,0,28,13,15,12,1,0,0,0,0|10,3,0,31,19,6,12,2,0,0,0,0",
+      "sourceName": "ch5ins2-hh",
+      "tags": {
+        "link": null,
+        "note": 108,
+        "noteoff": "self",
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 7,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15,
+              12,
+              9,
+              6,
+              3,
+              0
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              11,
+              4
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 3,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 27,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 3,
+            "dt": 6,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 2,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch5ins2-hh-note:C8-noteoff:self"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 5,
+        "ams": 0,
+        "fb": 6,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 25,
+            "dr": 13,
+            "dt": 2,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 15,
+            "rr": 12,
+            "rs": 2,
+            "sl": 5,
+            "sus": 0,
+            "tl": 8,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 14,
+            "dt": 5,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 9,
+            "rr": 12,
+            "rs": 2,
+            "sl": 1,
+            "sus": 0,
+            "tl": 18,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 29,
+            "dr": 14,
+            "dt": 1,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 9,
+            "rr": 12,
+            "rs": 2,
+            "sl": 1,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 13,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 9,
+            "rr": 12,
+            "rs": 2,
+            "sl": 1,
+            "sus": 0,
+            "tl": 13,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg5;fb6;fms0;ams0|15,2,0,25,13,5,12,2,0,0,0,0|9,5,0,31,14,1,12,2,0,0,0,0|9,1,0,29,14,1,12,2,0,0,0,0|9,3,0,31,13,1,12,2,0,0,0,0",
+      "sourceName": "ch5ins3-sd",
+      "tags": {
+        "link": null,
+        "note": 59,
+        "noteoff": 9,
+        "vol": 14
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 7,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15,
+              15,
+              15,
+              14,
+              13,
+              11,
+              9,
+              6,
+              0
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 1,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              -5,
+              -10,
+              -14,
+              -17,
+              -20,
+              -23,
+              -26,
+              -28,
+              -30,
+              -32,
+              -34,
+              -36,
+              -37,
+              -38,
+              -39,
+              -41
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 13,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              10,
+              4,
+              5,
+              12,
+              8
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 3,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 27,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 8,
+            "dr": 3,
+            "dt": 6,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 14,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch5ins3-SD2-note:B3-noteoff:9-vol:14"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 4,
+        "ams": 0,
+        "fb": 2,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 13,
+            "dt": 2,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 12,
+            "rs": 2,
+            "sl": 10,
+            "sus": 0,
+            "tl": 32,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 13,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 12,
+            "rs": 2,
+            "sl": 12,
+            "sus": 0,
+            "tl": 32,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 15,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 12,
+            "rs": 2,
+            "sl": 1,
+            "sus": 0,
+            "tl": 17,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 15,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 12,
+            "rs": 1,
+            "sl": 1,
+            "sus": 0,
+            "tl": 13,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg4;fb2;fms0;ams0|14,2,0,22,13,10,12,2,0,0,0,0|14,4,0,22,13,12,12,2,0,0,0,0|4,3,0,31,15,1,12,2,0,0,0,0|4,3,0,31,15,1,12,1,0,0,0,0",
+      "sourceName": "ch5ins4-pad2",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              3,
+              13
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 1,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 0,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 9,
+            "dr": 0,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 2,
+            "rs": 0,
+            "sl": 0,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 14,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch5ins4-pad2"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 2,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 12,
+            "dt": 5,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 0,
+            "rr": 15,
+            "rs": 1,
+            "sl": 12,
+            "sus": 0,
+            "tl": 19,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 25,
+            "dr": 10,
+            "dt": 6,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 0,
+            "rr": 12,
+            "rs": 1,
+            "sl": 15,
+            "sus": 0,
+            "tl": 16,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 26,
+            "dr": 13,
+            "dt": 1,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 1,
+            "sl": 14,
+            "sus": 0,
+            "tl": 33,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 1,
+            "sl": 8,
+            "sus": 0,
+            "tl": 24,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg0;fb2;fms0;ams0|0,5,0,22,12,12,15,1,0,0,0,0|0,6,0,25,10,15,12,1,0,0,0,0|2,1,0,26,13,14,15,1,0,0,0,0|1,3,0,31,3,8,15,1,0,0,0,0",
+      "sourceName": "ch6ins1-acid bass",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 0,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              11
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 1,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              -12
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 8,
+            "dr": 5,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 1,
+            "rs": 0,
+            "sl": 8,
+            "sus": 0,
+            "tl": 11,
+            "vib": 0,
+            "ws": 1
+          },
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 0,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 1,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 7,
+            "rs": 0,
+            "sl": 0,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 1
+          }
+        ],
+        "opllPreset": 10,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch6ins1-syn bass"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 2,
+        "ams": 0,
+        "fb": 4,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 14,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 12,
+            "rr": 10,
+            "rs": 2,
+            "sl": 12,
+            "sus": 0,
+            "tl": 25,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 9,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 10,
+            "rs": 1,
+            "sl": 12,
+            "sus": 0,
+            "tl": 35,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 10,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 10,
+            "rs": 2,
+            "sl": 1,
+            "sus": 0,
+            "tl": 32,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 10,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 2,
+            "sl": 12,
+            "sus": 0,
+            "tl": 26,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg2;fb4;fms0;ams0|12,3,0,24,14,12,10,2,0,0,0,0|2,3,0,31,9,12,10,1,0,0,0,0|4,4,0,24,10,1,10,2,0,0,0,0|2,0,0,31,10,12,15,2,0,0,0,0",
+      "sourceName": "ch6ins2-sanmi",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              14,
+              11
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 1,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 2,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 0,
+            "rs": 0,
+            "sl": 12,
+            "sus": 0,
+            "tl": 9,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 1,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 2,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch6ins2-clean guitar"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 2,
+        "ams": 0,
+        "fb": 6,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 8,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 29,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 31,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 32,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 4,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg2;fb6;fms0;ams0|4,4,0,22,8,15,15,0,0,0,0,0|4,3,0,24,3,15,15,0,0,0,0,0|4,3,0,24,3,15,15,0,0,0,0,0|2,3,0,24,4,15,15,0,0,0,0,0",
+      "sourceName": "ch7ins1-pad sq",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              14,
+              5
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 1,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 0,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 9,
+            "dr": 0,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 2,
+            "rs": 0,
+            "sl": 0,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 5,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch7ins1-pad sq2"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 0,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 8,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 31,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 39,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 30,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 12,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg0;fb0;fms0;ams0|14,4,0,22,8,15,15,0,0,0,0,0|14,3,0,31,3,15,15,0,0,0,0,0|14,3,0,31,3,15,15,0,0,0,0,0|2,3,0,31,12,15,15,0,0,0,0,0",
+      "sourceName": "ch7ins2-vib",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              1,
+              12
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 1,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 2,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 0,
+            "rs": 0,
+            "sl": 12,
+            "sus": 0,
+            "tl": 9,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 1,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 12,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch7ins2-light vibraphone"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 2,
+        "ams": 0,
+        "fb": 6,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 8,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 29,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 31,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 4,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 32,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 24,
+            "dr": 4,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg2;fb6;fms0;ams0|4,4,0,22,8,15,15,0,0,0,0,0|4,3,0,24,3,15,15,0,0,0,0,0|4,3,0,24,3,15,15,0,0,0,0,0|2,3,0,24,4,15,15,0,0,0,0,0",
+      "sourceName": "ch8ins1-pad sq",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              4,
+              5
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 1,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 0,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 9,
+            "dr": 0,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 2,
+            "rs": 0,
+            "sl": 0,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 5,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch8ins1-pad sine"
+    },
+    {
+      "isLink": false,
+      "source": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 0,
+        "fms": 0,
+        "macros": [
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 22,
+            "dr": 8,
+            "dt": 4,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 31,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 39,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 3,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 2,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 14,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 30,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 31,
+            "dr": 12,
+            "dt": 3,
+            "dt2": 0,
+            "egt": 0,
+            "index": 3,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 2,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 21,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 0,
+        "ops": 4,
+        "type": 33
+      },
+      "sourceKey": "opm;alg0;fb0;fms0;ams0|14,4,0,22,8,15,15,0,0,0,0,0|14,3,0,31,3,15,15,0,0,0,0,0|14,3,0,31,3,15,15,0,0,0,0,0|2,3,0,31,12,15,15,0,0,0,0,0",
+      "sourceName": "ch8ins2-vib",
+      "tags": {
+        "link": null,
+        "note": null,
+        "noteoff": null,
+        "vol": null
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 3,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              15
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              9,
+              12
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 1,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 2,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 0,
+            "rs": 0,
+            "sl": 12,
+            "sus": 0,
+            "tl": 9,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 14,
+            "dr": 4,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 3,
+            "rs": 0,
+            "sl": 1,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 12,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch8ins2-dark vibraphone"
+    },
+    {
+      "isLink": true,
+      "linkSourceKey": "opm;alg5;fb6;fms0;ams0|15,2,0,25,13,5,12,2,0,0,0,0|9,5,0,31,14,1,12,2,0,0,0,0|9,1,0,29,14,1,12,2,0,0,0,0|9,3,0,31,13,1,12,2,0,0,0,0",
+      "sourceName": "ch5ins3-sd",
+      "tags": {
+        "link": "ch5ins3",
+        "note": 59,
+        "noteoff": "self",
+        "vol": 14
+      },
+      "target": {
+        "alg": 0,
+        "ams": 0,
+        "fb": 7,
+        "fms": 0,
+        "macros": [
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": true,
+            "loop": 255,
+            "macro": 0,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              12,
+              15,
+              14,
+              12,
+              9,
+              6,
+              3,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 1,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              0,
+              -5,
+              -10,
+              -14,
+              -17,
+              -20,
+              -23,
+              -26,
+              -28,
+              -30,
+              -32,
+              -34,
+              -36,
+              -37,
+              -38,
+              -39,
+              -41
+            ]
+          },
+          {
+            "activeRelease": false,
+            "delay": 0,
+            "linger": false,
+            "loop": 255,
+            "macro": 3,
+            "mode": 0,
+            "rel": 255,
+            "speed": 1,
+            "type": 0,
+            "values": [
+              8,
+              4,
+              4,
+              4
+            ]
+          },
+          {
+            "opMacros": []
+          }
+        ],
+        "operators": [
+          {
+            "am": 0,
+            "ar": 15,
+            "dr": 3,
+            "dt": 0,
+            "dt2": 0,
+            "egt": 0,
+            "index": 0,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 27,
+            "vib": 0,
+            "ws": 0
+          },
+          {
+            "am": 0,
+            "ar": 8,
+            "dr": 3,
+            "dt": 6,
+            "dt2": 0,
+            "egt": 0,
+            "index": 1,
+            "ksl": 0,
+            "ksr": 0,
+            "kvs": 2,
+            "mult": 1,
+            "rr": 15,
+            "rs": 0,
+            "sl": 15,
+            "sus": 0,
+            "tl": 0,
+            "vib": 0,
+            "ws": 0
+          }
+        ],
+        "opllPreset": 14,
+        "ops": 2,
+        "type": 13
+      },
+      "targetName": "ch9ins1-SD2-HF-link:ch5ins3-vol:14-noteoff:self-note:B3"
+    }
+  ],
   "songAuthor": "",
   "songName": "",
   "source": "out/2151-2413.fur",
-  "version": 1
+  "version": 2
 }

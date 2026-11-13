@@ -10,7 +10,6 @@ out/
 ├── ch*_ym2151.fui               ← 当前源侧音色（19 个，正在用的那一份）
 ├── ch*_ym2413.fui               ← 当前目标侧音色（19 个，改这几个）
 ├── 00_reference/                ← 与版本无关的参照物
-│   ├── 01_original_OPM_YMF2151.wav
 │   ├── 03_original_OPM.mid
 │   └── 04_converted_OPLL.mid
 ├── v1/                          ← ① 原芯片导入
@@ -29,7 +28,9 @@ out/
 ├── v15/                         ← 新增 noteoff:N（鼓按 tick 精确收声）
 ├── v16/                         ← ch6 贝斯音量抬起；FM9 联动层换音色（preset 2→14）+ note:B3
 ├── v17/                         ← FM9 音量 vol:13→14
-└── v18/                         ← ★ 当前版本：ch4 贝斯 vol 宏 12→14（音量抬起）
+├── v18/                         ← ch4 贝斯 vol 宏 12→14
+├── batch/                       ← ★ 整张专辑批量转换（41 首，每首一个目录）
+└── v18/                         ← 单曲调试的最后一版（batch/31 Grass Maze 与它一致）
 ```
 
 `.fui` 在根下是**当前工作副本**；每个版本目录里另存一份**当时的快照**。
@@ -82,33 +83,61 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 | `v15/` | 新增 **`noteoff:N`**：宏只走 N 步就 off（BD `6`、SD `9`），鼓按 tick 精确收声 | — |
 | `v16/` | FM9 联动层换成 SD2（`preset 14` / `note:B3`）；ch6 贝斯音量抬起 | — |
 | `v17/` | FM9 `vol:13`→`14` | — |
-| `v18/` | ch4 贝斯 vol 宏 `12`→`14` | 当前版本 |
+| `v18/` | ch4 贝斯 vol 宏 `12`→`14` | 单曲调试的最后一版 |
+| `batch/` | **整张专辑批量转换**：41 首，`--library` 跨曲目音色库 | 当前成果 |
 
-## 完整重跑（写进新版本目录）
+## 批量转换结果（`out/batch/`）
+
+| 项 | 值 |
+|---|---|
+| 曲目数 | **41**（`01 Arsys Logo` … `41 Eternal Move`） |
+| 音符总数 | **110 180** |
+| 音色库精确命中 | 19 个（来自 `31 Grass Maze` 的 19 个源音色） |
+| 音色库"最近"命中 | 41 个（距离 ≤ 48） |
+| 未命中（退回 ROM 自动匹配） | 748 个 |
+| VGM 总字节 | 3 181 853 |
+
+**为什么大部分曲目没能复用音色**：库目前只有 `31 Grass Maze` 一首的 19 套音色。
+全专辑实测有 **363 种不同的 YM2151 音色**，其中 354 种只出现在一首曲子里——
+每首曲子的配器参数都不完全一样。精确匹配只对「同一套音色原样出现」生效，
+所以只有 31 Grass Maze 自己全部命中。
+
+要把复用率提上去，正确做法是**逐首人工确认音色**：在 Furnace 里把每首都调一遍，
+把 `2151-2413.fur` 扩成多曲目工程（或把每首的目标音色都并进库），
+之后相似度匹配才有素材。批量转换已经把这 41 首的结构化 JSON/VGM 都产出了，
+人工调整只需要改音色。
+
+## 完整重跑：整张专辑批量转换
 
 ```bash
 cd E:/working/zcode-projects/VGM_Studio
-B=cli/build
-V="vgm/Spindizzy_II_(Sharp_X68000)/31 Grass Maze.vgm"
-NEW=out/v18     # ← 每次换新名字，不要复用
-mkdir -p "$NEW"
-
-# ① 原芯片 VGM → JSON + 源侧音色
-$B/vgm2json.exe "$V" -o "$NEW/song.json" --fui
-
-# ② 在 Furnace 里改 out/2151-2413.fur（一次改完 19 个音色存盘）
-
-# ③ JSON → 目标芯片 JSON + VGM（音色来自 .fur，含循环点与 GD3）
-$B/opm2opll.exe out/v1/song.json -o "$NEW/song.ym2413.json" \
-    --fur=out/2151-2413.fur --transpose=-12 \
-    --vgm="$NEW/song.ym2413.vgm"
-
-# ④ 试听
-libvgm/build/bin/vgm2wav.exe --loops 1 --fade 3 \
-    "$NEW/song.ym2413.vgm" "$NEW/02_converted_OPLL_YM2413.wav"
+# 一次跑完 Spindizzy II 全部 41 首，每首一个独立目录
+cli/tools/batch_convert.sh
+#   → out/batch/<曲名>/{song.json, song.ym2413.json, song.ym2413.vgm, *.log}
 ```
 
-首次导入工程时才需要把 19 个 `.fui` 拖进 Furnace；之后只改 `.fur` 一个文件。
+音色来源优先级（`opm2opll` 内部）：
+1. **`--library=docs/instrument-library.json`** —— 跨曲目乐器库，按 **YM2151 的
+   FM 参数**匹配（不是指纹；指纹只用于同曲目内去重）
+2. `--fur` 本曲工程按 `chXinsY` 名字匹配
+3. ROM 自动匹配
+
+单曲调试用：
+
+```bash
+B=cli/build
+V="vgm/Spindizzy_II_(Sharp_X68000)/31 Grass Maze.vgm"
+NEW=out/v19     # ← 每次换新名字，不要复用
+mkdir -p "$NEW"
+
+$B/vgm2json.exe "$V" -o "$NEW/song.json" --fui          # ① 源
+# ② 在 Furnace 里改 out/2151-2413.fur
+$B/opm2opll.exe "$NEW/song.json" -o "$NEW/song.ym2413.json" \
+    --library=docs/instrument-library.json --fur=out/2151-2413.fur \
+    --transpose=-12 --vgm="$NEW/song.ym2413.vgm"        # ③ 目标
+
+# 试听：直接用播放器打开 $NEW/song.ym2413.vgm（不再生成 wav）
+```
 
 ## 关键数据（`31 Grass Maze`，源 YM2151 @4MHz → YM2413 @3.579545MHz）
 

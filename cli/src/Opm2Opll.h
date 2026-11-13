@@ -15,8 +15,11 @@
 #include <vector>
 
 #include "Document.h"
+#include "FuiVoice.h"
 
 namespace vgmstudio {
+
+struct InstrumentLibrary;
 
 struct ConvertOptions {
     uint32_t targetClock = 3579545;  // YM2413 标准时钟
@@ -33,6 +36,12 @@ struct ConvertOptions {
     // 在 Furnace 里把 19 个目标音色都改进一个工程存盘，按乐器名
     // "chXinsY" 精确匹配。工程里的 hz 会覆盖 tickRate（宏速率来自工程）。
     std::string furPath;  // 非空即启用
+
+    // ── 跨曲目乐器库（fuitool lib --json= 导出的那份）──
+    // 按源侧 **YM2151 FM 参数**查表（不是指纹）。命中的音色直接套用该曲目里
+    // 已经调好的目标音色 + 宏 + 名字参数，也就是「利用现有音色成果」。
+    // 优先于 .fur 按名字匹配：.fur 只对当前曲目有效，库里是跨曲目的。
+    std::string libraryPath;  // 非空即启用
 
     // ── 宏执行 ──
     // .fui 里只有 speed/delay（每步几个 tick），「一秒几个 tick」由工程决定，
@@ -70,6 +79,10 @@ struct ConvertResult {
     std::vector<std::string> furApplied; // 从 .fur 取到并生效的乐器名
     std::vector<std::string> furMissing; // .fur 里没找到的目标音色名（会退回自动匹配）
     std::vector<std::string> linkApplied; // 生效的 link:X 联动（"ch9ins1 -> ch5ins3"）
+    std::vector<std::string> libApplied;  // 从音色库命中的乐器（"ch5ins1-bd -> ch5ins1-BD3..."）
+    std::vector<std::string> libExact;     // 其中参数完全一致的（同音色）
+    std::vector<std::string> libApprox;    // 其中参数取最近的
+    std::vector<std::string> libMissing;   // 库里没有、退回 .fur/自动匹配的音色
     int tickRateUsed = 60;               // 实际使用的宏 tick 速率（--fur 会用工程的 hz）
     bool ok = false;
     std::string error;
