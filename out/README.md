@@ -25,7 +25,9 @@ out/
         ├── song.json / song.ym2413.json / song.ym2413.vgm
         ├── import.log / convert.log
         ├── 2151-2413.fur          ← Furnace 工程（改音色的唯一入口）
-        ├── fui/                   ← ch*_ym2151.fui / ch*_ym2413.fui（38 个，调音色的入口）
+        ├── fui/                   ← ch*_ym2151.fui / ch*_ym2413.fui（38 个）
+        │   └── from_fur/          ← 从 2151-2413.fur 解包的 20 个 YM2413 音色，
+        │                            文件名就是 Furnace 里的乐器全名（含 note:/vol: 参数）
         ├── versions/              ← v1 … v18，每次调参的快照
         │   ├── v1/  ← ① 原芯片导入
         │   ├── v2/  ← ② 首次跨芯片转换（自动匹配）
@@ -163,6 +165,16 @@ $B/opm2opll.exe "$D/song.json" -o "$NEW/song.ym2413.json" \
     --transpose=-12 --vgm="$NEW/song.ym2413.vgm"      # ④ 目标
 
 # 试听：直接用播放器打开 $NEW/song.ym2413.vgm（不再生成 wav）
+```
+
+从 `.fur` 解包成单独 `.fui`（文件名 = Furnace 里的乐器全名）：
+
+```bash
+# 只解 YM2413（OPLL），文件名保留 note:/vol:/noteoff: 参数（Windows 不允许 ':'，写成 '_'）
+cli/build/fuitool.exe unpack "$FUR" "$D/fui/from_fur" --type=13
+
+# 只要 chNinsM 前缀（opm2opll 认的那种名字）就加 --tagged
+cli/build/fuitool.exe unpack "$FUR" "$D/fui/from_fur_tagged" --type=13 --tagged
 ```
 
 ## 关键数据（`31 Grass Maze`，源 YM2151 @4MHz → YM2413 @3.579545MHz）

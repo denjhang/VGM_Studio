@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -43,6 +44,12 @@ void Usage() {
         "\n"
         "  fuitool rewrite <in.fui> <out.fui> [--name=...] [--alg=N] [--fb=N]\n"
         "      读入 → 改几个字段 → 写回（验证编解码往返无损）\n"
+        "\n"
+        "  fuitool unpack <project.fur> <outdir> [--type=13] [--tagged]\n"
+        "      把工程里的乐器逐个解包成 .fui，**文件名 = Furnace 里的乐器全名**。\n"
+        "      --type=13  只解 OPLL（YM2413）；33 只解 OPM；不给就全解\n"
+        "      --tagged   文件名只保留 chNinsM 前缀（去掉 note:/vol: 等参数），\n"
+        "                 即转换时 opm2opll 认的那种名字\n"
         "\n"
         "  --tick-rate=N   宏的中断速率（Hz，Furnace 的 song.hz，默认 60）\n"
         "                  只影响 dump 里的毫秒换算，不改变 fui 内容\n");
@@ -318,6 +325,8 @@ int main(int argc, char** argv) {
     }
 
     int tickRate = 60;
+    int unpackType = -1;
+    bool unpackTagged = false;
     std::vector<std::string> args;
     std::string newName;
     std::string jsonOut;   // --json=OUT.json（仅 lib 用）
@@ -334,6 +343,10 @@ int main(int argc, char** argv) {
             newFb = std::atoi(a + 5);
         } else if (std::strncmp(a, "--json=", 7) == 0) {
             jsonOut = a + 7;
+        } else if (std::strncmp(a, "--type=", 7) == 0) {
+            unpackType = std::atoi(a + 7);
+        } else if (std::strcmp(a, "--tagged") == 0) {
+            unpackTagged = true;
         } else if (a[0] == '-') {
             std::fprintf(stderr, "unknown option: %s\n", a);
             return 1;
@@ -519,6 +532,50 @@ int main(int argc, char** argv) {
                         (unsigned long long)vgmstudio::VoiceFingerprint(fi.voice),
                         fi.name.c_str(), macros);
         }
+        return 0;
+    }
+
+    if (cmd == "unpack") {
+        // 工程 → 一堆 .fui，文件名用 Furnace 里的乐器全名（含 note:/vol: 等参数）
+        if (args.size() != 2) {
+            Usage();
+            return 1;
+        }
+        vgmstudio::FurSong song;
+        std::string err;
+        if (!vgmstudio::LoadFur(args[0], &song, &err)) {
+            std::fprintf(stderr, "error: %s\n", err.c_str());
+            return 2;
+        }
+        const std::string outDir = args[1];
+        std::error_code ec;
+        std::filesystem::create_directories(outDir, ec);
+
+        int written = 0;
+        for (const vgmstudio::FurInstrument& fi : song.instruments) {
+            if (unpackType >= 0 && fi.type != unpackType) continue;
+            // 文件名 = 乐器全名；Windows 不允许的字符换成 '_'
+            std::string base = fi.name;
+            if (unpackTagged) base = vgmstudio::ParseInstrumentTags(fi.name).base;
+            if (base.empty()) base = "instrument";
+            for (char& c : base) {
+                if (c == '/' || c == '\\' || c == ':' || c == '*' || c == '?' || c == '"' ||
+                    c == '<' || c == '>' || c == '|')
+                    c = '_';
+            }
+            const std::string path = outDir + "/" + base + ".fui";
+            if (!vgmstudio::SaveFui(fi.voice, path, &err)) {
+                std::fprintf(stderr, "error: %s\n", err.c_str());
+                continue;
+            }
+            std::printf("%-5s preset=%-2d  %s\n",
+                        fi.type == vgmstudio::kFuiInsOpll   ? "OPLL"
+                        : fi.type == vgmstudio::kFuiInsOpm ? "OPM "
+                                                           : "other",
+                        fi.voice.opllPreset, path.c_str());
+            written++;
+        }
+        std::printf("\n%d instruments -> %s\n", written, outDir.c_str());
         return 0;
     }
 

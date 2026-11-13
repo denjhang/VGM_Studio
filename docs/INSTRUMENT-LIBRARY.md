@@ -556,6 +556,13 @@ cli/build/fuitool.exe fur out/Spindizzy_II/31 Grass Maze/2151-2413.fur
 
 # 看单个音色的完整参数 + 宏 + 指纹
 cli/build/fuitool.exe dump out/Spindizzy_II/31 Grass Maze/fui/ch1ins1_ym2413.fui
+
+# 把工程里的音色逐个解包成 .fui（**文件名 = Furnace 里的乐器全名**）
+cli/build/fuitool.exe unpack out/Spindizzy_II/31 Grass Maze/2151-2413.fur \
+    out/Spindizzy_II/31 Grass Maze/fui/from_fur --type=13
+#   --type=13 只解 OPLL（YM2413），33 = OPM，不给就全解
+#   --tagged  文件名只留 chNinsM 前缀（去掉 note:/vol: 等参数）
+#   文件名里的 ':' 会换成 '_'（Windows 不允许）
 ```
 
 `docs/instrument-library.json` 的结构：
@@ -563,7 +570,7 @@ cli/build/fuitool.exe dump out/Spindizzy_II/31 Grass Maze/fui/ch1ins1_ym2413.fui
 ```jsonc
 {
   "format": "vgm-studio/instrument-library",
-  "version": 1,
+  "version": 2,
   "source": "out/Spindizzy_II/31 Grass Maze/2151-2413.fur",
   "furVersion": 228, "hz": 60.0,
   "instruments": [
