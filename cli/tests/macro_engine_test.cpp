@@ -438,6 +438,19 @@ int main(){
           c.noteOffTicks == 9 && c.hasVol && c.vol == 14);
   }
 
+  // 54. ★ 参数分隔符 ':' 与 '_' 都认
+  //     .fui 解包成文件时 ':' 在 Windows 上不合法，会写成 '_'；照抄回 Furnace
+  //     就变成 note_B2，解析器必须照样认出来，否则鼓锁不住音高。
+  {
+    const InsTags a = ParseInstrumentTags("ch5ins1-BD3-note_B2-vol_15-noteoff_6");
+    check("underscore tags: note", a.hasNote && a.noteMidi == 47);
+    check("underscore tags: vol", a.hasVol && a.vol == 15);
+    check("underscore tags: noteoff", a.noteOffSelf && a.noteOffTicks == 6);
+    check("underscore tags: base", a.base == "ch5ins1-BD3");
+    const InsTags b = ParseInstrumentTags("ch5ins2-hh-note_C8-noteoff_self");
+    check("underscore noteoff:self", b.noteOffSelf && b.noteOffTicks == 0 && b.noteMidi == 108);
+  }
+
   std::printf("\n%s (%d fail)\n", fails? "FAILED":"ALL PASS", fails);
   return fails?1:0;
 }

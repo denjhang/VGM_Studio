@@ -1086,6 +1086,23 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 out.notesConverted++;
                 }
             }
+            // 联动通道同样要裁剪重叠：noteoff:self 把音符拉长到宏播完，
+            // 可能越过下一个联动音符的起点。OPLL 同通道不能同时发两个音，
+            // 不裁的话后一个 key-on 会直接抢掉前一个（听感是漏鼓点）。
+            for (size_t i = 0; i + 1 < dc.notes.size(); i++) {
+                Note& cur = dc.notes[i];
+                const Note& nxt = dc.notes[i + 1];
+                if (cur.endSample > nxt.startSample) {
+                    cur.endSample = nxt.startSample;
+                    for (Segment& seg : cur.segments) {
+                        if (seg.atSample > cur.endSample) seg.atSample = cur.endSample;
+                    }
+                    std::stable_sort(cur.segments.begin(), cur.segments.end(),
+                                     [](const Segment& a, const Segment& b) {
+                                         return a.atSample < b.atSample;
+                                     });
+                }
+            }
             out.linkApplied.push_back(lk.label);
         }
     }

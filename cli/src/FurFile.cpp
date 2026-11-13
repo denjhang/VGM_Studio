@@ -385,44 +385,63 @@ int ParseNoteName(const std::string& text) {
 InsTags ParseInstrumentTags(const std::string& name) {
     InsTags t;
     t.full = name;
+    // ★ 参数分隔符既可能是 ':' 也可能是 '_'。
+    //   Furnace 里 ':' 是合法的，grass 用的就是 ch5ins1-BD3-note:B2-vol:15；
+    //   但把 .fui 解包成文件时 ':' 在 Windows 上不允许，会写成 '_'，
+    //   用户照抄文件名回填到 Furnace 后就变成 note_B2-vol_15 了。
+    //   两种都认，否则参数会被静默丢掉（鼓就锁不住音高、也不 noteoff:self）。
+    std::string norm = name;
+    for (const char* key : {"note:", "vol:", "noteoff:", "link:"}) {
+        std::string k(key);
+        k.back() = '_';
+        const std::string kDash = "-" + k;
+        const std::string kColon = "-" + std::string(key);
+        size_t pos = 0;
+        while ((pos = norm.find(kDash, pos)) != std::string::npos) {
+            norm.replace(pos, kDash.size(), kColon);
+            pos += kColon.size();
+        }
+    }
+    const std::string& nm = norm;
+
     // 基名 = 第一个参数标签之前的部分（ch5ins1-BD3-note:B2 → ch5ins1 之后到 -note 之前全算名字）
     {
-        const size_t firstColon = name.find(':');
+        const size_t firstColon = nm.find(':');
         if (firstColon == std::string::npos) {
             t.base = name;
         } else {
             // 从冒号往回到上一个 '-' 或空格，那里就是参数的起点
             size_t k = firstColon;
-            while (k > 0 && name[k - 1] != '-' && name[k - 1] != ' ') k--;
+            while (k > 0 && nm[k - 1] != '-' && nm[k - 1] != ' ') k--;
             size_t end = k;
-            while (end > 0 && (name[end - 1] == '-' || name[end - 1] == ' ')) end--;
+            while (end > 0 && (nm[end - 1] == '-' || nm[end - 1] == ' ')) end--;
             t.base = name.substr(0, end);
         }
     }
     // 已知的参数名。value 的结束点除了空格，还包括「'-' + 已知参数名 + ':'」，
     // 否则 note:B2-vol:15 会把后面整串都当成 B2 的值。
-    auto isKeyAt = [&name](size_t dashPos) {
-        if (dashPos >= name.size() || name[dashPos] != '-') return false;
-        const size_t colon = name.find(':', dashPos + 1);
+    auto isKeyAt = [&nm](size_t dashPos) {
+        if (dashPos >= nm.size() || nm[dashPos] != '-') return false;
+        const size_t colon = nm.find(':', dashPos + 1);
         if (colon == std::string::npos) return false;
-        const std::string k = name.substr(dashPos + 1, colon - dashPos - 1);
+        const std::string k = nm.substr(dashPos + 1, colon - dashPos - 1);
         return k == "note" || k == "vol" || k == "noteoff" || k == "link";
     };
     size_t i = 0;
-    while (i < name.size()) {
-        const size_t colon = name.find(':', i);
+    while (i < nm.size()) {
+        const size_t colon = nm.find(':', i);
         if (colon == std::string::npos) break;
         size_t k = colon;
-        while (k > 0 && name[k - 1] != '-' && name[k - 1] != ' ') k--;
-        const std::string key = name.substr(k, colon - k);
+        while (k > 0 && nm[k - 1] != '-' && nm[k - 1] != ' ') k--;
+        const std::string key = nm.substr(k, colon - k);
         size_t v = colon + 1;
         size_t e = v;
-        while (e < name.size()) {
-            if (name[e] == ' ') break;
-            if (name[e] == '-' && isKeyAt(e)) break;
+        while (e < nm.size()) {
+            if (nm[e] == ' ') break;
+            if (nm[e] == '-' && isKeyAt(e)) break;
             e++;
         }
-        const std::string val = name.substr(v, e - v);
+        const std::string val = nm.substr(v, e - v);
 
         if (key == "note") {
             const int midi = ParseNoteName(val);
