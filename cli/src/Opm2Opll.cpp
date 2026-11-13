@@ -438,10 +438,13 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     FuiVoice srcVoice = OpmShadowToFui(shadow, ch);
                     srcVoice.name = baseName;
                     save(srcVoice, "ym2151");
-                    if (!usedEdited) {
-                        FuiVoice dstVoice = OpllRomToFui(m.program, baseName);
-                        save(dstVoice, "ym2413");
-                    }
+                    // 目标侧一律写出：命中音色库时写的是库里那套（含宏与
+                    // opllPreset），没命中时写 ROM 匹配结果。
+                    // 这样每首曲子都有一份完整 fui 可以直接拿去 Furnace 里调。
+                    FuiVoice dstVoice = usedEdited ? editedVoice
+                                                   : OpllRomToFui(m.program, baseName);
+                    dstVoice.name = baseName;
+                    save(dstVoice, "ym2413");
                 }
             } else {
                 ordinal = oi->second;

@@ -6,6 +6,8 @@
 #     song.json            ① 原芯片 JSON（源）
 #     song.ym2413.json     ② 目标芯片 JSON
 #     song.ym2413.vgm      ③ 目标芯片 VGM（可试听）
+#     fui/                 ④ 该曲全部音色的 .fui（chXinsY_ym2151 / _ym2413），
+#                             直接拖进 Furnace 就能调
 #     import.log           ① 的日志
 #     convert.log          ② + ③ 的日志（含音色库命中/未命中明细）
 #
@@ -31,7 +33,7 @@ fail=0
 for f in "$SRC"/*.vgm; do
     base=$(basename "$f" .vgm)
     dir="$OUT/$base"
-    mkdir -p "$dir"
+    mkdir -p "$dir" "$dir/fui"
 
     # ⓪ 原版 YM2151 VGM：直接复制一份，转换结果就在旁边，方便 A/B 对比
     cp -f "$f" "$dir/song.ym2151.vgm"
@@ -40,7 +42,8 @@ for f in "$SRC"/*.vgm; do
         echo "IMPORT FAIL  $base"; fail=$((fail+1)); continue
     fi
     if ! "$B/opm2opll.exe" "$dir/song.json" -o "$dir/song.ym2413.json" \
-            --library="$LIB" --transpose=-12 --vgm="$dir/song.ym2413.vgm" \
+            --library="$LIB" --transpose=-12 --fui-dir="$dir/fui" \
+            --vgm="$dir/song.ym2413.vgm" \
             > "$dir/convert.log" 2>&1; then
         echo "CONVERT FAIL $base"; fail=$((fail+1)); continue
     fi

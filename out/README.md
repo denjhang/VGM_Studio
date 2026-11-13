@@ -12,6 +12,9 @@ out/
     │   ├── song.json              ← ① 原芯片 JSON（YM2151）
     │   ├── song.ym2413.json       ← ② 目标芯片 JSON
     │   ├── song.ym2413.vgm        ← ③ 目标芯片 VGM（试听用这个）
+    │   ├── fui/                   ← ④ 本曲全部音色（chXinsY_ym2151 / _ym2413）
+    │   │                             ym2413 那份带 opllPreset 与全部宏，
+    │   │                             直接拖进 Furnace 就能调
     │   ├── import.log
     │   └── convert.log            ← 含音色库命中/未命中明细
     ├── 02 Zoom Up/
@@ -22,7 +25,7 @@ out/
         ├── song.json / song.ym2413.json / song.ym2413.vgm
         ├── import.log / convert.log
         ├── 2151-2413.fur          ← Furnace 工程（改音色的唯一入口）
-        ├── fui/                   ← ch*_ym2151.fui / ch*_ym2413.fui（38 个）
+        ├── fui/                   ← ch*_ym2151.fui / ch*_ym2413.fui（38 个，调音色的入口）
         ├── versions/              ← v1 … v18，每次调参的快照
         │   ├── v1/  ← ① 原芯片导入
         │   ├── v2/  ← ② 首次跨芯片转换（自动匹配）
@@ -133,6 +136,7 @@ cli/tools/batch_convert.sh
 #       song.json         源 JSON
 #       song.ym2413.json  目标 JSON
 #       song.ym2413.vgm   目标 VGM
+#       fui/              该曲全部 .fui（ym2413 那份可直接改进 Furnace）
 #       import.log / convert.log
 ```
 
