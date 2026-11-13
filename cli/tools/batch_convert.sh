@@ -2,6 +2,7 @@
 # 批量转换：Spindizzy II 整张专辑（YM2151 → YM2413）。
 #
 # 每首曲子一个独立目录：out/<游戏名>/<曲名>/
+#     song.ym2151.vgm      ⓪ 原版 YM2151 VGM（直接复制，方便和转换结果对着听）
 #     song.json            ① 原芯片 JSON（源）
 #     song.ym2413.json     ② 目标芯片 JSON
 #     song.ym2413.vgm      ③ 目标芯片 VGM（可试听）
@@ -31,6 +32,9 @@ for f in "$SRC"/*.vgm; do
     base=$(basename "$f" .vgm)
     dir="$OUT/$base"
     mkdir -p "$dir"
+
+    # ⓪ 原版 YM2151 VGM：直接复制一份，转换结果就在旁边，方便 A/B 对比
+    cp -f "$f" "$dir/song.ym2151.vgm"
 
     if ! "$B/vgm2json.exe" "$f" -o "$dir/song.json" --no-raw > "$dir/import.log" 2>&1; then
         echo "IMPORT FAIL  $base"; fail=$((fail+1)); continue

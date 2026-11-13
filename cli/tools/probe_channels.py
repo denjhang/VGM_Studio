@@ -7,13 +7,17 @@ import json
 import math
 import os
 import struct
+import shutil
 import subprocess
+import tempfile
 import wave
 
 SONG_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "out",
                         "Spindizzy_II", "31 Grass Maze")
 OUT = os.path.join(SONG_DIR, "probes", "chanprobe")
 os.makedirs(OUT, exist_ok=True)
+# 渲染用的 wav 只是中间产物，落到系统临时目录，结束即删（不留在 out/ 下）
+WAV_DIR = tempfile.mkdtemp(prefix="vgmstudio-probe-")
 
 
 def build_vgm(cmd_byte, clock_off, clock_val, events, samples, path):
@@ -117,10 +121,12 @@ for ver, dst in targets.items():
         build_vgm(0x54, 0x30, 3579545, s_ev, 2406316, sp)
         build_vgm(0x51, 0x10, 3579545, d_ev, 2406316, dp)
         try:
-            render(sp, sp[:-4] + ".wav")
-            render(dp, dp[:-4] + ".wav")
-            rs = rms(sp[:-4] + ".wav")
-            rd = rms(dp[:-4] + ".wav")
+            sw = os.path.join(WAV_DIR, os.path.basename(sp)[:-4] + ".wav")
+            dw = os.path.join(WAV_DIR, os.path.basename(dp)[:-4] + ".wav")
+            render(sp, sw)
+            render(dp, dw)
+            rs = rms(sw)
+            rd = rms(dw)
         except subprocess.CalledProcessError:
             print("  FM%d: render failed" % (ch + 1))
             continue
@@ -131,3 +137,5 @@ for ver, dst in targets.items():
     print("  合计 %8.1f        %8.1f   %+6.1f dB"
           % (math.sqrt(tot_s), math.sqrt(tot_d),
              20 * math.log10(math.sqrt(tot_d) / math.sqrt(tot_s))))
+
+shutil.rmtree(WAV_DIR, ignore_errors=True)

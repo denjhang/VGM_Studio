@@ -8,6 +8,7 @@ out/
 ├── README.md                      ← 本文件
 └── Spindizzy_II/                  ← 游戏（Sharp X68000）
     ├── 01 Arsys Logo/
+    │   ├── song.ym2151.vgm        ← ⓪ 原版 YM2151 VGM（对比用）
     │   ├── song.json              ← ① 原芯片 JSON（YM2151）
     │   ├── song.ym2413.json       ← ② 目标芯片 JSON
     │   ├── song.ym2413.vgm        ← ③ 目标芯片 VGM（试听用这个）
@@ -17,6 +18,7 @@ out/
     ├── …
     ├── 41 Eternal Move/
     └── 31 Grass Maze/             ← ★ 主力调试曲（版本最多，音色都是为它调的）
+        ├── song.ym2151.vgm         ← 原版（对比）
         ├── song.json / song.ym2413.json / song.ym2413.vgm
         ├── import.log / convert.log
         ├── 2151-2413.fur          ← Furnace 工程（改音色的唯一入口）
@@ -126,7 +128,12 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 cd E:/working/zcode-projects/VGM_Studio
 # 一次跑完 Spindizzy II 全部 41 首，每首一个独立目录
 cli/tools/batch_convert.sh
-#   → out/Spindizzy_II/<曲名>/{song.json, song.ym2413.json, song.ym2413.vgm, *.log}
+#   → out/Spindizzy_II/<曲名>/
+#       song.ym2151.vgm   原版（直接复制，方便 A/B）
+#       song.json         源 JSON
+#       song.ym2413.json  目标 JSON
+#       song.ym2413.vgm   目标 VGM
+#       import.log / convert.log
 ```
 
 音色来源优先级（`opm2opll` 内部）：
@@ -143,6 +150,7 @@ V="vgm/Spindizzy_II_(Sharp_X68000)/31 Grass Maze.vgm"
 D="out/Spindizzy_II/31 Grass Maze"
 FUR="$D/2151-2413.fur"
 
+cp -f "$V" "$D/song.ym2151.vgm"                      # ⓪ 原版，对比用
 $B/vgm2json.exe "$V" -o "$D/song.json" --fui         # ① 源
 # ② 在 Furnace 里改 "$FUR"
 NEW="$D/versions/v19"; mkdir -p "$NEW"                # ③ 新版本目录

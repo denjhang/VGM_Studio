@@ -7,13 +7,17 @@ import json
 import math
 import os
 import struct
+import shutil
 import subprocess
+import tempfile
 import wave
 
 SONG_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "out",
                         "Spindizzy_II", "31 Grass Maze")
 OUT = os.path.join(SONG_DIR, "probes", "volprobe")
 os.makedirs(OUT, exist_ok=True)
+# 渲染用的 wav 只是中间产物，落到系统临时目录，结束即删（不留在 out/ 下）
+WAV_DIR = tempfile.mkdtemp(prefix="vgmstudio-probe-")
 
 
 def build_vgm(clock_off, clock_val, cmds, samples, path):
@@ -115,8 +119,8 @@ base = None
 for tl in range(0, 81, 4):
     p = os.path.join(OUT, "o%03d.vgm" % tl)
     build_vgm(0x30, 3579545, opm_note(tl), samples, p)
-    render(p, p[:-4] + ".wav")
-    r = rms(p[:-4] + ".wav")
+    render(p, os.path.join(WAV_DIR, os.path.basename(p)[:-4] + ".wav"))
+    r = rms(os.path.join(WAV_DIR, os.path.basename(p)[:-4] + ".wav"))
     if base is None:
         base = r
     print("  TL %3d  rms %10.2f  %8.2f dB" % (tl, r, 20 * math.log10(r / base) if r > 0 else -99))
@@ -126,8 +130,10 @@ base = None
 for v in range(0, 16):
     p = os.path.join(OUT, "l%02d.vgm" % v)
     build_vgm(0x10, 3579545, opll_note(v), samples, p)
-    render(p, p[:-4] + ".wav")
-    r = rms(p[:-4] + ".wav")
+    render(p, os.path.join(WAV_DIR, os.path.basename(p)[:-4] + ".wav"))
+    r = rms(os.path.join(WAV_DIR, os.path.basename(p)[:-4] + ".wav"))
     if base is None:
         base = r
     print("  vol %2d  rms %10.2f  %8.2f dB" % (v, r, 20 * math.log10(r / base) if r > 0 else -99))
+
+shutil.rmtree(WAV_DIR, ignore_errors=True)
