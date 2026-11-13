@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 批量转换：Spindizzy II 整张专辑（YM2151 → YM2413）。
 #
-# 每首曲子一个独立目录：out/batch/<曲名>/
+# 每首曲子一个独立目录：out/<游戏名>/<曲名>/
 #     song.json            ① 原芯片 JSON（源）
 #     song.ym2413.json     ② 目标芯片 JSON
 #     song.ym2413.vgm      ③ 目标芯片 VGM（可试听）
@@ -21,7 +21,7 @@ cd "$(dirname "$0")/../.." || exit 1
 B=cli/build
 LIB=docs/instrument-library.json
 SRC="${1:-vgm/Spindizzy_II_(Sharp_X68000)}"
-OUT="${2:-out/batch}"
+OUT="${2:-out/Spindizzy_II}"
 
 mkdir -p "$OUT"
 

@@ -1,37 +1,50 @@
-# `out/` —— 全部生成物，一个版本一个子目录
+# `out/` —— 生成物，按 **游戏 / 曲目** 分类
 
-**规则：每次生成都新建一个版本子目录（`v1/`、`v2/`……），绝不在根下堆放产物。**
-这样任意两个版本可以并存对比，不会互相覆盖。
+**规则：`out/<游戏名>/<曲目名>/`。** 每首曲子一个独立目录，互不覆盖；
+同一首曲子的所有调参版本、探针、参照物都收在它自己目录下。
 
 ```
 out/
-├── README.md                    ← 本文件
-├── 2151-2413.fur                ← Furnace 工程（在 Furnace 里改音色的入口）
-├── ch*_ym2151.fui               ← 当前源侧音色（19 个，正在用的那一份）
-├── ch*_ym2413.fui               ← 当前目标侧音色（19 个，改这几个）
-├── 00_reference/                ← 与版本无关的参照物
-│   ├── 03_original_OPM.mid
-│   └── 04_converted_OPLL.mid
-├── v1/                          ← ① 原芯片导入
-├── v2/                          ← ② 首次跨芯片转换（自动匹配）
-├── v3/ … v4/                    ← 中间修正
-├── v5/                          ← 修完 key/音高/移调/循环/GD3
-├── v6/                          ← 首次用 --fur 读音色
-├── v7/                          ← 首次用新 .fur（预设 + 宏，不用 0 号槽）
-├── v8/                          ← 修 baseVol 极性（音量域 vs 衰减域）
-├── v9/                          ← 宏只在真实 key-on 启动一次
-├── v10/                         ← TL→nibble 改 round(TL/4)，voff 仍是 1
-├── v11/                         ← voff 归零，整曲音量与源对齐
-├── v12/                         ← 乐器名参数 note:/vol:/noteoff:/link: 生效
-├── v13/                         ← link 目标可用 note:，鼓组 vol 调成 13
-├── v14/                         ← v13 基础上鼓组/贝斯微调
-├── v15/                         ← 新增 noteoff:N（鼓按 tick 精确收声）
-├── v16/                         ← ch6 贝斯音量抬起；FM9 联动层换音色（preset 2→14）+ note:B3
-├── v17/                         ← FM9 音量 vol:13→14
-├── v18/                         ← ch4 贝斯 vol 宏 12→14
-├── batch/                       ← ★ 整张专辑批量转换（41 首，每首一个目录）
-└── v18/                         ← 单曲调试的最后一版（batch/31 Grass Maze 与它一致）
+├── README.md                      ← 本文件
+└── Spindizzy_II/                  ← 游戏（Sharp X68000）
+    ├── 01 Arsys Logo/
+    │   ├── song.json              ← ① 原芯片 JSON（YM2151）
+    │   ├── song.ym2413.json       ← ② 目标芯片 JSON
+    │   ├── song.ym2413.vgm        ← ③ 目标芯片 VGM（试听用这个）
+    │   ├── import.log
+    │   └── convert.log            ← 含音色库命中/未命中明细
+    ├── 02 Zoom Up/
+    ├── …
+    ├── 41 Eternal Move/
+    └── 31 Grass Maze/             ← ★ 主力调试曲（版本最多，音色都是为它调的）
+        ├── song.json / song.ym2413.json / song.ym2413.vgm
+        ├── import.log / convert.log
+        ├── 2151-2413.fur          ← Furnace 工程（改音色的唯一入口）
+        ├── fui/                   ← ch*_ym2151.fui / ch*_ym2413.fui（38 个）
+        ├── versions/              ← v1 … v18，每次调参的快照
+        │   ├── v1/  ← ① 原芯片导入
+        │   ├── v2/  ← ② 首次跨芯片转换（自动匹配）
+        │   ├── v5/  ← 修完 key/音高/移调/循环/GD3
+        │   ├── v6/  ← 首次用 --fur 读音色
+        │   ├── v7/  ← 首次用新 .fur（预设 + 宏，不用 0 号槽）
+        │   ├── v8/  ← 修 baseVol 极性（音量域 vs 衰减域）
+        │   ├── v9/  ← 宏只在真实 key-on 启动一次
+        │   ├── v10/ ← TL→nibble 改 round(TL/4)
+        │   ├── v11/ ← voff 归零，整曲音量与源对齐
+        │   ├── v12/ ← 乐器名参数 note:/vol:/noteoff:/link: 生效
+        │   ├── v13/ ← link 目标可用 note:，鼓组 vol 调成 13
+        │   ├── v14/ ← 鼓组/贝斯微调
+        │   ├── v15/ ← 新增 noteoff:N（鼓按 tick 精确收声）
+        │   ├── v16/ ← ch6 贝斯音量抬起；FM9 联动层换音色 + note:B3
+        │   ├── v17/ ← FM9 vol 13→14
+        │   └── v18/ ← ch4 贝斯 vol 宏 12→14
+        ├── probes/                ← 音量/通道测量产物（chanprobe, volprobe, ins）
+        └── reference/             ← 与版本无关的参照物（OPM/OPLL 的 mid）
 ```
+
+**为什么 31 Grass Maze 单独有一套**：它是唯一逐版调过的曲子——`.fur` 里的
+19 个目标音色、所有宏、`note:/vol:/noteoff:` 参数都是对着它调的。
+其余 40 首是批量转换产物，直接复用 `docs/instrument-library.json`。
 
 `.fui` 在根下是**当前工作副本**；每个版本目录里另存一份**当时的快照**。
 
@@ -84,9 +97,9 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 | `v16/` | FM9 联动层换成 SD2（`preset 14` / `note:B3`）；ch6 贝斯音量抬起 | — |
 | `v17/` | FM9 `vol:13`→`14` | — |
 | `v18/` | ch4 贝斯 vol 宏 `12`→`14` | 单曲调试的最后一版 |
-| `batch/` | **整张专辑批量转换**：41 首，`--library` 跨曲目音色库 | 当前成果 |
+| `Spindizzy_II/` | **整张专辑批量转换**：41 首，`--library` 跨曲目音色库 | 当前成果 |
 
-## 批量转换结果（`out/batch/`）
+## 批量转换结果（`out/Spindizzy_II/`）
 
 | 项 | 值 |
 |---|---|
@@ -113,7 +126,7 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 cd E:/working/zcode-projects/VGM_Studio
 # 一次跑完 Spindizzy II 全部 41 首，每首一个独立目录
 cli/tools/batch_convert.sh
-#   → out/batch/<曲名>/{song.json, song.ym2413.json, song.ym2413.vgm, *.log}
+#   → out/Spindizzy_II/<曲名>/{song.json, song.ym2413.json, song.ym2413.vgm, *.log}
 ```
 
 音色来源优先级（`opm2opll` 内部）：
@@ -122,19 +135,20 @@ cli/tools/batch_convert.sh
 2. `--fur` 本曲工程按 `chXinsY` 名字匹配
 3. ROM 自动匹配
 
-单曲调试用：
+单曲调试用（以 31 Grass Maze 为例）：
 
 ```bash
 B=cli/build
 V="vgm/Spindizzy_II_(Sharp_X68000)/31 Grass Maze.vgm"
-NEW=out/v19     # ← 每次换新名字，不要复用
-mkdir -p "$NEW"
+D="out/Spindizzy_II/31 Grass Maze"
+FUR="$D/2151-2413.fur"
 
-$B/vgm2json.exe "$V" -o "$NEW/song.json" --fui          # ① 源
-# ② 在 Furnace 里改 out/2151-2413.fur
-$B/opm2opll.exe "$NEW/song.json" -o "$NEW/song.ym2413.json" \
-    --library=docs/instrument-library.json --fur=out/2151-2413.fur \
-    --transpose=-12 --vgm="$NEW/song.ym2413.vgm"        # ③ 目标
+$B/vgm2json.exe "$V" -o "$D/song.json" --fui         # ① 源
+# ② 在 Furnace 里改 "$FUR"
+NEW="$D/versions/v19"; mkdir -p "$NEW"                # ③ 新版本目录
+$B/opm2opll.exe "$D/song.json" -o "$NEW/song.ym2413.json" \
+    --library=docs/instrument-library.json --fur="$FUR" \
+    --transpose=-12 --vgm="$NEW/song.ym2413.vgm"      # ④ 目标
 
 # 试听：直接用播放器打开 $NEW/song.ym2413.vgm（不再生成 wav）
 ```

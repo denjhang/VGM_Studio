@@ -10,7 +10,9 @@ import struct
 import subprocess
 import wave
 
-OUT = os.path.join(os.path.dirname(__file__), "..", "..", "out", "chanprobe")
+SONG_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "out",
+                        "Spindizzy_II", "31 Grass Maze")
+OUT = os.path.join(SONG_DIR, "probes", "chanprobe")
 os.makedirs(OUT, exist_ok=True)
 
 
@@ -93,14 +95,14 @@ def opll_events(doc, ch):
     return ev
 
 
-src = json.load(open("out/v1/song.json", encoding="utf-8"))
+src = json.load(open(os.path.join(SONG_DIR, "song.json"), encoding="utf-8"))
 src_ch = src["channels"]
 
 print("ch | 源 OPM RMS | 目标 OPLL RMS | 差 dB")
 tot_s, tot_d = 0.0, 0.0
 targets = {}
 for ver in ["v12", "v13"]:
-    p = "out/%s/song.ym2413.json" % ver
+    p = os.path.join(SONG_DIR, "versions", ver, "song.ym2413.json")
     if os.path.exists(p):
         targets[ver] = json.load(open(p, encoding="utf-8"))
 

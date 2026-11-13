@@ -1,7 +1,7 @@
 # 乐器库 —— 标签、参数、指纹
 
 这个文件是**本地乐器库**：曲目用到的每一个音色的「人读标签 + 完整 FM 参数 + 指纹」。
-§4 的数据由 `fuitool lib` 从 `out/2151-2413.fur` 自动生成，§1–§3 是手写说明。
+§4 的数据由 `fuitool lib` 从 `out/Spindizzy_II/31 Grass Maze/2151-2413.fur` 自动生成，§1–§3 是手写说明。
 
 ---
 
@@ -298,11 +298,11 @@ YM2413 是 2 算子芯片，没有真正的鼓、没有真正的铺底。真正�
 
 ## 4. 参数表与明文清单（自动生成）
 
-生成命令：`cli/build/fuitool.exe lib out/2151-2413.fur --json=docs/instrument-library.json`
+生成命令：`cli/build/fuitool.exe lib out/Spindizzy_II/31 Grass Maze/2151-2413.fur --json=docs/instrument-library.json`
 
-<!-- 以下内容由 `fuitool lib out/2151-2413.fur` 自动生成，勿手改 -->
+<!-- 以下内容由 `fuitool lib out/Spindizzy_II/31 Grass Maze/2151-2413.fur` 自动生成，勿手改 -->
 
-来源 `out/2151-2413.fur`，Furnace 版本 228，hz=60.00，共 38 个乐器。
+来源 `out/Spindizzy_II/31 Grass Maze/2151-2413.fur`，Furnace 版本 228，hz=60.00，共 38 个乐器。
 
 **身份靠参数，不靠指纹。** 指纹只是参数串的哈希，用于快速比较；
 参数相同 = 同一音色（哪怕标签名不同）。反之参数不同就是不同音色。
@@ -546,16 +546,16 @@ YM2413 是 2 算子芯片，没有真正的鼓、没有真正的铺底。真正�
 ## 5. 这份库怎么更新
 
 ```bash
-# 改完 out/2151-2413.fur 之后，同时刷新文档与 JSON
-cli/build/fuitool.exe lib out/2151-2413.fur --json=docs/instrument-library.json
+# 改完 out/Spindizzy_II/31 Grass Maze/2151-2413.fur 之后，同时刷新文档与 JSON
+cli/build/fuitool.exe lib out/Spindizzy_II/31 Grass Maze/2151-2413.fur --json=docs/instrument-library.json
 #   stdout  = 本文件 §4 的 Markdown（表格 + 明文参数清单）
 #   --json  = docs/instrument-library.json（机器可读、可 diff）
 
 # 只想看工程里有什么（含指纹）
-cli/build/fuitool.exe fur out/2151-2413.fur
+cli/build/fuitool.exe fur out/Spindizzy_II/31 Grass Maze/2151-2413.fur
 
 # 看单个音色的完整参数 + 宏 + 指纹
-cli/build/fuitool.exe dump out/ch1ins1_ym2413.fui
+cli/build/fuitool.exe dump out/Spindizzy_II/31 Grass Maze/fui/ch1ins1_ym2413.fui
 ```
 
 `docs/instrument-library.json` 的结构：
@@ -564,7 +564,7 @@ cli/build/fuitool.exe dump out/ch1ins1_ym2413.fui
 {
   "format": "vgm-studio/instrument-library",
   "version": 1,
-  "source": "out/2151-2413.fur",
+  "source": "out/Spindizzy_II/31 Grass Maze/2151-2413.fur",
   "furVersion": 228, "hz": 60.0,
   "instruments": [
     {

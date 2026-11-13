@@ -10,7 +10,9 @@ import struct
 import subprocess
 import wave
 
-OUT = os.path.join(os.path.dirname(__file__), "..", "..", "out", "volprobe")
+SONG_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "out",
+                        "Spindizzy_II", "31 Grass Maze")
+OUT = os.path.join(SONG_DIR, "probes", "volprobe")
 os.makedirs(OUT, exist_ok=True)
 
 
@@ -53,7 +55,7 @@ def rms(path):
     return math.sqrt(sum(x * x for x in d) / len(d))
 
 
-src = json.load(open("out/v1/song.json", encoding="utf-8"))
+src = json.load(open(os.path.join(SONG_DIR, "song.json"), encoding="utf-8"))
 sc = src["channels"][0]
 stream = []
 for o in sc.get("orphans", []):

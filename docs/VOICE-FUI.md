@@ -63,9 +63,9 @@ $B/vgm2json.exe "$V" -o out/song.json --fui
 # ② 原芯片 JSON → 目标芯片 JSON，同时导出目标侧音色
 $B/opm2opll.exe out/song.json -o out/song.ym2413.json --fui
 
-# ③ 用户在 Furnace 里改 out/ch1ins1_ym2413.fui ……
+# ③ 用户在 Furnace 里改 out/Spindizzy_II/31 Grass Maze/fui/ch1ins1_ym2413.fui ……
 #    或者用 fuitool 快速看一眼：
-$B/fuitool.exe dump out/ch1ins1_ym2413.fui --tick-rate=60
+$B/fuitool.exe dump out/Spindizzy_II/31 Grass Maze/fui/ch1ins1_ym2413.fui --tick-rate=60
 
 # ④ 用改过的音色重新生成目标 JSON
 $B/opm2opll.exe out/song.json -o out/song.v2.ym2413.json --use-edited-fui
@@ -78,17 +78,17 @@ $B/opm2opll.exe out/song.json -o out/song.v2.ym2413.json \
 ### 3.1 ★ 推荐做法：在 `.fur` 工程里改全部音色
 
 逐个导出/覆盖 19 个 `.fui` 很容易改错文件号。更省事的路径是把 19 个目标音色
-全部改进一个 Furnace 工程（`out/2151-2413.fur`），让 `opm2opll --fur` 直接读：
+全部改进一个 Furnace 工程（`out/Spindizzy_II/31 Grass Maze/2151-2413.fur`），让 `opm2opll --fur` 直接读：
 
 ```bash
 # 只需要一次：把 19 个 ym2413.fui 导入 Furnace 工程并保存为 2151-2413.fur
 # 之后每次都在 Furnace 里改这个工程、存盘
 
-$B/opm2opll.exe out/v1/song.json -o out/v6/song.ym2413.json \
-    --fur=out/2151-2413.fur --transpose=-12 --vgm=out/v6/song.ym2413.vgm
+$B/opm2opll.exe out/Spindizzy_II/31 Grass Maze/song.json -o out/Spindizzy_II/31 Grass Maze/versions/v6/song.ym2413.json \
+    --fur=out/Spindizzy_II/31 Grass Maze/2151-2413.fur --transpose=-12 --vgm=out/Spindizzy_II/31 Grass Maze/versions/v6/song.ym2413.vgm
 
 # 看一眼工程里读到了什么
-$B/fuitool.exe fur out/2151-2413.fur
+$B/fuitool.exe fur out/Spindizzy_II/31 Grass Maze/2151-2413.fur
 ```
 
 配对规则（按优先级）：
