@@ -24,7 +24,7 @@ out/
     │   ├── Oily Way ins.fur       ← 这首自己的 Furnace 工程（33 个乐器）
     │   ├── fui/                   ← 转换时导出的目标音色
     │   ├── ins/                   ← 手工试过的音色 + from_fur/（工程解包）
-    │   └── versions/              ← v1 … v2（v2 = 当前 song.ym2413.json）
+    │   └── versions/              ← v1 … v4（v4 = 当前 song.ym2413.json）
     ├── 41 Eternal Move/
     └── 31 Grass Maze/             ← ★ 主力调试曲（版本最多，音色都是为它调的）
         ├── song.ym2151.vgm         ← 原版（对比）

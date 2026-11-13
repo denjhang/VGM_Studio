@@ -482,6 +482,24 @@ if (chan[i].std.wave.had && chan[i].state.opllPreset!=16) {
 | `Patch` 宏 + 0 号槽边响边改 | `0x30` 高 4 位 + `0x00`–`0x07` | **15 + 任意多自定义** | 0 号槽同一时刻只有一份，但可以边响边换成下一份 |
 | `Patch` 宏 + 吃 `op1_out` 残留 | 快速连续切 `0x30` | 上述组合之外再凭空多出混合音色 | 见 8.5.5.1，不可精确复现 |
 
+#### 延续块必须复述宏的当前状态（v4 修）
+
+`NoteSplitter` 会在 KC 跳变时把一个发声切出多个块。这些**延续块**在源里没有
+key 事件，宏靠 `skipTicks` 空跑到正确相位——但块首那条 `0x30` 写的是乐器
+**初始** preset/音量。
+
+OPLL 的 `wave` 宏就是 patch 切换，一个 2 帧的 `[11, 4]` 宏跑完就停在 preset 4。
+延续块如果不把宏的当前状态写回去，整个块都会用初始 preset 15 发音——听感就是
+「宏被切断 / 意外重触发」。
+
+修法：`ExpandMacros` 在 `t==0 && skipTicks>0` 时把 `curPreset` 与当前音量
+通过 `MacroExpandOutput::hasResume / resumePreset / resumeVolNibble` 交给调用方，
+`opm2opll` 用它覆盖块首那条 `0x30`（宏自己在 t=0 也吐了一帧时不覆盖）。
+
+实测（33 Oily Way）：ch6 的 20 处延续块此前块首都退回 preset 15，修后全部
+沿用上一块的 preset 4；ch6 每个块的起始 preset 分布从 `{15: 420}` 变成
+`{15: 265, 4: 155}`。
+
 这也是为什么 Furnace 在 OPLL 的乐器编辑器里把 `waveMacro` 的显示名改成 `Patch`
 （`furnace/src/gui/insEdit/opll.cpp:76`），而 OPM 同一个槽位叫 `LFO Shape`
 （`insEdit/opm.cpp:39`）—— 名字是按芯片语义定的。

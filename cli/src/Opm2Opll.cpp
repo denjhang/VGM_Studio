@@ -720,6 +720,37 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                         seg.regs.push_back(Rv(w.reg, w.val));
                         dn.segments.push_back(seg);
                     }
+                    // ★ 接续块（源里没有 key 事件，是同一次发声的延续）：
+                    //   块首那条 0x30 用的是乐器**初始** preset/音量，而宏此刻已经
+                    //   推进到别处（eguitar 的 wave 宏 [11,4] 跑完就停在 preset 4）。
+                    //   不把宏的当前状态写回去，整个延续块都会用初始 preset 发音，
+                    //   听感就是「宏被切断 / 意外重触发」。
+                    //   宏自己在 t=0 也吐了一帧时无需补（那一帧已经是对的）。
+                    if (mo.hasResume && blockSkipTicks > 0) {
+                        bool macroWroteAt0 = false;
+                        for (const MacroWrite& w : mo.writes)
+                            if (w.reg == 0x30 + ch && w.atSample == n.startSample)
+                                macroWroteAt0 = true;
+                        if (!macroWroteAt0) {
+                            // preset 与音量都取宏的当前状态：延续块是同一次发声，
+                            // 宏此刻的 patch / 包络就是它应该继续的样子。
+                            // 只用块首按 TL 算出的基础音量会让块边界出现一次音量跳变。
+                            const uint8_t rv = static_cast<uint8_t>(
+                                ((mo.resumePreset & 15) << 4) | (mo.resumeVolNibble & 15));
+                            bool patched = false;
+                            for (Segment& seg : dn.segments) {
+                                if (patched) break;
+                                if (seg.atSample != n.startSample) continue;
+                                for (RegValue& r : seg.regs) {
+                                    if (r.reg == 0x30 + ch) {
+                                        r.val = rv;
+                                        patched = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
                     // phaseReset / ex4：重触发。
                     // ★ 真机行为：YM2413 在 key 位已置位时再写 key-on 不会重触发
                     //   （libvgm ym2413.c 的 KEY_ON 注释 "do NOT restart Phase Generator

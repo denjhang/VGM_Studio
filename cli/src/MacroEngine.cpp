@@ -310,6 +310,13 @@ MacroExpandOutput ExpandMacros(const FuiVoice& voice, const MacroExpandInput& in
         if (at >= in.endSample) break;
         const bool lastTick = in.releaseAtEnd && (t == ticks - 1);
         if (t >= 0) warming = false;
+        // 接续块在 t=0 记下「空跑之后」的宏状态，交给调用方作为块首写值。
+        if (t == 0 && warmTicks > 0 && in.opll) {
+            const int tl = VolScaleLog(outVol, 15 - (stateTl[1] & 15), 15);
+            out.hasResume = true;
+            out.resumePreset = curPreset & 15;
+            out.resumeVolNibble = (15 - tl) & 15;
+        }
 
         // ── 22 条通道级宏 ────────────────────────────────────────
         for (int mi = 0; mi < kMacroCount; mi++) {

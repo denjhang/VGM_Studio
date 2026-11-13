@@ -79,6 +79,15 @@ struct MacroExpandOutput {
     std::vector<MacroPitch> pitches;        // arp / pitch 宏的音高偏移
     std::vector<MacroSus> susPoints;        // OPLL 的 alg→SUS
     std::vector<MacroRetrigger> retriggers; // phaseReset / ex4
+
+    // ★ 接续块（skipTicks > 0）在块起点那一刻的宏状态。
+    //   调用方在每个块首都会写乐器**初始** preset 与音量，而宏此时早已推进到
+    //   别的状态（OPLL 的 wave 宏就是 patch 切换，2 帧的 [11,4] 跑完就停在 4）。
+    //   不认这个状态，整个延续块都会用初始 preset 发音，听感就是「宏被切断」。
+    //   只有 skipTicks > 0 时才有效。
+    bool hasResume = false;
+    int resumePreset = 0;       // 块起点应使用的 preset（0x30 高 4 位）
+    int resumeVolNibble = 0;    // 块起点应使用的音量衰减 nibble（0x30 低 4 位）
 };
 
 // 执行全部宏。不含 key-on（0x08 / 0x20 bit4）与 key-off —— 那些由调用方按音符边界写。
