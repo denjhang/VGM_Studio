@@ -438,7 +438,16 @@ InsTags ParseInstrumentTags(const std::string& name) {
                 t.vol = n < 0 ? 0 : (n > 15 ? 15 : static_cast<int>(n));
             }
         } else if (key == "noteoff") {
-            if (val == "self") t.noteOffSelf = true;
+            if (val == "self") {
+                t.noteOffSelf = true;
+            } else {
+                char* end = nullptr;
+                const long n = std::strtol(val.c_str(), &end, 10);
+                if (end != val.c_str() && n > 0) {
+                    t.noteOffTicks = static_cast<int>(n);
+                    t.noteOffSelf = true;   // 同样是「不吃源 key-off」
+                }
+            }
         } else if (key == "link") {
             if (!val.empty()) t.linkTo = val;
         }

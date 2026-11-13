@@ -40,6 +40,9 @@ struct FurInstrument {
 //   vol:N        基础音量改由名字指定（0..15，OPLL 0x30 低 4 位，0=最响）。
 //                跳过载波 TL 换算；宏仍在这个基线上做比例。
 //   noteoff:self 不使用源的 key-off，把音符延长到宏完整播完才 off。
+//   noteoff:N    不使用源的 key-off，宏只走 N 步就立刻 off（N 是 tick 数，
+//                1 步 = speed 个 tick）。用来给鼓这种「宏尾巴到了就必定收声」
+//                的音色卡一个精确长度，不必把整条宏都放完。
 //   link:X       联动音色：X 是另一个乐器的基名（如 ch5ins3）。本乐器每次击发时，
 //                X 也在同一采样点、同样时长地一起击发。
 struct InsTags {
@@ -51,6 +54,8 @@ struct InsTags {
     bool hasVol = false;
     int vol = 0;           // 0..15
     bool noteOffSelf = false;
+    // noteoff:N 的 N（tick 数）。>0 时优先于 noteOffSelf 的「宏跑完」时长。
+    int noteOffTicks = 0;
     std::string linkTo;    // 非空 = 要联动的乐器基名
 };
 

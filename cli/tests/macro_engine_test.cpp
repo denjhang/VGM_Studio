@@ -1,6 +1,7 @@
 // 单元测试：逐条宏验证展开结果
 #include "MacroEngine.h"
 #include "Opm2Opll.h"
+#include "FurFile.h"
 #include <cstdio>
 #include <vector>
 using namespace vgmstudio;
@@ -422,6 +423,19 @@ int main(){
     check("TL 26 -> vol 7 (not 3)", TlvToOpllVolume(26) == 7);
     check("TL 60 -> vol 15 (clamp)", TlvToOpllVolume(60) == 15);
     check("TL 127 -> vol 15 (clamp)", TlvToOpllVolume(127) == 15);
+  }
+
+  // 53. ★ 乐器名参数 noteoff:N —— 只走 N 步就 off（不是「宏全部播完」）
+  {
+    const InsTags a = ParseInstrumentTags("ch5ins1-BD3-note:B2-vol:15-noteoff:6");
+    check("noteoff:6 sets ticks", a.noteOffSelf && a.noteOffTicks == 6);
+    check("noteoff:6 keeps note/vol",
+          a.hasNote && a.noteMidi == 47 && a.vol == 15 && a.base == "ch5ins1-BD3");
+    const InsTags b = ParseInstrumentTags("ch5ins2-hh-note:C8-noteoff:self");
+    check("noteoff:self keeps self", b.noteOffSelf && b.noteOffTicks == 0);
+    const InsTags c = ParseInstrumentTags("ch5ins3-SD2-note:B3-noteoff:9-vol:14");
+    check("noteoff:9 before vol tag",
+          c.noteOffTicks == 9 && c.hasVol && c.vol == 14);
   }
 
   std::printf("\n%s (%d fail)\n", fails? "FAILED":"ALL PASS", fails);

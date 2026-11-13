@@ -163,6 +163,7 @@ t<type>;preset<opllPreset>;alg<alg>;fb<fb>;fms<fms>;ams<ams>;ops<ops>
 | `note:X` | 音高由名字指定。**X 就是目标芯片上的最终音高**（科学音高记法，A4=440，`C4`=60） | 不读源 KC/KF、**不做 ML 八度补偿**、不叠加 `--transpose`，也**不跟随源里的滑音/颤音**——那些由 2413 侧的宏替代 |
 | `vol:N` | 基础音量由名字指定（0..15，Furnace 音量语义，**15 = 最响**） | 不看载波 TL；宏仍在这个基线上做比例 |
 | `noteoff:self` | 不使用源的 key-off，音符延长到宏完整播完 | 源里的所有 key-off 被丢弃，改为宏长度 × tick 时长后补一条 |
+| `noteoff:N` | 不使用源的 key-off，宏**只走 N 步**就立刻 off（N 是 tick 数，含 delay 之后算起） | 同上，但长度取 N 而不是整条宏。给「宏尾巴到了就该收声」的鼓卡精确长度 |
 | `link:X` | 联动音色：X 是另一乐器的基名（如 `ch5ins3`） | 目标乐器每次击发时，本乐器在同一起点、同样时长地一起响 |
 
 **解析规则**：每个标签是 `key:value`，值到下一个空格或「`-` + 已知 key + `:`」为止。
@@ -178,22 +179,27 @@ t<type>;preset<opllPreset>;alg<alg>;fb<fb>;fms<fms>;ams<ams>;ops<ops>
 - `noteoff:self` 的时长取 `MacroActiveTicks(voice)`（音量宏最后一个非零帧之前
   的步数 × speed）。拉长后若越过下一个音符起点，会被裁到下个音符起点——
   OPLL 同通道不能同时发两个音，不裁就会丢鼓点。
+- `noteoff:N` 走同一条路径，只是时长直接取 `N × (sampleRate / tickRate)`，
+  不查宏长度。`noteoff:N` 也会置上 `noteOffSelf`，所以「丢弃源 key-off」的行为一致。
+  宏本身仍按 `N` 个 tick 的窗口展开（`mi.endSample` 就是这条 off 点），
+  超出窗口的宏帧自然不吐。
 - `link:X` 只联动「确实用了 X 这个乐器」的音符：鼓通道上同时有 BD/hh/SD/pad2，
   按 `(通道, 起点) → 乐器名` 筛一遍，否则整条通道都会被复制过去。
 
-**当前 .fur 里的实例**（`31 Grass Maze`，v13）
+**当前 .fur 里的实例**（`31 Grass Maze`，v15）
 
 | 乐器 | 参数 | 效果 |
 |---|---|---|
-| `ch5ins1-BD3` | `note:B2` `vol:13` `noteoff:self` | 底鼓锁在 B2，宏放完才 off |
-| `ch5ins2-hh` | `note:C8` `noteoff:self` | 镲锁在 C8（block 7 / fnum 344） |
-| `ch5ins3-SD2` | `note:B3` `noteoff:self` `vol:13` | 军鼓锁在 B3 |
+| `ch5ins1-BD3` | `note:B2` `vol:15` `noteoff:6` | 底鼓锁在 B2，宏走 6 步（4410 采样 = 100 ms）立刻 off |
+| `ch5ins2-hh` | `note:C8` `noteoff:self` | 镲锁在 C8（block 7 / fnum 344），宏放完才 off |
+| `ch5ins3-SD2` | `note:B3` `noteoff:9` `vol:14` | 军鼓锁在 B3，宏走 9 步（6615 采样 = 150 ms）立刻 off |
 | `ch9ins1-SD2-HF` | `link:ch5ins3` `vol:13` `noteoff:self` `note:C8` | FM9 叠一层 SD2 的 HF 层，只在 ch5ins3 击发时跟着响，音高锁 C8 |
 
-实测（v13）：FM9 从 0 个音符变成 **54 个**（正好等于 ch5ins3 的音符数），
-每个都落在 block 7 / fnum 344（= C8），不再沿用它联动的 SD2 的 B3；
-FM5 的 noteoff:self 音符与下一个音符 **0 处重叠**；
-`vol:13` 落成 nibble 2（`15-13`），宏第一帧 0 时回到 15（静音）。
+实测（v15）：FM9 有 **54 个**音符（正好等于 ch5ins3 的音符数），
+每个的基音高都落在 block 7 / fnum 344（= C8，随后由它自己的 arp 宏继续加偏移）；
+FM5 全部 388 个音符 **0 处重叠**；音符长度直方图里
+BD 类整齐落在 6.00 tick（207 个）、SD 类 9.00 tick（48 个），
+`noteoff:N` 的长度是按 tick 精确落地的，不受源 key-off 影响。
 
 **`link` 目标也支持 `note:`**：联动方自己写了 `note:X` 时，搬运过来的
 fnum/block 会被改写成 X 的固定值（key/sus 位保留）。这条是 v13 加的——

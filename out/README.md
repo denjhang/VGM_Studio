@@ -25,7 +25,8 @@ out/
 ├── v11/                         ← voff 归零，整曲音量与源对齐
 ├── v12/                         ← 乐器名参数 note:/vol:/noteoff:/link: 生效
 ├── v13/                         ← link 目标可用 note:，鼓组 vol 调成 13
-└── v14/                         ← ★ 当前版本：v13 基础上鼓组/贝斯微调
+├── v14/                         ← v13 基础上鼓组/贝斯微调
+└── v15/                         ← ★ 当前版本：新增 noteoff:N（鼓按 tick 精确收声）
 ```
 
 `.fui` 在根下是**当前工作副本**；每个版本目录里另存一份**当时的快照**。
@@ -74,7 +75,8 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 | `v11/` | `volumeOffset` 基准改回 0，整曲 RMS 与源对齐 | — |
 | `v12/` | **乐器名参数**：`note:` 锁音高、`vol:` 锁音量、`noteoff:self` 宏播完才 off、`link:` 联动第 9 通道 | link 目标不能自己有 `note:` |
 | `v13/` | `link` 目标支持 `note:X`；鼓组 `vol:15`→`13` | — |
-| `v14/` | 鼓组 `vol:15`/`14`，贝斯加 `vol:[12]` + `arp:[-12]` | 当前版本 |
+| `v14/` | 鼓组 `vol:15`/`14`，贝斯加 `vol:[12]` + `arp:[-12]` | — |
+| `v15/` | 新增 **`noteoff:N`**：宏只走 N 步就 off（BD `6`、SD `9`），鼓按 tick 精确收声 | 当前版本 |
 
 ## 完整重跑（写进新版本目录）
 
@@ -82,7 +84,7 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 cd E:/working/zcode-projects/VGM_Studio
 B=cli/build
 V="vgm/Spindizzy_II_(Sharp_X68000)/31 Grass Maze.vgm"
-NEW=out/v14     # ← 每次换新名字，不要复用
+NEW=out/v15     # ← 每次换新名字，不要复用
 mkdir -p "$NEW"
 
 # ① 原芯片 VGM → JSON + 源侧音色
@@ -119,6 +121,7 @@ libvgm/build/bin/vgm2wav.exe --loops 1 --fade 3 \
 | `link:` 联动出的音符（FM9） | — | 0 | 0 | **54（= ch5ins3 的音符数）** |
 | `link` 目标的 `note:` 覆盖 | — | — | — | **54 个全落 C8（block 7 / fnum 344）** |
 | `noteoff:self` 音符重叠 | — | — | — | **0** |
+| `noteoff:N` 音符长度 | — | — | — | **BD 6.00 tick × 207 个、SD 9.00 tick × 48 个（按 tick 精确落地）** |
 | legato 块边界静音帧 | — | 0 | 0 | **371 → v9 降到 1** |
 | 源动态范围（载波 TL） | 9.8 dB | — | — | 9.6 dB（v11，旧映射 5.9） |
 | 整曲 RMS | −19.0 dBFS | — | — | −19.0（v11）/ −16.6（v12）/ −18.3（v13）/ **−18.8（v14）** |

@@ -450,12 +450,13 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
             const bool hadKeyOff = !keyEvents.empty() && !keyEvents.back().second;
             (void)hadKeyOff;
 
-            // ★ noteoff:self —— 不用源的 key-off，让宏完整播完再 off。
-            //   鼓类（BD/HH/SD）就是这种：源的 key-off 时刻会把宏的衰减尾巴截断。
-            //   时长按 MacroActiveTicks 折算成采样数，音符终点跟着延长。
+            // ★ noteoff:self / noteoff:N —— 不用源的 key-off，让宏播完（或只播 N 步）
+            //   再 off。鼓类（BD/HH/SD）就是这种：源的 key-off 时刻会把宏的衰减
+            //   尾巴截断。noteoff:N 则给「尾巴到了就该收声」的音色卡一个精确长度。
             uint32_t selfOffSample = 0;
             if (tags.noteOffSelf && voicePtr != nullptr) {
-                const int macroTicks = MacroActiveTicks(*voicePtr);
+                const int macroTicks = tags.noteOffTicks > 0 ? tags.noteOffTicks
+                                                             : MacroActiveTicks(*voicePtr);
                 const int rate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
                 const double perTick = static_cast<double>(rate) / (tickRate > 0 ? tickRate : 60);
                 selfOffSample = n.startSample +
@@ -856,10 +857,11 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     n.segments.insert(n.segments.begin(), seg);
                 }
 
-                // ③ noteoff:self：延长到宏播完，再补 key-off。
+                // ③ noteoff:self / noteoff:N：延长到宏播完（或 N 步），再补 key-off。
                 uint32_t offAt = 0;
                 if (ltags.noteOffSelf) {
-                    const int ticks = MacroActiveTicks(fi.voice);
+                    const int ticks = ltags.noteOffTicks > 0 ? ltags.noteOffTicks
+                                                             : MacroActiveTicks(fi.voice);
                     const int rate = doc.timeBase.sampleRate > 0 ? doc.timeBase.sampleRate : 44100;
                     const double perTick = static_cast<double>(rate) / (tickRate > 0 ? tickRate : 60);
                     offAt = n.startSample + static_cast<uint32_t>(ticks * perTick + 0.5);
