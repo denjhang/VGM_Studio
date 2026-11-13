@@ -19,6 +19,12 @@ out/
     │   └── convert.log            ← 含音色库命中/未命中明细
     ├── 02 Zoom Up/
     ├── …
+    ├── 33 Oily Way/               ← 第二首在调音色的曲子（自带 Oily Way ins.fur）
+    │   ├── song.ym2151.vgm / song.json / song.ym2413.json / song.ym2413.vgm
+    │   ├── Oily Way ins.fur       ← 这首自己的 Furnace 工程（33 个乐器）
+    │   ├── fui/                   ← 转换时导出的目标音色
+    │   ├── ins/                   ← 手工试过的音色 + from_fur/（工程解包）
+    │   └── versions/              ← v1 … v2（v2 = 当前 song.ym2413.json）
     ├── 41 Eternal Move/
     └── 31 Grass Maze/             ← ★ 主力调试曲（版本最多，音色都是为它调的）
         ├── song.ym2151.vgm         ← 原版（对比）
