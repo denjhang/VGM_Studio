@@ -18,7 +18,13 @@
 | 10 | [`IMPLEMENTATION-CLI.md`](IMPLEMENTATION-CLI.md) | **CLI 实施记录**：`cli/` 工程结构、影子设备接法、实测结果、7 个坑、json2mid 音高验证 |
 | 11 | [`PITCH-CONVERSION.md`](PITCH-CONVERSION.md) | **★ 音高转换权威汇总**：YM2151/YM2413 在 5 个参考实现里的全部公式（带行号）+ 物理真值推导 + 4 个已修 bug |
 | 12 | [`VOICE-FUI.md`](VOICE-FUI.md) | **★ 音色文件与宏**：`.fui` 命名规则、FM/MA 块布局、22 条宏、**宏速率不在 fui 里**、宏展开实测 |
-| 13 | [`INSTRUMENT-LIBRARY.md`](INSTRUMENT-LIBRARY.md) | **★ 本地乐器库**：标签缩写对照、参数/指纹/影子三条判据的区别、源→目标映射表、38 个乐器的完整参数（由 `fuitool lib` 生成） |
+| 13 | [`INSTRUMENT-LIBRARY.md`](INSTRUMENT-LIBRARY.md) | **★ 本地乐器库**：标签缩写对照、参数/指纹/影子三条判据的区别、源→目标映射表、38 个乐器的完整参数（由 `fuitool lib` 生成）、**跨曲目复用（`--library`）与批量转换实测** |
+
+## 产物目录
+
+所有生成物在 `out/`，按 **游戏 / 曲目** 分类（`out/<游戏名>/<曲目名>/`）。
+目录结构、每个文件是什么、哪一版是当前版，全部写在 [`out/README.md`](../out/README.md)：
+`.vgm`（原版 + 转换版）、`.fui`、`.fur` 入库；`.json` 单个 3–8 MB，不入库。
 
 ## 参考库档案（一库一文件）
 

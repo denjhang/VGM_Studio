@@ -1,6 +1,6 @@
 # 乐器指纹与音色映射（参考 vgm-conv + ym-voice）
 
-> 本文件是 `json2json` 的音色映射规格。**参考实现已下载到 `docs/_vendor/ym-voice-0.3.2/`（ISC 许可），数据表可直接搬。**
+> 本文件是 `opm2opll` 的音色映射规格。**参考实现已下载到 `docs/_vendor/ym-voice-0.3.2/`（ISC 许可），数据表可直接搬。**
 > 数据格式 → `DATA-MODEL.md`；CLI 流程 → `CLI.md`；YM2151 寄存器 → `CHIP-YM2151.md`。
 
 ---

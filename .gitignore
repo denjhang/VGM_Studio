@@ -26,9 +26,19 @@ build/
 vgm/*
 !vgm/README.md
 
-# 所有生成物统一落在 out/，一个版本一个子目录；只有说明文件入库
-out/*
+# 所有生成物统一落在 out/，按 游戏/曲目 分类。
+# 入库：音色文件 .fui / .fur（参数数据，不含乐曲本身）、说明文件
+# 不入库：
+#   · .json       单曲 3–8 MB，历史版本合计上百 MB
+#   · .vgm        原版是商业游戏原声、成品是它的衍生，本仓库是 public，
+#                 不能分发（与 vgm/ 同一限制，见 vgm/README.md）
+out/**
 !out/README.md
+!out/**/
+!out/**/*.fui
+!out/**/*.fur
+# 探针产物只是诊断中间件，不入库
+out/**/probes/
 
 # 系统
 .DS_Store

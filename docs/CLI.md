@@ -47,19 +47,22 @@
 
 ## 2. 程序清单
 
-全部放在 `0x808/src/vgm/cli/`，每个程序一个 `main`，共用 `0x808/src/vgm/` 下的库代码。
+全部在独立的 `cli/` 工程里（**不碰 `0x808/`**，见 `RULES.md` F6–F8），
+每个程序一个 `main`，共用 `cli/src/` 下的 `vgmcore` 静态库。
 
 | 程序 | 输入 | 输出 | 职责 |
 |---|---|---|---|
 | **`vgminfo`** | `.vgm` | stdout | 打印头部信息 + 命令统计（**不解析语义**，只报账） |
-| **`vgm2json`** | `.vgm` | `.json` (+ `.fui` 目录) | **导入 + 结构化 + 音色提取** |
+| **`vgm2json`** | `.vgm` | `.json` (+ `--fui` 时出 `.fui`) | **导入 + 结构化 + 音色提取** |
 | `jsondump` | `.json` | stdout | 人读的摘要（通道数、音符数、寄存器写数、完整性校验结果） |
-| **`json2vgm`** | `.json` | `.vgm` | **输出（走 furnace dispatch）** |
-| **`json2json`** | source `.json` + 映射表 | target `.json` | **跨芯片转换**（时域/通道/音色） |
-| `fuitool` | `.fui` / `.json` | `.fui` / `.json` | 音色文件互转 + 批量检查 |
+| **`json2vgm`** | `.json` | `.vgm` | **输出**：走 `VgmRebuild` 直接写寄存器流（不经过引擎重放） |
+| **`opm2opll`** | source `.json` (+ `.fur` / 库) | target `.json` (+ `.vgm` / `.fui`) | **跨芯片转换**（时域/通道/音色/宏展开） |
+| `fuitool` | `.fui` / `.fur` | stdout / `.fui` / `.json` | **音色工具**：`dump` / `check` / `rewrite` / `fur` / `lib` / `unpack` |
 | `vgmroundtrip` | `.vgm` | stdout | **`vgm → json → vgm` 往返校验**（字节级 diff） |
 | **`json2mid`** | `.json` | `.mid` | **音高验证**：把任意芯片的 JSON 转成标准 MIDI，两份 MIDI 直接对比音高，见 `docs/PITCH-CONVERSION.md` |
-| **`fuitool`** | `.fui` | stdout / `.fui` | **音色文件**：dump 参数与 22 条宏、批量校验、读改写往返，见 `docs/VOICE-FUI.md` |
+
+`cli/tools/` 下是脚本（不进 `vgmcore`）：`batch_convert.sh` 批量转换、
+`probe_volume.py` / `probe_channels.py` 音量实测。
 
 ### 2.1 为什么 `vgminfo` 和 `vgmroundtrip` 是独立程序
 
@@ -68,35 +71,38 @@
 
 ---
 
-## 3. 完整链路（用户指定的样例）
+## 3. 完整链路（当前实际用法）
+
+一首曲子（以 `33 Oily Way` 为例，改动最少就能跑通）：
 
 ```
-vgm/Spindizzy_II_(Sharp_X68000)/31 Grass Maze.vgm
+vgm/Spindizzy_II_(Sharp_X68000)/33 Oily Way.vgm
         │
-        │  vgm2json --extract-instruments=ins/
+        │  cp … song.ym2151.vgm            ← 原版留一份，方便 A/B
+        │  vgm2json … --fui                ← 源 JSON + 源侧 .fui
         ▼
-  31_Grass_Maze.json          ← YM2151 源 JSON（可编辑）
-  ins/ins_000.fui             ← 提取出的音色（YM2151/OPM 格式）
-  ins/ins_001.fui
-  ...
+  song.json                  ← YM2151 源 JSON（可编辑，**不入库**，太大）
+  chXinsY_ym2151.fui         ← 源侧音色
         │
-        │  （人工 or 脚本编辑 JSON；换音色就换 .fui）
+        │  （在 Furnace 里改 Oily Way ins.fur：音色 + 宏 + note:/vol:/noteoff:/link:）
         ▼
-  31_Grass_Maze.json  (已改)
+  Oily Way ins.fur           ← 唯一的音色编辑入口（入库）
         │
-        │  json2json --mapping=opm2opll.map.json --target=ym2413
+        │  opm2opll song.json -o song.ym2413.json \
+        │      --fur="Oily Way ins.fur" --library=docs/instrument-library.json \
+        │      --transpose=-12 --fui-dir=fui/ --vgm=song.ym2413.vgm
         ▼
-  31_Grass_Maze.ym2413.json   ← YM2413 目标 JSON（可编辑）
-  ins2413/ins_000.fui         ← 映射后的 YM2413/OPLL 音色
+  song.ym2413.json           ← YM2413 目标 JSON（可编辑，不入库）
+  song.ym2413.vgm            ← 输出 VGM（入库）
+  fui/                       ← 转换后每个音色的 .fui（入库）
         │
-        │  json2vgm --chip=ym2413
-        ▼
-  31_Grass_Maze.ym2413.vgm    ← 输出
-        │
-        │  vgminfo + 播放器试听
+        │  vgminfo + 播放器试听 + 原版对照
         ▼
       验收
 ```
+
+**整张专辑**用 `cli/tools/batch_convert.sh`，每首一个目录，详见 `RULES.md` 之外的
+`out/README.md`（那个文件只讲目录结构与产物清单）。
 
 **每一步都能停下来检查。** 这就是 CLI 优先的价值。
 
@@ -210,21 +216,23 @@ json2vgm <input.json> -o <output.vgm> [--chip=ym2151|ym2413] [--check]
 **内部流程**：
 
 ```
-1. 从 JSON 重建寄存器写序列（按 atSample 排序）
-2. 按芯片初始化序列（见 §6）
-3. furnace dispatch 驱动芯片 → 产生 regWrites
-4. 按 (time, order) 排序 → 编码成 VGM 命令字节
-5. 写文件（含头部、loop 偏移重算）
+1. 从 JSON 重建寄存器写序列（按 atSample 排序，同一采样点保持原顺序）
+2. 按芯片写初始化序列（见 §6）
+3. 直接编码成 VGM 命令字节
+4. 写文件（含头部、loop 偏移与总样本数重算、GD3 透传）
 ```
 
-**关键：不自己拼寄存器字节。** 用 furnace 的 dispatch 让芯片"自己说该怎么写"（`RULES.md` F1）。
+**为什么不经 furnace dispatch**：本项目的 JSON 里存的就是**寄存器原值**
+（`DATA-MODEL.md`：绝不量化、只存寄存器），重建时不需要引擎重新算一遍，
+直接按时间戳吐写即可。`vgmroundtrip` 对 41 首全部字节一致，证明这条路是对的。
+furnace dispatch 是将来做「参数级编辑 → 寄存器」时才需要的。
 
 **循环偏移与总样本数必须重算**，不能照抄输入（`vgmtransmute` 的正确做法，`md2608` 的错误做法）。
 
-### 4.5 `json2json` — 跨芯片转换（★ 核心）
+### 4.5 `opm2opll` — 跨芯片转换（★ 核心）
 
 ```bash
-json2json <source.json> -o <target.json> \
+opm2opll <source.json> -o <target.json> \
     --target=ym2413 \
     [--bank=ym2413] [--clock=3579545] \
     [--volume-bias=0] [--transpose=-12] \
@@ -273,15 +281,25 @@ json2json <source.json> -o <target.json> \
 8. 输出有损报告
 ```
 
-**为什么映射表是文件而不是代码**：这是与 vgm-conv/vgmtransmute 的根本区别。用户改 JSON 就能换映射，不用重新编译。
+**音色不做"映射表文件"**：早期设计里有一份 `opm2opll.map.json`，实际实现没有采用。
+音色映射走的是「源 FM 参数 → 目标音色」的**查表**（`--library` 的 `pairs` 段，
+或 `.fur` 里按 `chXinsY` 命名的乐器），表就是这两个文件本身，用户改它们即可，
+不用重新编译——目的达到了，还少了一层间接。
+
+**宏展开是照抄 Furnace 语义自己实现的**（`MacroEngine.cpp` 逐行对应
+`opll.cpp:150-340` / `arcade.cpp:292-480`），没有链接 furnace 的 engine 层。
+这样既能精确控制「宏只在真实 key-on 启动一次」「延续块接续宏相位」这些
+本项目特有的需求，也避开了 furnace 那 6 个空 submodule。
 
 ### 4.6 `fuitool` — 音色管理
 
 ```bash
-fuitool dump   ins_000.fui              # 打印音色参数（人读）
-fuitool fur    project.fur              # 列出 .fur 工程里的全部乐器
-fuitool check  a.fui b.fui ...          # 批量校验能否被 Furnace 解码
-fuitool rewrite in.fui out.fui --name=X # 读改写往返
+fuitool dump   voice.fui                     # 音色参数 + 22 条宏
+fuitool fur    project.fur                   # .fur 里的全部乐器
+fuitool lib    project.fur [--json=OUT]      # 导出乐器库（stdout = Markdown）
+fuitool unpack project.fur outdir --type=13  # 解包成 .fui，文件名 = 乐器全名
+fuitool check  a.fui b.fui ...               # 批量校验能否被 Furnace 解码
+fuitool rewrite in.fui out.fui --name=X      # 读改写往返
 ```
 
 **`fuitool fur`**：`.fur` 是 zlib 压缩的 Furnace 工程。读取路径与
@@ -312,9 +330,11 @@ PASS  or  FAIL
 
 ---
 
-## 5. 映射表格式（`*.map.json`）
+## 5. 映射表格式（`*.map.json`）——**未采用，仅存档**
 
-这是"可编辑"的核心。**用户改这个文件就能换映射，不用改代码。**
+> 实际实现没有独立的映射表文件。音色映射由 `docs/instrument-library.json`
+> 的 `pairs` 段（跨曲目）和 `.fur` 里的 `chXinsY` 命名（本曲）承担，
+> 见 §4.5。下面这份 schema 保留下来是为了说明当时的设想，**不是当前行为**。
 
 ### 5.1 完整结构
 
@@ -633,48 +653,65 @@ std::array<uint8_t, 16> fingerprint(const DivInstrumentFM& fm);
 
 ## 8. 构建与目录
 
+**独立工程 `cli/`，不碰 `0x808/`**（`RULES.md` F6–F8）。`0x808` 只作为将来的 UI 壳。
+
 ```
-0x808/src/vgm/
-├── lib/                          ← 库代码（CLI 和 UI 共用）
-│   ├── RegStream.{h,c}
-│   ├── Document.{h,c}            JSON 读写
-│   ├── NoteSplitter.{h,c}
-│   ├── AnalyzerYm2151.{h,c}
-│   ├── AnalyzerYm2413.{h,c}
-│   ├── Mappers.{h,c}
-│   ├── VgmImport.{h,c}           libvgm 影子核
-│   ├── VgmRebuild.{h,c}          JSON → 内存 VGM
-│   ├── FurnaceWriter.{h,c}       JSON → furnace → VGM
-│   ├── ChipConvert.{h,c}
-│   ├── FuiIO.{h,c}               .fui 读写（包 furnace）
-│   └── ChipMap.{h,c}             映射表读写
-└── cli/
-    ├── vgminfo.cpp
-    ├── vgm2json.cpp
-    ├── jsondump.cpp
-    ├── json2vgm.cpp
-    ├── json2json.cpp
-    ├── fuitool.cpp
-    └── vgmroundtrip.cpp
+cli/
+├── CMakeLists.txt
+├── src/                            ← vgmcore 静态库（CLI 与将来的 UI 共用）
+│   ├── RegStream.h                 寄存器流
+│   ├── Document.{h,cpp}            JSON 读写 + 完整性校验
+│   ├── NoteSplitter.{h,cpp}        KC 跳变切块（>0.5 半音）
+│   ├── AnalyzerYm2151.h            载波 / ALG 判定
+│   ├── VgmImportPlayer.{h,cpp}     libvgm 影子设备（只取寄存器写）
+│   ├── Importer.{h,cpp}            VGM → Document
+│   ├── VgmRebuild.{h,cpp}          Document → 内存 VGM
+│   ├── PreviewVgm.{h,cpp}          写试听 VGM（循环点 + GD3 透传）
+│   ├── FmVoice.{h,cpp}             OPM→OPN→OPL→OPLL 映射链 + 最近邻匹配
+│   ├── FuiVoice.{h,cpp}            .fui 读写（包 Furnace 的 instrument.cpp）
+│   ├── FurFile.{h,cpp}             .fur 解压 + 乐器表 + 名字参数标签
+│   ├── InstrumentLibrary.{h,cpp}   跨曲目音色库（按源 FM 参数匹配）
+│   ├── MacroEngine.{h,cpp}         22 条通道宏 + 4×20 算子宏展开
+│   └── Opm2Opll.{h,cpp}            跨芯片转换主体
+├── src/cli/                        ← 8 个可执行程序
+│   ├── vgminfo.cpp      vgm2json.cpp    jsondump.cpp
+│   ├── json2vgm.cpp     opm2opll.cpp    fuitool.cpp
+│   └── vgmroundtrip.cpp json2mid.cpp
+├── tools/                          ← 脚本（不在 vgmcore 里）
+│   ├── batch_convert.sh            整张专辑批量转换
+│   ├── probe_volume.py             两芯片音量台阶实测
+│   └── probe_channels.py           逐通道响度对比
+├── tests/                          ← macro_engine_test.cpp（76 条断言）
+└── third_party/furnace/            ← 只复制 instrument.cpp 等 4 个文件（GPL-2.0+）
 ```
 
-### 8.1 CMake
+### 8.1 CMake（实际）
 
 ```cmake
+# Furnace 的 .fui/.fur 编解码（不自写解析器）
+add_library(furnace_fui STATIC
+    third_party/furnace/src/engine/instrument.cpp
+    third_party/furnace/src/engine/safeReader.cpp
+    third_party/furnace/src/engine/safeWriter.cpp
+    third_party/furnace/stubs.cpp)
+
 # 共用库
-add_library(vgmcore STATIC
-    src/vgm/lib/RegStream.c
-    src/vgm/lib/Document.c
-    ... )
+add_library(vgmcore STATIC ...全部 src/*.cpp...)
 target_link_libraries(vgmcore PUBLIC
-    libvgm-player libvgm-emu libvgm-utils
-    furnace_engine nlohmann_json::nlohmann_json)
+    libvgm::vgm-player nlohmann_json::nlohmann_json ZLIB::ZLIB furnace_fui)
 
 # 每个 CLI
-foreach(tool vgminfo vgm2json jsondump json2vgm json2json fuitool vgmroundtrip)
-    add_executable(${tool} src/vgm/cli/${tool}.cpp)
+foreach(tool vgminfo vgm2json jsondump json2vgm opm2opll fuitool vgmroundtrip json2mid)
+    add_executable(${tool} src/cli/${tool}.cpp)
     target_link_libraries(${tool} PRIVATE vgmcore)
 endforeach()
+```
+
+**构建必须先加 MinGW 到 PATH**，否则 `c++.exe` 静默失败（缺 `libmpfr-6.dll`）：
+
+```bash
+export PATH="/d/msys64/mingw64/bin:$PATH"
+cmake --build cli/build
 ```
 
 ### 8.2 依赖状态（实测）
@@ -682,9 +719,10 @@ endforeach()
 | 依赖 | 状态 |
 |---|---|
 | libvgm 三个 `.a` | ✅ 已编出（`libvgm/build/bin/`） |
-| nlohmann/json | ✅ `/d/msys64/mingw64/include/nlohmann/json.hpp` |
-| Nuked-OPLL patch 表 | ✅ `furnace/extern/Nuked-OPLL/opll.{c,h}`（`OPLL_GetPatchROM()`，`patch_ym2413[opll_patch_max]`） |
-| furnace engine 层 | ⚠️ 需先解决 6 个空 submodule（或只挑 `platform/opll.cpp` + `platform/arcade.cpp` + `dispatch` 相关文件） |
+| nlohmann/json | ✅ MSYS2 自带 |
+| zlib | ✅ MSYS2 自带（`.fur` 是 zlib 压缩的） |
+| Furnace `instrument.cpp` | ✅ 只复制 4 个文件进 `cli/third_party/furnace/`，不拉整个工程 |
+| Furnace engine 层（`platform/opll.cpp` 等） | ❌ 未接入。当前宏展开是**照抄** `opll.cpp`/`arcade.cpp` 的逻辑自己实现的（`MacroEngine.cpp` 逐行对应），不是链接它 |
 
 ---
 
@@ -698,7 +736,7 @@ endforeach()
 | 4 | `json2vgm`（YM2151 → YM2151） | 输出能播放；`vgmroundtrip` 字节一致 |
 | 5 | `vgmroundtrip` | PASS |
 | 6 | `fuitool` | `.fui` ↔ JSON 互转；能被 furnace 打开 |
-| 7 | `json2json`（YM2151 → YM2413） | 生成 target JSON；有损报告完整 |
+| 7 | `opm2opll`（YM2151 → YM2413） | 生成 target JSON；有损报告完整 |
 | 8 | `json2vgm`（YM2413） | 输出能播放；音符位置与源一致 |
 
 **第 4、5 步是分水岭**：在它们通过之前，不要碰任何转换逻辑。

@@ -92,7 +92,9 @@ ninja sequencer_gui
 
 ## 步骤 3 · 编辑与跨芯片输出
 
-### M2 音色与转换基础
+### M2 音色与转换基础 ✅
+
+> 已由 `cli/` 的 `fuitool` + `opm2opll --fur` 完成（UI 侧待做）。
 
 | 验收项 | 怎么验 |
 |---|---|
@@ -100,7 +102,10 @@ ninja sequencer_gui
 | 能改音色并回写 JSON | 改一个 operator 的 TL，JSON 里对应的 `{reg:96, val}` 变了 |
 | 音符编辑回写 | 拖动一个音条的左端 1000 采样，该音符所有 `segments` 的 `atSample` 整体移动 1000（相对距离不变） |
 
-### M3 YM2151 → YM2413 转换
+### M3 YM2151 → YM2413 转换 ✅
+
+> 已由 `cli/build/opm2opll` 完成，41 首全部转换通过。
+> 音高实测见 `PITCH-CONVERSION.md` §5.5（91.3% 完全一致，其余是 OPLL 的 ML 能力上限）。
 
 | 验收项 | 怎么验 |
 |---|---|
@@ -110,12 +115,15 @@ ninja sequencer_gui
 | 音色映射可解释 | 每个源音色都能给出"匹配到 OPLL preset #N，匹配度 X，丢弃了哪些参数"的报告 |
 | 有损报告完整 | 报告列出所有被丢弃/降精度的参数（见 `GOAL.md` §6 位宽表） |
 
-### M4 输出 VGM
+### M4 输出 VGM ✅（CLI 侧）
+
+> 已由 `opm2opll --vgm=` 完成。注意：`json2vgm` 走的是 `VgmRebuild`（寄存器直通），
+> 不是 furnace dispatch —— 输出是逐条寄存器写，不需要引擎重放。
 
 | 验收项 | 怎么验 |
 |---|---|
 | 生成合规 VGM | 输出文件能被 libvgm 加载、解析、播放（`CanLoadFile` 返回成功） |
-| 能出声 | 用 `vgm2wav` 渲染出非静音 WAV |
+| 能出声 | 用 `vgm2wav` 渲染出非静音 WAV（**仅诊断用**，平时产物不生成 wav） |
 | 时域一致 | 输出的 `totalSamples` 与 target.json 一致 |
 | 音符位置一致 | 输出的 key-on 采样位置与 target.json 的 `startSample` 一致 |
 | 位精确对照（仅用于诊断） | 原路不编辑时，输出与原文件的命令序列 diff，差异应仅为重复写去重导致的合并 |

@@ -114,7 +114,7 @@ Render(chunk, buf);            // 循环跑到 PLAYSTATE_END
 
 ---
 
-## 5. 实测结果（只测 `31 Grass Maze.vgm`）
+## 5. 实测结果（`31 Grass Maze.vgm`）
 
 ```
 file          : 31 Grass Maze.vgm
@@ -143,7 +143,8 @@ ch0 327  ch1 240  ch2 327  ch3 291  ch4 388  ch5 291  ch6 326  ch7 325
 `notes` 里 2515 条中只有 4 条零长度、9 条短于 100 采样，属于真实的极短重触发。
 
 另外 40 个同源文件也曾跑过一轮（`cli/scripts/batch_check.sh`）：import 41/41、roundtrip 41/41，
-但按用户要求，**后续只测 `31 Grass Maze.vgm`**。
+早期只测 `31 Grass Maze.vgm`；**2026-11-13 起已扩到全专辑 41 首**
+（`cli/tools/batch_convert.sh`，41/41 全部成功），`31 Grass Maze` 仍是主力调音曲。
 
 ---
 
@@ -167,7 +168,7 @@ ch0 327  ch1 240  ch2 327  ch3 291  ch4 388  ch5 291  ch6 326  ch7 325
 |---|---|---|
 | 从 JSON 重排命令生成 VGM（编辑后输出） | ❌ | `RULES.md` E3/F1：必须走 furnace dispatch，不自己拼 `0x54`/`0x61` 字节 |
 | `.fui` 音色读写 | ❌ | 要接 furnace 的 `DivInstrument`，属步骤 3 |
-| `json2json` 跨芯转换 | ❌ | 规格已在 `CLI.md` §5 + `VOICE-MAPPING.md`，实现待做 |
+| `opm2opll` 跨芯转换 | ✅ | 41 首全部转换通过，见 `INSTRUMENT-LIBRARY.md` §3.1d |
 | `fuitool` | ❌ | 同上 |
 | 非 YM2151 芯片的音符结构化 | ❌ | 第一阶段只做 YM2151；其他芯片的写仍被完整接住并落到 orphans，不丢 |
 
@@ -239,6 +240,6 @@ OPLL 无法表达 ML=10 这种非 2 次幂倍频，是芯片能力上限，不�
 ## 8. 下一步
 
 1. **听感复核音高**：用 `31.opm.mid` / `31.opll.mid` 与原 VGM 对照，确认 `--octave-offset=25`。
-2. `json2json` 的 ML 残差（ch4 的 −2/−4 半音）：OPLL 无 ML=10，考虑改用 `0x30` 的 INST 换预置或加 detune。
+2. `opm2opll` 的 ML 残差（ch4 的 −2/−4 半音）：OPLL 无 ML=10，考虑改用 `0x30` 的 INST 换预置或加 detune。
 3. `fuitool`：接 furnace `DivInstrument::readInsData()` / `save()`。
 4. `json2vgm --from-data`：接 furnace dispatch，替换当前的 raw 直通。

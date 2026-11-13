@@ -117,7 +117,7 @@ modizer 把 VGM 画成钢琴条时用的合并判据（`RenderUtils.mm:5965-6015
 
 ### 步骤 0 · CLI 全链路（当前主线）
 
-见 [`CLI.md`](CLI.md)。七个程序：`vgminfo` / `vgm2json` / `jsondump` / `json2vgm` / `json2json` / `fuitool` / `vgmroundtrip`。
+见 [`CLI.md`](CLI.md)。八个程序：`vgminfo` / `vgm2json` / `jsondump` / `json2vgm` / `opm2opll` / `fuitool` / `vgmroundtrip` / `json2mid`。
 
 **门禁**：`vgmroundtrip`（`vgm → json → vgm` 字节一致）通过之前，不许碰任何转换逻辑。
 
