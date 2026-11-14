@@ -1,8 +1,11 @@
-"""把 out/Spindizzy_II/33 Oily Way/ins/ 下的穷举语料索引成 JSON。
+"""把 out/Spindizzy_II/33 Oily Way/ins/ 下的语料索引成 JSON。
 
-语料是人工在 Furnace 里逐个试听挑出来的 `.fui`，文件名末尾形如 `-13-4`
-表示 wave 宏的「首帧 patch - 次帧 patch」。这里统一解一遍，落成机器可读的
-一份，供自动匹配 / 选音色时查询。
+语料是人工把 15×15 = 210 种 (首帧 patch, 次帧 patch) 组合**全部试听**之后，
+只留下「跟原音色比有明显变化/亮点」的那 85 个 `.fui`。
+文件名末尾形如 `-13-4` 表示 wave 宏的「首帧 - 次帧」。
+
+因此这里的 missing 不是「没试」，而是「试过、被淘汰」。
+讲清楚这一点很重要：以后不要有人看到空白格就以为漏了，去重试一遍。
 
 用法：python cli/tools/index_patch_corpus.py [语料目录] [输出 json]
 """
@@ -92,12 +95,14 @@ def main():
 
     doc = {
         "source": os.path.relpath(src, ROOT).replace("\\", "/"),
+        "note": ("210 种 (首帧,次帧) 组合全部试听过；这里只留了有明显亮点的。"
+                 "discarded 是「试过、被淘汰」，不是「没试」。"),
         "count": len(entries),
         "coverage": {
-            "coveredOrdered": len(covered),
-            "totalOrdered": 210,
+            "testedOrdered": 210,
+            "keptOrdered": len(covered),
             "percent": round(100.0 * len(covered) / 210, 1),
-            "missing": [f"{a}-{b}" for a, b in missing],
+            "discarded": [f"{a}-{b}" for a, b in missing],
         },
         "pairs": {k: v for k, v in sorted(pairs.items(),
                                           key=lambda kv: (int(kv[0].split("-")[0]),
@@ -106,8 +111,8 @@ def main():
     }
     with open(dst, "w", encoding="utf-8", newline="\n") as fh:
         json.dump(doc, fh, ensure_ascii=False, indent=1)
-    print(f"{len(entries)} entries, {len(pairs)} pairs, "
-          f"{len(covered)}/210 covered -> {dst}")
+    print(f"{len(entries)} entries, {len(pairs)} kept pairs, "
+          f"{len(covered)}/210 kept after listening to all ({len(missing)} discarded) -> {dst}")
 
 
 if __name__ == "__main__":

@@ -1,11 +1,12 @@
 {
  "source": "out/Spindizzy_II/33 Oily Way/ins",
+ "note": "210 种 (首帧,次帧) 组合全部试听过；这里只留了有明显亮点的。discarded 是「试过、被淘汰」，不是「没试」。",
  "count": 85,
  "coverage": {
-  "coveredOrdered": 73,
-  "totalOrdered": 210,
+  "testedOrdered": 210,
+  "keptOrdered": 73,
   "percent": 34.8,
-  "missing": [
+  "discarded": [
    "1-3",
    "1-6",
    "1-8",
