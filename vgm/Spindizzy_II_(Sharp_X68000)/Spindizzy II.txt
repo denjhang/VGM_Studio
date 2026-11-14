@@ -1,0 +1,82 @@
+***********************************************
+* VGM music package                           *
+* http://vgmrips.net/                         *
+***********************************************
+Game name:           Spindizzy II
+System:              Sharp X68000
+Music hardware:      YM2151
+
+Music author:        Toshiya Yamanaka,
+                     Tetsuya Nakano
+Game developer:      Arsys Software
+Game publisher:      Arsys Software
+Game release date:   1992-04-10
+
+Package created by:  codeman38
+Package version:     1.02
+
+Song list, in approximate game order:
+Song name                        Length:
+                                 Total     Loop
+01 Arsys Logo                     0:06        -
+02 Zoom Up                        1:52     1:37
+03 Paradise                       0:30     0:29
+04 Woo!!                          0:21     0:21
+05 CLUSTER                        0:29     0:28
+06 Tutorial                       0:53     0:53
+07 HURRY UP!                      0:18     0:18
+08 Quadrant 2                     0:55     0:55
+09 Ramp Run                       0:42     0:41
+10 Split Up                       0:50     0:49
+11 Lavalite                       0:44     0:41
+12 Gargoyle                       0:50     0:50
+13 EasyDizzy                      1:17     1:17
+14 URANUS                         0:55     0:54
+15 NICE DAY                       1:44     1:44
+16 Solid Time                     0:36     0:34
+17 Beginners!                     0:33     0:32
+18 WaterWorks                     0:52     0:51
+19 Pak Attack                     0:57     0:55
+20 Pyramidea                      1:46     1:42
+21 Buxton cat                     1:38     1:38
+22 Tri Path                       1:05     1:05
+23 Sandy Island                   0:46     0:45
+24 Ballrace                       0:43     0:42
+25 Grass hopper                   0:49     0:48
+26 Roller-ama                     0:47     0:47
+27 Frigia                         0:59     0:59
+28 Arrow Maze                     0:55     0:54
+29 Castle Quest                   1:25     1:04
+30 Tower City                     1:08     1:08
+31 Grass Maze                     0:55     0:54
+32 RADIMA                         0:45     0:45
+33 Oily Way                       0:54     0:53
+34 WaterWorld                     1:02     0:55
+35 MisDirection                   1:02     1:01
+36 Torture!                       0:40     0:40
+37 Obelisk Run                    0:47     0:46
+38 Canal Side                     0:52     0:51
+39 Spindizzy!                     1:25     1:25
+40 Ending                         1:06     1:06
+41 Eternal Move                   3:18     1:36
+
+Total Length                     40:07  1:17:23
+
+
+Notes:
+This pack was made using XM6 Pro.
+
+Track names are taken from the in-game sound
+test, and were all originally in English.
+
+As is typical of Arsys' X68000 work, this game
+does not use the OKIM6258 chip at all.
+
+
+Package history:
+1.00 2017-04-30 codeman38: Initial release.
+1.01 2017-06-25 codeman38: Added Tetsuya Nakano
+ as composer. Rearranged tracks in gameplay
+ order, and added VGM comments identifying
+ where non-level tracks are used.
+1.02 2017-07-20 Valley Bell: Decreased volume.
