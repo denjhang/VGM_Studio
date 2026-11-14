@@ -24,7 +24,7 @@ out/
     │   ├── Oily Way ins.fur       ← 这首自己的 Furnace 工程（33 个乐器）
     │   ├── fui/                   ← 转换时导出的目标音色
     │   ├── ins/                   ← 手工试过的音色 + from_fur/（工程解包）
-    │   └── versions/              ← v1 … v6（v6 = 当前 song.ym2413.json）
+    │   └── versions/              ← v1 … v7（v7 = 当前 song.ym2413.json）
     ├── 41 Eternal Move/
     └── 31 Grass Maze/             ← ★ 主力调试曲（版本最多，音色都是为它调的）
         ├── song.ym2151.vgm         ← 原版（对比）
@@ -121,7 +121,8 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 | `v3/` | fur 再调 | — |
 | `v4/` | 方波加 detune、降音量、电吉他改低失真、鼓降音量 | ch6 宏状态机 bug 已修 |
 | `v5/` | `.fur`（2026-11-14 13:40）：ch3/ch6 电吉他换 preset 10、SD2 去掉 vol 参数 | — |
-| `v6/` | `.fur`（2026-11-14 19:17）：电吉他首帧预设再换（ch3 8→1、ch6 5→14），两块方波垫加 pitch detune，ch8 sine 音量 11→12 | **当前 `song.ym2413.json`** |
+| `v6/` | `.fur`（2026-11-14 19:17）：电吉他首帧预设再换（ch3 8→1、ch6 5→14），两块方波垫加 pitch detune，ch8 sine 音量 11→12 | — |
+| `v7/` | `.fur`（2026-11-14 23:21）：ch4 四个贝斯的 arp 宏全部 `-12` 降八度，ch6 电吉他退回 preset 15，ch7ins2 加 pitch `-10`，ch8 sine vol 13 / pitch `10` | **当前 `song.ym2413.json`** |
 
 v5 相对 v4 的寄存器变化（同一个 `song.json`，只换 `.fur`）：
 
@@ -148,6 +149,23 @@ VGM 165442 → 166216 字节；总采样数与循环点（2365198 / 2341646）�
 
 `pitch` 宏的单位是 **1/128 半音**（`MacroEngine.cpp` 里 `arpOff*128 + pitch2`，
 Furnace 的 `pitch2` 走 8.7 定点），所以 `-3` / `+2` 是**细微失谐**，不是半音级移调。
+
+v7 相对 v6 的变化（只换 `.fur`）：
+
+| 音色 | 改动 | 落到寄存器 |
+|---|---|---|
+| `ch4ins1-slap bass2` / `ch4ins2-slap bass shot` / `ch4ins3-slap bass 2` / `ch4ins4-ebass` | 四个贝斯都加 `arp: -12`（单个音色各自从头加） | ch4 每个 key 多写一对 `0x13`/`0x23`，block −1，fnum 不变 |
+| `ch4ins4-ebass` | wave 宏 `[11,10]` → `[11,4]` | ch4 preset 4 出现 10 次（v6 没有） |
+| `ch6ins1-eguitar2` | wave `[14,10]` → `[11,4]`，opllPreset 10 → 15 | ch6 preset 恢复 `{15:265, 11:265, 4:420}`（与 v5 同族） |
+| `ch7ins2-pad sq3` | 新增 pitch 宏 `-10` | ch7 每个 key 多一对音高写，失谐 < 0.1 半音 |
+| `ch7ins1-pad sq2` | pitch `-3` → `-10` | 同上，失谐量加大（−7/128 半音） |
+| `ch8ins2-pad sine` | vol `[0,12]`→`[0,13]`，pitch `+2`→`+10` | ch8 `0x30` 低 4 位 8→7（1031 条），八度上摔更明显 |
+
+总写入 40591 → 41183（+592），VGM 166216 → 167992 字节。时长与循环点不变。
+
+ch4 的 `arp: -12` 有一处要留意：OPLL 的 block 下限是 0，**19 个起音本来就落在 block 0**，
+降八度被夹住，实际只有 262 个起音真的降了八度。若要四个贝斯全部降下去，
+得把 `--transpose` 再降 12（会影响整曲），或把这 19 个音单独上移一个八度再让 arp 拽回来。
 
 ## 批量转换结果（`out/Spindizzy_II/`）
 
