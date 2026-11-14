@@ -24,7 +24,7 @@ out/
     │   ├── Oily Way ins.fur       ← 这首自己的 Furnace 工程（33 个乐器）
     │   ├── fui/                   ← 转换时导出的目标音色
     │   ├── ins/                   ← 手工试过的音色 + from_fur/（工程解包）
-    │   └── versions/              ← v1 … v5（v5 = 当前 song.ym2413.json）
+    │   └── versions/              ← v1 … v6（v6 = 当前 song.ym2413.json）
     ├── 41 Eternal Move/
     └── 31 Grass Maze/             ← ★ 主力调试曲（版本最多，音色都是为它调的）
         ├── song.ym2151.vgm         ← 原版（对比）
@@ -120,7 +120,8 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 | `v2/` | fur 换音色 | — |
 | `v3/` | fur 再调 | — |
 | `v4/` | 方波加 detune、降音量、电吉他改低失真、鼓降音量 | ch6 宏状态机 bug 已修 |
-| `v5/` | 当前 `.fur`（2026-11-14 13:40）：ch3/ch6 电吉他换 preset 10、SD2 去掉 vol 参数 | **当前 `song.ym2413.json`** |
+| `v5/` | `.fur`（2026-11-14 13:40）：ch3/ch6 电吉他换 preset 10、SD2 去掉 vol 参数 | — |
+| `v6/` | `.fur`（2026-11-14 19:17）：电吉他首帧预设再换（ch3 8→1、ch6 5→14），两块方波垫加 pitch detune，ch8 sine 音量 11→12 | **当前 `song.ym2413.json`** |
 
 v5 相对 v4 的寄存器变化（同一个 `song.json`，只换 `.fur`）：
 
@@ -132,6 +133,21 @@ v5 相对 v4 的寄存器变化（同一个 `song.json`，只换 `.fur`）：
 | 其余 | — | 逐条相同 |
 
 总写入 41914 → 40333（少 1581 条），VGM 171321 → 165442 字节。
+
+v6 相对 v5 的变化（同样是只换 `.fur`）：
+
+| 音色 | 改动 | 落到寄存器 |
+|---|---|---|
+| `ch3ins1-eguitar5` | wave 宏 `[8,10]` → `[1,10]` | ch3 首帧 preset 8 → 1（260 条） |
+| `ch6ins1-eguitar2` | wave 宏 `[5,10]` → `[14,10]` | ch6 首帧 preset 5 → 14（265 条） |
+| `ch7ins1-pad sq2` | 新增 pitch 宏 `-3`（1 步） | ch7 每个 key 多写一对 `0x16`/`0x26`，fnum 258 → 257（−0.07 半音 detune） |
+| `ch8ins2-pad sine` | vol 宏 `[0,11]` → `[0,12]`，新增 pitch 宏 `+2` | ch8 `0x30` 低 4 位 9 → 8（1031 条），fnum 同样多一次微调写入 |
+
+总写入 40333 → 40591（多 258 条，几乎全是 ch7/ch8 的 detune 音高写入），
+VGM 165442 → 166216 字节；总采样数与循环点（2365198 / 2341646）不变。
+
+`pitch` 宏的单位是 **1/128 半音**（`MacroEngine.cpp` 里 `arpOff*128 + pitch2`，
+Furnace 的 `pitch2` 走 8.7 定点），所以 `-3` / `+2` 是**细微失谐**，不是半音级移调。
 
 ## 批量转换结果（`out/Spindizzy_II/`）
 
