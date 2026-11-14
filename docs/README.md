@@ -19,6 +19,7 @@
 | 11 | [`PITCH-CONVERSION.md`](PITCH-CONVERSION.md) | **★ 音高转换权威汇总**：YM2151/YM2413 在 5 个参考实现里的全部公式（带行号）+ 物理真值推导 + 4 个已修 bug |
 | 12 | [`VOICE-FUI.md`](VOICE-FUI.md) | **★ 音色文件与宏**：`.fui` 命名规则、FM/MA 块布局、22 条宏、**宏速率不在 fui 里**、宏展开实测 |
 | 13 | [`INSTRUMENT-LIBRARY.md`](INSTRUMENT-LIBRARY.md) | **★ 本地乐器库**：标签缩写对照、参数/指纹/影子三条判据的区别、源→目标映射表、38 个乐器的完整参数（由 `fuitool lib` 生成）、**跨曲目复用（`--library`）与批量转换实测** |
+| 14 | [`OPLL-PATCH-PAIRS.md`](OPLL-PATCH-PAIRS.md) | **★ OPLL patch 双帧语料**：`33 Oily Way/ins/` 里 85 个手工穷举的「首帧 patch × 次帧 patch」组合、覆盖矩阵（73/210）、家族分组、两个命名异常、怎么拿它挑音色 |
 
 ## 产物目录
 

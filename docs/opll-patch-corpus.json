@@ -1,0 +1,3995 @@
+{
+ "source": "out/Spindizzy_II/33 Oily Way/ins",
+ "count": 85,
+ "coverage": {
+  "coveredOrdered": 73,
+  "totalOrdered": 210,
+  "percent": 34.8,
+  "missing": [
+   "1-3",
+   "1-6",
+   "1-8",
+   "1-9",
+   "1-11",
+   "1-14",
+   "1-15",
+   "2-3",
+   "2-6",
+   "2-7",
+   "2-8",
+   "2-9",
+   "2-12",
+   "2-13",
+   "2-14",
+   "2-15",
+   "3-1",
+   "3-2",
+   "3-4",
+   "3-6",
+   "3-7",
+   "3-8",
+   "3-9",
+   "3-10",
+   "3-11",
+   "3-12",
+   "3-13",
+   "3-14",
+   "3-15",
+   "4-3",
+   "4-7",
+   "4-9",
+   "4-10",
+   "4-11",
+   "4-15",
+   "5-3",
+   "5-6",
+   "5-7",
+   "5-8",
+   "5-11",
+   "5-13",
+   "5-14",
+   "5-15",
+   "6-2",
+   "6-3",
+   "6-7",
+   "6-8",
+   "6-9",
+   "6-11",
+   "6-12",
+   "6-13",
+   "6-14",
+   "6-15",
+   "7-2",
+   "7-3",
+   "7-4",
+   "7-8",
+   "7-9",
+   "7-10",
+   "7-11",
+   "7-12",
+   "7-13",
+   "7-14",
+   "7-15",
+   "8-2",
+   "8-3",
+   "8-7",
+   "8-9",
+   "8-11",
+   "8-14",
+   "8-15",
+   "9-2",
+   "9-4",
+   "9-7",
+   "9-8",
+   "9-10",
+   "9-11",
+   "9-14",
+   "9-15",
+   "10-2",
+   "10-3",
+   "10-4",
+   "10-7",
+   "10-8",
+   "10-9",
+   "10-11",
+   "10-12",
+   "10-13",
+   "10-14",
+   "10-15",
+   "11-2",
+   "11-3",
+   "11-7",
+   "11-8",
+   "11-9",
+   "11-12",
+   "11-13",
+   "11-14",
+   "12-2",
+   "12-3",
+   "12-6",
+   "12-7",
+   "12-8",
+   "12-9",
+   "12-10",
+   "12-11",
+   "12-13",
+   "12-15",
+   "13-2",
+   "13-3",
+   "13-6",
+   "13-7",
+   "13-8",
+   "13-9",
+   "13-10",
+   "13-11",
+   "13-12",
+   "13-14",
+   "13-15",
+   "14-2",
+   "14-3",
+   "14-6",
+   "14-7",
+   "14-8",
+   "14-9",
+   "14-11",
+   "14-12",
+   "14-13",
+   "14-15",
+   "15-2",
+   "15-3",
+   "15-7",
+   "15-8",
+   "15-9",
+   "15-10",
+   "15-12",
+   "15-13"
+  ]
+ },
+ "pairs": {
+  "1-2": [
+   {
+    "name": "guitar-1-2",
+    "file": "guitar-1-2.fui",
+    "family": "guitar",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "1-4": [
+   {
+    "name": "eguitar-1-4",
+    "file": "eguitar-1-4.fui",
+    "family": "eguitar",
+    "opllPreset": 15,
+    "vol": null
+   },
+   {
+    "name": "noise-1-4",
+    "file": "noise-1-4.fui",
+    "family": "noise",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "1-5": [
+   {
+    "name": "pad sq -1-5",
+    "file": "pad sq -1-5.fui",
+    "family": "pad sq",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "1-7": [
+   {
+    "name": "trum-1-7",
+    "file": "trum-1-7.fui",
+    "family": "trum",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "1-10": [
+   {
+    "name": "eguitar-1-10-light",
+    "file": "eguitar-1-10-light.fui",
+    "family": "eguitar-1-10-light",
+    "opllPreset": 10,
+    "vol": null
+   }
+  ],
+  "1-12": [
+   {
+    "name": "vib-1-12",
+    "file": "vib-1-12.fui",
+    "family": "vib",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "1-13": [
+   {
+    "name": "light pad -1-13",
+    "file": "light pad -1-13.fui",
+    "family": "light pad",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "2-1": [
+   {
+    "name": "saxphone -2-1",
+    "file": "saxphone -2-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     3,
+     15
+    ]
+   }
+  ],
+  "2-4": [
+   {
+    "name": "saw brass 2-4",
+    "file": "saw brass 2-4.fui",
+    "family": "saw brass",
+    "opllPreset": 15,
+    "vol": null
+   },
+   {
+    "name": "violin-2-4",
+    "file": "violin-2-4.fui",
+    "family": "violin",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "2-5": [
+   {
+    "name": "pad sq dark -2-5",
+    "file": "pad sq dark -2-5.fui",
+    "family": "pad sq dark",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "2-10": [
+   {
+    "name": "eguitar-2-10",
+    "file": "eguitar-2-10.fui",
+    "family": "eguitar",
+    "opllPreset": 10,
+    "vol": null
+   }
+  ],
+  "2-11": [
+   {
+    "name": "slap bass2",
+    "file": "slap bass2.fui",
+    "family": "slap bass2",
+    "opllPreset": 10,
+    "vol": [
+     10,
+     15,
+     14,
+     14,
+     13,
+     12,
+     12,
+     12,
+     11,
+     11,
+     11,
+     10,
+     10,
+     10,
+     10,
+     9,
+     9,
+     8,
+     8,
+     7,
+     6,
+     5,
+     5,
+     4
+    ]
+   }
+  ],
+  "3-5": [
+   {
+    "name": "pad sq -3-5",
+    "file": "pad sq -3-5.fui",
+    "family": "pad sq",
+    "opllPreset": 15,
+    "vol": [
+     3,
+     15
+    ]
+   }
+  ],
+  "4-1": [
+   {
+    "name": "organ-4-1",
+    "file": "organ-4-1.fui",
+    "family": "organ",
+    "opllPreset": 15,
+    "vol": [
+     3,
+     15
+    ]
+   }
+  ],
+  "4-2": [
+   {
+    "name": "guitar dark-4-2",
+    "file": "guitar dark-4-2.fui",
+    "family": "guitar dark",
+    "opllPreset": 15,
+    "vol": [
+     3,
+     15
+    ]
+   }
+  ],
+  "4-5": [
+   {
+    "name": "pan flute -4-5",
+    "file": "pan flute -4-5.fui",
+    "family": "pan flute",
+    "opllPreset": 15,
+    "vol": [
+     15,
+     15
+    ]
+   }
+  ],
+  "4-6": [
+   {
+    "name": "pipe -4-6",
+    "file": "pipe -4-6.fui",
+    "family": "pipe",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "4-8": [
+   {
+    "name": "dark organ -4-8",
+    "file": "dark organ -4-8.fui",
+    "family": "dark organ",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "4-12": [
+   {
+    "name": "whistle-4-12",
+    "file": "whistle-4-12.fui",
+    "family": "whistle",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "4-13": [
+   {
+    "name": "recorder-4-13",
+    "file": "recorder-4-13.fui",
+    "family": "recorder",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "4-14": [
+   {
+    "name": "piccolo-4-14",
+    "file": "piccolo-4-14.fui",
+    "family": "piccolo",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "5-1": [
+   {
+    "name": "saxphone -5-1",
+    "file": "saxphone -5-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     3,
+     15
+    ]
+   }
+  ],
+  "5-2": [
+   {
+    "name": "koto-5-2",
+    "file": "koto-5-2.fui",
+    "family": "koto",
+    "opllPreset": 15,
+    "vol": [
+     1,
+     15
+    ]
+   }
+  ],
+  "5-4": [
+   {
+    "name": "eguitar-5-4",
+    "file": "eguitar-5-4.fui",
+    "family": "eguitar",
+    "opllPreset": 15,
+    "vol": null
+   },
+   {
+    "name": "noise-5-4",
+    "file": "noise-5-4.fui",
+    "family": "noise",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   },
+   {
+    "name": "noise-6-4",
+    "file": "noise-6-4.fui",
+    "family": "noise",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "5-9": [
+   {
+    "name": "oboe-5-9",
+    "file": "oboe-5-9.fui",
+    "family": "oboe",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "5-10": [
+   {
+    "name": "eguitar-5-10-dark",
+    "file": "eguitar-5-10-dark.fui",
+    "family": "eguitar-5-10-dark",
+    "opllPreset": 10,
+    "vol": null
+   }
+  ],
+  "5-12": [
+   {
+    "name": "whistle vib-5-12",
+    "file": "whistle vib-5-12.fui",
+    "family": "whistle vib",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "6-1": [
+   {
+    "name": "saxphone -6-1",
+    "file": "saxphone -6-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     12,
+     15
+    ]
+   }
+  ],
+  "6-4": [
+   {
+    "name": "eguitar-6-4",
+    "file": "eguitar-6-4.fui",
+    "family": "eguitar",
+    "opllPreset": 15,
+    "vol": null
+   },
+   {
+    "name": "eguitar-preset3",
+    "file": "eguitar-preset3.fui",
+    "family": "eguitar-preset3",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "6-5": [
+   {
+    "name": "pad sq -6-5",
+    "file": "pad sq -6-5.fui",
+    "family": "pad sq",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "6-10": [
+   {
+    "name": "eguitar-6-10",
+    "file": "eguitar-6-10.fui",
+    "family": "eguitar",
+    "opllPreset": 10,
+    "vol": null
+   }
+  ],
+  "7-1": [
+   {
+    "name": "saxphone -7-1",
+    "file": "saxphone -7-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     10,
+     15
+    ]
+   }
+  ],
+  "7-5": [
+   {
+    "name": "pad sq light -7-5",
+    "file": "pad sq light -7-5.fui",
+    "family": "pad sq light",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "7-6": [
+   {
+    "name": "nokia 3310 -7-6",
+    "file": "nokia 3310 -7-6.fui",
+    "family": "nokia 3310",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "8-1": [
+   {
+    "name": "saxphone -8-1",
+    "file": "saxphone -8-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     10,
+     15
+    ]
+   }
+  ],
+  "8-4": [
+   {
+    "name": "eguitar-8-4",
+    "file": "eguitar-8-4.fui",
+    "family": "eguitar",
+    "opllPreset": 15,
+    "vol": null
+   },
+   {
+    "name": "noise-8-4",
+    "file": "noise-8-4.fui",
+    "family": "noise",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "8-5": [
+   {
+    "name": "pad sq light -8-5",
+    "file": "pad sq light -8-5.fui",
+    "family": "pad sq light",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "8-6": [
+   {
+    "name": "nokia 3310 -8-6",
+    "file": "nokia 3310 -8-6.fui",
+    "family": "nokia 3310",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "8-10": [
+   {
+    "name": "eguitar-8-10",
+    "file": "eguitar-8-10.fui",
+    "family": "eguitar",
+    "opllPreset": 10,
+    "vol": null
+   }
+  ],
+  "8-12": [
+   {
+    "name": "light vib-8-12",
+    "file": "light vib-8-12.fui",
+    "family": "light vib",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "8-13": [
+   {
+    "name": "light pad 8-13",
+    "file": "light pad 8-13.fui",
+    "family": "light pad",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "9-1": [
+   {
+    "name": "organ -9-1",
+    "file": "organ -9-1.fui",
+    "family": "organ",
+    "opllPreset": 15,
+    "vol": [
+     10,
+     15
+    ]
+   }
+  ],
+  "9-3": [
+   {
+    "name": "epiano-9-3",
+    "file": "epiano-9-3.fui",
+    "family": "epiano",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "9-5": [
+   {
+    "name": "pad sq dark -9-5",
+    "file": "pad sq dark -9-5.fui",
+    "family": "pad sq dark",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "9-6": [
+   {
+    "name": "nokia 3310 dark -9-6",
+    "file": "nokia 3310 dark -9-6.fui",
+    "family": "nokia 3310 dark",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   },
+   {
+    "name": "pipe-9-6",
+    "file": "pipe-9-6.fui",
+    "family": "pipe",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "9-12": [
+   {
+    "name": "dark vib-9-12",
+    "file": "dark vib-9-12.fui",
+    "family": "dark vib",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "9-13": [
+   {
+    "name": "slow pad 9-13",
+    "file": "slow pad 9-13.fui",
+    "family": "slow pad",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "10-1": [
+   {
+    "name": "saxphone -10-1",
+    "file": "saxphone -10-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     10,
+     15
+    ]
+   }
+  ],
+  "10-5": [
+   {
+    "name": "pad sq light -10-5",
+    "file": "pad sq light -10-5.fui",
+    "family": "pad sq light",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "10-6": [
+   {
+    "name": "nokia 3310 light -10-6",
+    "file": "nokia 3310 light -10-6.fui",
+    "family": "nokia 3310 light",
+    "opllPreset": 15,
+    "vol": [
+     0,
+     15
+    ]
+   }
+  ],
+  "11-1": [
+   {
+    "name": "saxphone -11-1",
+    "file": "saxphone -11-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "11-4": [
+   {
+    "name": "eguitar-11-4",
+    "file": "eguitar-11-4.fui",
+    "family": "eguitar",
+    "opllPreset": 15,
+    "vol": null
+   },
+   {
+    "name": "eguitar-preset2",
+    "file": "eguitar-preset2.fui",
+    "family": "eguitar-preset2",
+    "opllPreset": 15,
+    "vol": null
+   },
+   {
+    "name": "noise-11-4",
+    "file": "noise-11-4.fui",
+    "family": "noise",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "11-5": [
+   {
+    "name": "pad sq -11-5",
+    "file": "pad sq -11-5.fui",
+    "family": "pad sq",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "11-6": [
+   {
+    "name": "nokia 3310 -11-6",
+    "file": "nokia 3310 -11-6.fui",
+    "family": "nokia 3310",
+    "opllPreset": 15,
+    "vol": [
+     0,
+     15
+    ]
+   }
+  ],
+  "11-10": [
+   {
+    "name": "eguitar-11-10",
+    "file": "eguitar-11-10.fui",
+    "family": "eguitar",
+    "opllPreset": 10,
+    "vol": null
+   },
+   {
+    "name": "eguitar-preset1",
+    "file": "eguitar-preset1.fui",
+    "family": "eguitar-preset1",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "11-15": [
+   {
+    "name": "slap bass",
+    "file": "slap bass.fui",
+    "family": "slap bass",
+    "opllPreset": 10,
+    "vol": [
+     15,
+     15,
+     14,
+     14,
+     13,
+     12,
+     12,
+     12,
+     11,
+     11,
+     11,
+     10,
+     10,
+     10,
+     10,
+     9,
+     9,
+     8,
+     8,
+     7,
+     6,
+     5,
+     5,
+     4
+    ]
+   }
+  ],
+  "12-1": [
+   {
+    "name": "saxphone -12-1",
+    "file": "saxphone -12-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "12-4": [
+   {
+    "name": "saw brass 12-4",
+    "file": "saw brass 12-4.fui",
+    "family": "saw brass",
+    "opllPreset": 15,
+    "vol": null
+   },
+   {
+    "name": "violin-12-4",
+    "file": "violin-12-4.fui",
+    "family": "violin",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "12-5": [
+   {
+    "name": "pad sq -12-5",
+    "file": "pad sq -12-5.fui",
+    "family": "pad sq",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "12-14": [
+   {
+    "name": "vib-tuba 12-14",
+    "file": "vib-tuba 12-14.fui",
+    "family": "vib-tuba",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "13-1": [
+   {
+    "name": "saxphone -13-1",
+    "file": "saxphone -13-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "13-4": [
+   {
+    "name": "chiba-13-4",
+    "file": "chiba-13-4.fui",
+    "family": "chiba",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "13-5": [
+   {
+    "name": "pad sq light -13-5",
+    "file": "pad sq light -13-5.fui",
+    "family": "pad sq light",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "14-1": [
+   {
+    "name": "saxphone -14-1",
+    "file": "saxphone -14-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "14-4": [
+   {
+    "name": "eguitar-14-4",
+    "file": "eguitar-14-4.fui",
+    "family": "eguitar",
+    "opllPreset": 15,
+    "vol": null
+   },
+   {
+    "name": "noise -4-14",
+    "file": "noise -4-14.fui",
+    "family": "noise",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "14-5": [
+   {
+    "name": "pad sq light -14-5",
+    "file": "pad sq light -14-5.fui",
+    "family": "pad sq light",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "14-10": [
+   {
+    "name": "eguitar-14-10",
+    "file": "eguitar-14-10.fui",
+    "family": "eguitar",
+    "opllPreset": 10,
+    "vol": null
+   }
+  ],
+  "15-1": [
+   {
+    "name": "saxphone -15-1",
+    "file": "saxphone -15-1.fui",
+    "family": "saxphone",
+    "opllPreset": 15,
+    "vol": [
+     4,
+     15
+    ]
+   }
+  ],
+  "15-4": [
+   {
+    "name": "chiba-15-4",
+    "file": "chiba-15-4.fui",
+    "family": "chiba",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "15-5": [
+   {
+    "name": "pad sq -15-5",
+    "file": "pad sq -15-5.fui",
+    "family": "pad sq",
+    "opllPreset": 15,
+    "vol": [
+     2,
+     15
+    ]
+   }
+  ],
+  "15-6": [
+   {
+    "name": "eguitar-preset4",
+    "file": "eguitar-preset4.fui",
+    "family": "eguitar-preset4",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "15-11": [
+   {
+    "name": "eguitar-preset5-ok",
+    "file": "eguitar-preset5-ok.fui",
+    "family": "eguitar-preset5-ok",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ],
+  "15-14": [
+   {
+    "name": "tuba 15-14",
+    "file": "tuba 15-14.fui",
+    "family": "tuba",
+    "opllPreset": 15,
+    "vol": null
+   }
+  ]
+ },
+ "entries": [
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      13,
+      4
+     ]
+    }
+   },
+   "name": "chiba-13-4",
+   "file": "chiba-13-4.fui",
+   "family": "chiba",
+   "waveValues": [
+    13,
+    4
+   ],
+   "first": 13,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      15,
+      4
+     ]
+    }
+   },
+   "name": "chiba-15-4",
+   "file": "chiba-15-4.fui",
+   "family": "chiba",
+   "waveValues": [
+    15,
+    4
+   ],
+   "first": 15,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      8
+     ]
+    }
+   },
+   "name": "dark organ -4-8",
+   "file": "dark organ -4-8.fui",
+   "family": "dark organ",
+   "waveValues": [
+    4,
+    8
+   ],
+   "first": 4,
+   "second": 8,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      9,
+      12
+     ]
+    }
+   },
+   "name": "dark vib-9-12",
+   "file": "dark vib-9-12.fui",
+   "family": "dark vib",
+   "waveValues": [
+    9,
+    12
+   ],
+   "first": 9,
+   "second": 12,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 10,
+   "fingerprint": "c55d830f4c2b189a",
+   "signature": "t13;preset10;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      1,
+      10
+     ]
+    }
+   },
+   "name": "eguitar-1-10-light",
+   "file": "eguitar-1-10-light.fui",
+   "family": "eguitar-1-10-light",
+   "waveValues": [
+    1,
+    10
+   ],
+   "first": 1,
+   "second": 10,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      1,
+      4
+     ]
+    }
+   },
+   "name": "eguitar-1-4",
+   "file": "eguitar-1-4.fui",
+   "family": "eguitar",
+   "waveValues": [
+    1,
+    4
+   ],
+   "first": 1,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 10,
+   "fingerprint": "c55d830f4c2b189a",
+   "signature": "t13;preset10;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      11,
+      10
+     ]
+    }
+   },
+   "name": "eguitar-11-10",
+   "file": "eguitar-11-10.fui",
+   "family": "eguitar",
+   "waveValues": [
+    11,
+    10
+   ],
+   "first": 11,
+   "second": 10,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      11,
+      4
+     ]
+    }
+   },
+   "name": "eguitar-11-4",
+   "file": "eguitar-11-4.fui",
+   "family": "eguitar",
+   "waveValues": [
+    11,
+    4
+   ],
+   "first": 11,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 10,
+   "fingerprint": "c55d830f4c2b189a",
+   "signature": "t13;preset10;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      14,
+      10
+     ]
+    }
+   },
+   "name": "eguitar-14-10",
+   "file": "eguitar-14-10.fui",
+   "family": "eguitar",
+   "waveValues": [
+    14,
+    10
+   ],
+   "first": 14,
+   "second": 10,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      14,
+      4
+     ]
+    }
+   },
+   "name": "eguitar-14-4",
+   "file": "eguitar-14-4.fui",
+   "family": "eguitar",
+   "waveValues": [
+    14,
+    4
+   ],
+   "first": 14,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 10,
+   "fingerprint": "c55d830f4c2b189a",
+   "signature": "t13;preset10;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      10
+     ]
+    }
+   },
+   "name": "eguitar-2-10",
+   "file": "eguitar-2-10.fui",
+   "family": "eguitar",
+   "waveValues": [
+    2,
+    10
+   ],
+   "first": 2,
+   "second": 10,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 10,
+   "fingerprint": "c55d830f4c2b189a",
+   "signature": "t13;preset10;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      5,
+      10
+     ]
+    }
+   },
+   "name": "eguitar-5-10-dark",
+   "file": "eguitar-5-10-dark.fui",
+   "family": "eguitar-5-10-dark",
+   "waveValues": [
+    5,
+    10
+   ],
+   "first": 5,
+   "second": 10,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      5,
+      4
+     ]
+    }
+   },
+   "name": "eguitar-5-4",
+   "file": "eguitar-5-4.fui",
+   "family": "eguitar",
+   "waveValues": [
+    5,
+    4
+   ],
+   "first": 5,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 10,
+   "fingerprint": "c55d830f4c2b189a",
+   "signature": "t13;preset10;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      6,
+      10
+     ]
+    }
+   },
+   "name": "eguitar-6-10",
+   "file": "eguitar-6-10.fui",
+   "family": "eguitar",
+   "waveValues": [
+    6,
+    10
+   ],
+   "first": 6,
+   "second": 10,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      6,
+      4
+     ]
+    }
+   },
+   "name": "eguitar-6-4",
+   "file": "eguitar-6-4.fui",
+   "family": "eguitar",
+   "waveValues": [
+    6,
+    4
+   ],
+   "first": 6,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 10,
+   "fingerprint": "c55d830f4c2b189a",
+   "signature": "t13;preset10;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      8,
+      10
+     ]
+    }
+   },
+   "name": "eguitar-8-10",
+   "file": "eguitar-8-10.fui",
+   "family": "eguitar",
+   "waveValues": [
+    8,
+    10
+   ],
+   "first": 8,
+   "second": 10,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      8,
+      4
+     ]
+    }
+   },
+   "name": "eguitar-8-4",
+   "file": "eguitar-8-4.fui",
+   "family": "eguitar",
+   "waveValues": [
+    8,
+    4
+   ],
+   "first": 8,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      11,
+      10
+     ]
+    }
+   },
+   "name": "eguitar-preset1",
+   "file": "eguitar-preset1.fui",
+   "family": "eguitar-preset1",
+   "waveValues": [
+    11,
+    10
+   ],
+   "first": 11,
+   "second": 10,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      11,
+      4
+     ]
+    }
+   },
+   "name": "eguitar-preset2",
+   "file": "eguitar-preset2.fui",
+   "family": "eguitar-preset2",
+   "waveValues": [
+    11,
+    4
+   ],
+   "first": 11,
+   "second": 4,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      6,
+      4
+     ]
+    }
+   },
+   "name": "eguitar-preset3",
+   "file": "eguitar-preset3.fui",
+   "family": "eguitar-preset3",
+   "waveValues": [
+    6,
+    4
+   ],
+   "first": 6,
+   "second": 4,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 3,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      15,
+      6,
+      4
+     ]
+    }
+   },
+   "name": "eguitar-preset4",
+   "file": "eguitar-preset4.fui",
+   "family": "eguitar-preset4",
+   "waveValues": [
+    15,
+    6,
+    4
+   ],
+   "first": 15,
+   "second": 6,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 3,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      15,
+      11,
+      4
+     ]
+    }
+   },
+   "name": "eguitar-preset5-ok",
+   "file": "eguitar-preset5-ok.fui",
+   "family": "eguitar-preset5-ok",
+   "waveValues": [
+    15,
+    11,
+    4
+   ],
+   "first": 15,
+   "second": 11,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      9,
+      3
+     ]
+    }
+   },
+   "name": "epiano-9-3",
+   "file": "epiano-9-3.fui",
+   "family": "epiano",
+   "waveValues": [
+    9,
+    3
+   ],
+   "first": 9,
+   "second": 3,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      3,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      2
+     ]
+    }
+   },
+   "name": "guitar dark-4-2",
+   "file": "guitar dark-4-2.fui",
+   "family": "guitar dark",
+   "waveValues": [
+    4,
+    2
+   ],
+   "first": 4,
+   "second": 2,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      1,
+      2
+     ]
+    }
+   },
+   "name": "guitar-1-2",
+   "file": "guitar-1-2.fui",
+   "family": "guitar",
+   "waveValues": [
+    1,
+    2
+   ],
+   "first": 1,
+   "second": 2,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      1,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      5,
+      2
+     ]
+    }
+   },
+   "name": "koto-5-2",
+   "file": "koto-5-2.fui",
+   "family": "koto",
+   "waveValues": [
+    5,
+    2
+   ],
+   "first": 5,
+   "second": 2,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      1,
+      13
+     ]
+    }
+   },
+   "name": "light pad -1-13",
+   "file": "light pad -1-13.fui",
+   "family": "light pad",
+   "waveValues": [
+    1,
+    13
+   ],
+   "first": 1,
+   "second": 13,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      8,
+      13
+     ]
+    }
+   },
+   "name": "light pad 8-13",
+   "file": "light pad 8-13.fui",
+   "family": "light pad",
+   "waveValues": [
+    8,
+    13
+   ],
+   "first": 8,
+   "second": 13,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      8,
+      12
+     ]
+    }
+   },
+   "name": "light vib-8-12",
+   "file": "light vib-8-12.fui",
+   "family": "light vib",
+   "waveValues": [
+    8,
+    12
+   ],
+   "first": 8,
+   "second": 12,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      14,
+      4
+     ]
+    }
+   },
+   "name": "noise -4-14",
+   "file": "noise -4-14.fui",
+   "family": "noise",
+   "waveValues": [
+    14,
+    4
+   ],
+   "first": 14,
+   "second": 4,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      1,
+      4
+     ]
+    }
+   },
+   "name": "noise-1-4",
+   "file": "noise-1-4.fui",
+   "family": "noise",
+   "waveValues": [
+    1,
+    4
+   ],
+   "first": 1,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      11,
+      4
+     ]
+    }
+   },
+   "name": "noise-11-4",
+   "file": "noise-11-4.fui",
+   "family": "noise",
+   "waveValues": [
+    11,
+    4
+   ],
+   "first": 11,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      5,
+      4
+     ]
+    }
+   },
+   "name": "noise-5-4",
+   "file": "noise-5-4.fui",
+   "family": "noise",
+   "waveValues": [
+    5,
+    4
+   ],
+   "first": 5,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      5,
+      4
+     ]
+    }
+   },
+   "name": "noise-6-4",
+   "file": "noise-6-4.fui",
+   "family": "noise",
+   "waveValues": [
+    5,
+    4
+   ],
+   "first": 5,
+   "second": 4,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      8,
+      4
+     ]
+    }
+   },
+   "name": "noise-8-4",
+   "file": "noise-8-4.fui",
+   "family": "noise",
+   "waveValues": [
+    8,
+    4
+   ],
+   "first": 8,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      0,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      11,
+      6
+     ]
+    }
+   },
+   "name": "nokia 3310 -11-6",
+   "file": "nokia 3310 -11-6.fui",
+   "family": "nokia 3310",
+   "waveValues": [
+    11,
+    6
+   ],
+   "first": 11,
+   "second": 6,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      7,
+      6
+     ]
+    }
+   },
+   "name": "nokia 3310 -7-6",
+   "file": "nokia 3310 -7-6.fui",
+   "family": "nokia 3310",
+   "waveValues": [
+    7,
+    6
+   ],
+   "first": 7,
+   "second": 6,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      8,
+      6
+     ]
+    }
+   },
+   "name": "nokia 3310 -8-6",
+   "file": "nokia 3310 -8-6.fui",
+   "family": "nokia 3310",
+   "waveValues": [
+    8,
+    6
+   ],
+   "first": 8,
+   "second": 6,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      9,
+      6
+     ]
+    }
+   },
+   "name": "nokia 3310 dark -9-6",
+   "file": "nokia 3310 dark -9-6.fui",
+   "family": "nokia 3310 dark",
+   "waveValues": [
+    9,
+    6
+   ],
+   "first": 9,
+   "second": 6,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      0,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      10,
+      6
+     ]
+    }
+   },
+   "name": "nokia 3310 light -10-6",
+   "file": "nokia 3310 light -10-6.fui",
+   "family": "nokia 3310 light",
+   "waveValues": [
+    10,
+    6
+   ],
+   "first": 10,
+   "second": 6,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      5,
+      9
+     ]
+    }
+   },
+   "name": "oboe-5-9",
+   "file": "oboe-5-9.fui",
+   "family": "oboe",
+   "waveValues": [
+    5,
+    9
+   ],
+   "first": 5,
+   "second": 9,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      10,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      9,
+      1
+     ]
+    }
+   },
+   "name": "organ -9-1",
+   "file": "organ -9-1.fui",
+   "family": "organ",
+   "waveValues": [
+    9,
+    1
+   ],
+   "first": 9,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      3,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      1
+     ]
+    }
+   },
+   "name": "organ-4-1",
+   "file": "organ-4-1.fui",
+   "family": "organ",
+   "waveValues": [
+    4,
+    1
+   ],
+   "first": 4,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      1,
+      5
+     ]
+    }
+   },
+   "name": "pad sq -1-5",
+   "file": "pad sq -1-5.fui",
+   "family": "pad sq",
+   "waveValues": [
+    1,
+    5
+   ],
+   "first": 1,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      11,
+      5
+     ]
+    }
+   },
+   "name": "pad sq -11-5",
+   "file": "pad sq -11-5.fui",
+   "family": "pad sq",
+   "waveValues": [
+    11,
+    5
+   ],
+   "first": 11,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      12,
+      5
+     ]
+    }
+   },
+   "name": "pad sq -12-5",
+   "file": "pad sq -12-5.fui",
+   "family": "pad sq",
+   "waveValues": [
+    12,
+    5
+   ],
+   "first": 12,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      15,
+      5
+     ]
+    }
+   },
+   "name": "pad sq -15-5",
+   "file": "pad sq -15-5.fui",
+   "family": "pad sq",
+   "waveValues": [
+    15,
+    5
+   ],
+   "first": 15,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      3,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      3,
+      5
+     ]
+    }
+   },
+   "name": "pad sq -3-5",
+   "file": "pad sq -3-5.fui",
+   "family": "pad sq",
+   "waveValues": [
+    3,
+    5
+   ],
+   "first": 3,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      6,
+      5
+     ]
+    }
+   },
+   "name": "pad sq -6-5",
+   "file": "pad sq -6-5.fui",
+   "family": "pad sq",
+   "waveValues": [
+    6,
+    5
+   ],
+   "first": 6,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      5
+     ]
+    }
+   },
+   "name": "pad sq dark -2-5",
+   "file": "pad sq dark -2-5.fui",
+   "family": "pad sq dark",
+   "waveValues": [
+    2,
+    5
+   ],
+   "first": 2,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      9,
+      5
+     ]
+    }
+   },
+   "name": "pad sq dark -9-5",
+   "file": "pad sq dark -9-5.fui",
+   "family": "pad sq dark",
+   "waveValues": [
+    9,
+    5
+   ],
+   "first": 9,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      10,
+      5
+     ]
+    }
+   },
+   "name": "pad sq light -10-5",
+   "file": "pad sq light -10-5.fui",
+   "family": "pad sq light",
+   "waveValues": [
+    10,
+    5
+   ],
+   "first": 10,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      13,
+      5
+     ]
+    }
+   },
+   "name": "pad sq light -13-5",
+   "file": "pad sq light -13-5.fui",
+   "family": "pad sq light",
+   "waveValues": [
+    13,
+    5
+   ],
+   "first": 13,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      14,
+      5
+     ]
+    }
+   },
+   "name": "pad sq light -14-5",
+   "file": "pad sq light -14-5.fui",
+   "family": "pad sq light",
+   "waveValues": [
+    14,
+    5
+   ],
+   "first": 14,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      7,
+      5
+     ]
+    }
+   },
+   "name": "pad sq light -7-5",
+   "file": "pad sq light -7-5.fui",
+   "family": "pad sq light",
+   "waveValues": [
+    7,
+    5
+   ],
+   "first": 7,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      8,
+      5
+     ]
+    }
+   },
+   "name": "pad sq light -8-5",
+   "file": "pad sq light -8-5.fui",
+   "family": "pad sq light",
+   "waveValues": [
+    8,
+    5
+   ],
+   "first": 8,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      15,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      5
+     ]
+    }
+   },
+   "name": "pan flute -4-5",
+   "file": "pan flute -4-5.fui",
+   "family": "pan flute",
+   "waveValues": [
+    4,
+    5
+   ],
+   "first": 4,
+   "second": 5,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      14
+     ]
+    }
+   },
+   "name": "piccolo-4-14",
+   "file": "piccolo-4-14.fui",
+   "family": "piccolo",
+   "waveValues": [
+    4,
+    14
+   ],
+   "first": 4,
+   "second": 14,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      6
+     ]
+    }
+   },
+   "name": "pipe -4-6",
+   "file": "pipe -4-6.fui",
+   "family": "pipe",
+   "waveValues": [
+    4,
+    6
+   ],
+   "first": 4,
+   "second": 6,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      9,
+      6
+     ]
+    }
+   },
+   "name": "pipe-9-6",
+   "file": "pipe-9-6.fui",
+   "family": "pipe",
+   "waveValues": [
+    9,
+    6
+   ],
+   "first": 9,
+   "second": 6,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      13
+     ]
+    }
+   },
+   "name": "recorder-4-13",
+   "file": "recorder-4-13.fui",
+   "family": "recorder",
+   "waveValues": [
+    4,
+    13
+   ],
+   "first": 4,
+   "second": 13,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      12,
+      4
+     ]
+    }
+   },
+   "name": "saw brass 12-4",
+   "file": "saw brass 12-4.fui",
+   "family": "saw brass",
+   "waveValues": [
+    12,
+    4
+   ],
+   "first": 12,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      4
+     ]
+    }
+   },
+   "name": "saw brass 2-4",
+   "file": "saw brass 2-4.fui",
+   "family": "saw brass",
+   "waveValues": [
+    2,
+    4
+   ],
+   "first": 2,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      10,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      10,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -10-1",
+   "file": "saxphone -10-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    10,
+    1
+   ],
+   "first": 10,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      11,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -11-1",
+   "file": "saxphone -11-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    11,
+    1
+   ],
+   "first": 11,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      12,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -12-1",
+   "file": "saxphone -12-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    12,
+    1
+   ],
+   "first": 12,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      13,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -13-1",
+   "file": "saxphone -13-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    13,
+    1
+   ],
+   "first": 13,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      14,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -14-1",
+   "file": "saxphone -14-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    14,
+    1
+   ],
+   "first": 14,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      15,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -15-1",
+   "file": "saxphone -15-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    15,
+    1
+   ],
+   "first": 15,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      3,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -2-1",
+   "file": "saxphone -2-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    2,
+    1
+   ],
+   "first": 2,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      3,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      5,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -5-1",
+   "file": "saxphone -5-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    5,
+    1
+   ],
+   "first": 5,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      12,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      6,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -6-1",
+   "file": "saxphone -6-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    6,
+    1
+   ],
+   "first": 6,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      10,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      7,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -7-1",
+   "file": "saxphone -7-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    7,
+    1
+   ],
+   "first": 7,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      10,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      8,
+      1
+     ]
+    }
+   },
+   "name": "saxphone -8-1",
+   "file": "saxphone -8-1.fui",
+   "family": "saxphone",
+   "waveValues": [
+    8,
+    1
+   ],
+   "first": 8,
+   "second": 1,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 10,
+   "fingerprint": "e4fee08d0ef34c5c",
+   "signature": "t13;preset10;alg0;fb7;fms0;ams0;ops2|0:7,36,15,8,2,2,0,0,1,0,0,0,0,0,0,2|1:1,0,15,8,1,2,0,0,0,1,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 24,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      15,
+      15,
+      14,
+      14,
+      13,
+      12,
+      12,
+      12,
+      11,
+      11,
+      11,
+      10,
+      10,
+      10,
+      10,
+      9,
+      9,
+      8,
+      8,
+      7,
+      6,
+      5,
+      5,
+      4
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      11,
+      15
+     ]
+    }
+   },
+   "name": "slap bass",
+   "file": "slap bass.fui",
+   "family": "slap bass",
+   "waveValues": [
+    11,
+    15
+   ],
+   "first": 11,
+   "second": 15,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 10,
+   "fingerprint": "e4fee08d0ef34c5c",
+   "signature": "t13;preset10;alg0;fb7;fms0;ams0;ops2|0:7,36,15,8,2,2,0,0,1,0,0,0,0,0,0,2|1:1,0,15,8,1,2,0,0,0,1,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 24,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      10,
+      15,
+      14,
+      14,
+      13,
+      12,
+      12,
+      12,
+      11,
+      11,
+      11,
+      10,
+      10,
+      10,
+      10,
+      9,
+      9,
+      8,
+      8,
+      7,
+      6,
+      5,
+      5,
+      4
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      11
+     ]
+    }
+   },
+   "name": "slap bass2",
+   "file": "slap bass2.fui",
+   "family": "slap bass2",
+   "waveValues": [
+    2,
+    11
+   ],
+   "first": 2,
+   "second": 11,
+   "nameMatchesWave": false
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      9,
+      13
+     ]
+    }
+   },
+   "name": "slow pad 9-13",
+   "file": "slow pad 9-13.fui",
+   "family": "slow pad",
+   "waveValues": [
+    9,
+    13
+   ],
+   "first": 9,
+   "second": 13,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      1,
+      7
+     ]
+    }
+   },
+   "name": "trum-1-7",
+   "file": "trum-1-7.fui",
+   "family": "trum",
+   "waveValues": [
+    1,
+    7
+   ],
+   "first": 1,
+   "second": 7,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      15,
+      14
+     ]
+    }
+   },
+   "name": "tuba 15-14",
+   "file": "tuba 15-14.fui",
+   "family": "tuba",
+   "waveValues": [
+    15,
+    14
+   ],
+   "first": 15,
+   "second": 14,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      1,
+      12
+     ]
+    }
+   },
+   "name": "vib-1-12",
+   "file": "vib-1-12.fui",
+   "family": "vib",
+   "waveValues": [
+    1,
+    12
+   ],
+   "first": 1,
+   "second": 12,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      12,
+      14
+     ]
+    }
+   },
+   "name": "vib-tuba 12-14",
+   "file": "vib-tuba 12-14.fui",
+   "family": "vib-tuba",
+   "waveValues": [
+    12,
+    14
+   ],
+   "first": 12,
+   "second": 14,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "vol": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      15
+     ]
+    },
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      12,
+      4
+     ]
+    }
+   },
+   "name": "violin-12-4",
+   "file": "violin-12-4.fui",
+   "family": "violin",
+   "waveValues": [
+    12,
+    4
+   ],
+   "first": 12,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      2,
+      4
+     ]
+    }
+   },
+   "name": "violin-2-4",
+   "file": "violin-2-4.fui",
+   "family": "violin",
+   "waveValues": [
+    2,
+    4
+   ],
+   "first": 2,
+   "second": 4,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      5,
+      12
+     ]
+    }
+   },
+   "name": "whistle vib-5-12",
+   "file": "whistle vib-5-12.fui",
+   "family": "whistle vib",
+   "waveValues": [
+    5,
+    12
+   ],
+   "first": 5,
+   "second": 12,
+   "nameMatchesWave": true
+  },
+  {
+   "opllPreset": 15,
+   "fingerprint": "b14dc4994761419d",
+   "signature": "t13;preset15;alg0;fb7;fms1;ams0;ops2|0:5,40,15,5,3,3,5,0,0,0,1,0,0,0,0,2|1:1,0,15,1,11,6,5,0,0,0,0,0,0,0,0,2",
+   "macros": {
+    "wave": {
+     "len": 2,
+     "speed": 1,
+     "delay": 0,
+     "loop": 255,
+     "rel": 255,
+     "values": [
+      4,
+      12
+     ]
+    }
+   },
+   "name": "whistle-4-12",
+   "file": "whistle-4-12.fui",
+   "family": "whistle",
+   "waveValues": [
+    4,
+    12
+   ],
+   "first": 4,
+   "second": 12,
+   "nameMatchesWave": true
+  }
+ ]
+}

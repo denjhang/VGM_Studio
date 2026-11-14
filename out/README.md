@@ -23,8 +23,9 @@ out/
     │   ├── song.ym2151.vgm / song.json / song.ym2413.json / song.ym2413.vgm
     │   ├── Oily Way ins.fur       ← 这首自己的 Furnace 工程（33 个乐器）
     │   ├── fui/                   ← 转换时导出的目标音色
-    │   ├── ins/                   ← 手工试过的音色 + from_fur/（工程解包）
-    │   └── versions/              ← v1 … v7（v7 = 当前 song.ym2413.json）
+    │   ├── ins/                   ← 85 个手工穷举的 patch 双帧语料（文件名 = 首帧-次帧），
+    │   │                             见 docs/OPLL-PATCH-PAIRS.md；另含 from_fur/（工程解包）
+    │   └── versions/              ← v1 … v8（v8 = 当前 song.ym2413.json）
     ├── 41 Eternal Move/
     └── 31 Grass Maze/             ← ★ 主力调试曲（版本最多，音色都是为它调的）
         ├── song.ym2151.vgm         ← 原版（对比）
@@ -122,7 +123,8 @@ legato 块在源里没有 key 事件，此前每块都重新 `Init` 一遍宏，
 | `v4/` | 方波加 detune、降音量、电吉他改低失真、鼓降音量 | ch6 宏状态机 bug 已修 |
 | `v5/` | `.fur`（2026-11-14 13:40）：ch3/ch6 电吉他换 preset 10、SD2 去掉 vol 参数 | — |
 | `v6/` | `.fur`（2026-11-14 19:17）：电吉他首帧预设再换（ch3 8→1、ch6 5→14），两块方波垫加 pitch detune，ch8 sine 音量 11→12 | — |
-| `v7/` | `.fur`（2026-11-14 23:21）：ch4 四个贝斯的 arp 宏全部 `-12` 降八度，ch6 电吉他退回 preset 15，ch7ins2 加 pitch `-10`，ch8 sine vol 13 / pitch `10` | **当前 `song.ym2413.json`** |
+| `v7/` | `.fur`（2026-11-14 23:21）：ch4 四个贝斯的 arp 宏全部 `-12` 降八度，ch6 电吉他退回 preset 15，ch7ins2 加 pitch `-10`，ch8 sine vol 13 / pitch `10` | — |
+| `v8/` | `.fur`（2026-11-15 00:16）：撤掉 ch4 全部 arp 降八度；ch3ins1 换成 `eguitar-preset2`（`11 → 4`）；ch6 波表回到 `11 → 10`；ch8ins1 音量抬一档 | **当前 `song.ym2413.json`** |
 
 v5 相对 v4 的寄存器变化（同一个 `song.json`，只换 `.fur`）：
 
@@ -166,6 +168,22 @@ v7 相对 v6 的变化（只换 `.fur`）：
 ch4 的 `arp: -12` 有一处要留意：OPLL 的 block 下限是 0，**19 个起音本来就落在 block 0**，
 降八度被夹住，实际只有 262 个起音真的降了八度。若要四个贝斯全部降下去，
 得把 `--transpose` 再降 12（会影响整曲），或把这 19 个音单独上移一个八度再让 arp 拽回来。
+
+v8 相对 v7 的变化（只换 `.fur`）：
+
+| 音色 | 改动 | 落到寄存器 |
+|---|---|---|
+| `ch3ins1-eguitar5` → `eguitar-preset2` | 乐器改名为 `eguitar-preset2`，wave `[1,10]` → `[11,4]` | ch3 的首帧写入由 preset 1 改到 11（260 条），次帧由 10 改到 4（260 条） |
+| ch4 四个贝斯 | **撤掉上一版的 `arp: -12`** | ch4 音高写入 563/844 → 282/563，回到 v6 的量；preset 4 那 10 条消失 |
+| `ch4ins4-ebass` | wave `[11,4]` → `[11,10]` | ch4 收尾帧回到 preset 10 |
+| `ch6ins1-eguitar2` | wave `[11,4]` → `[11,10]` | ch6 收尾帧从 preset 4 变 10（420 条） |
+| `ch8ins1-pad sq3` | vol 宏 `[0,12]` → `[0,13]` | ch8 `0x30` 低 4 位 8 → 7（1031 条，响一档） |
+
+总写入 41183 → 40621（少 562，主要是 ch4 撤掉的 arp 音高写），
+VGM 167992 → 166306 字节。时长与循环点不变（2365198 / 2341646）。
+
+这一版的 `eguitar-preset2` 是从 `ins/` 语料里直接拿的名字——语料本身就是按
+「首帧-次帧」命名的，见 [`docs/OPLL-PATCH-PAIRS.md`](../docs/OPLL-PATCH-PAIRS.md)。
 
 ## 批量转换结果（`out/Spindizzy_II/`）
 
