@@ -258,6 +258,10 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
     std::map<int, std::map<uint32_t, std::string>> noteKeyOfChannel;
     // 每个 (通道, 音符起点) 在本曲里的目标乐器名，link 复制时按它改写名字。
     std::vector<std::string> linkEntriesApplied;
+    // 每个 (通道, 音符起点) 的**基础音量**（0x30 低 4 位的衰减 nibble，已经包含
+    // TL 换算与 vol:N；**不含**宏的影响）。联动通道要用它当音量锚点：
+    // 从 segments 里反查不行，那里首帧往往已被 vol 宏改写成静音。
+    std::map<int, std::map<uint32_t, int>> noteBaseVolume;
     for (int ch = 0; ch < kSrcChannels && ch < static_cast<int>(src.channels.size()); ch++) {
         const Channel& sc = src.channels[ch];
         uint8_t shadow[256] = {0};
@@ -842,6 +846,7 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                 auto kit = voiceSrcKey.find(vh);
                 if (kit != voiceSrcKey.end())
                     noteKeyOfChannel[ch][n.startSample] = kit->second;
+                noteBaseVolume[ch][n.startSample] = vol;
             }
             out.notesConverted++;
             NoteConvertReport rep;
@@ -1015,10 +1020,25 @@ ConvertResult ConvertOpmToOpll(const Document& src, const ConvertOptions& opt) {
                     }
                 }
 
-                // ② 音色与音量：联动音色自己的 preset + vol。
+                // ② 音色与音量：preset 用联动音色自己的；音量锚点默认跟随被跟随通道。
                 const int program = lk.voice->opllPreset;
                 // 同主循环：vol:N 是 Furnace 音量语义（15=最响），转成 0x30 的衰减 nibble。
-                int vol = ltags.hasVol ? 15 - ltags.vol : 0;
+                int vol;
+                if (ltags.hasVol) {
+                    vol = 15 - ltags.vol;
+                } else {
+                    // 联动通道自己不产生源音符，所以没有自己的音量锚点。
+                    // 默认用**被跟随音符的基础音量**当系数：取主循环算出的
+                    // 那个 vol（含 TL 换算，**不含**它的宏），只借锚点、
+                    // 不复制它的包络——联动音色自己的 vol 宏照旧跑。
+                    const auto vit = noteBaseVolume.find(srcCh);
+                    int base = -1;
+                    if (vit != noteBaseVolume.end()) {
+                        const auto nit = vit->second.find(sn.startSample);
+                        if (nit != vit->second.end()) base = nit->second;
+                    }
+                    vol = base >= 0 ? base : 0;
+                }
                 vol = std::max(0, std::min(15, vol));
                 // 起点补一条 0x30（音色号 + 音量），与主循环的写法一致。
                 {
