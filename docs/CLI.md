@@ -47,7 +47,7 @@
 
 ## 2. 程序清单
 
-全部在独立的 `cli/` 工程里（**不碰 `0x808/`**，见 `RULES.md` F6–F8），
+全部在独立的 `cli/` 工程里（**不碰 `refs/0x808/`**，见 `RULES.md` F6–F8），
 每个程序一个 `main`，共用 `cli/src/` 下的 `vgmcore` 静态库。
 
 | 程序 | 输入 | 输出 | 职责 |
@@ -653,7 +653,7 @@ std::array<uint8_t, 16> fingerprint(const DivInstrumentFM& fm);
 
 ## 8. 构建与目录
 
-**独立工程 `cli/`，不碰 `0x808/`**（`RULES.md` F6–F8）。`0x808` 只作为将来的 UI 壳。
+**独立工程 `cli/`，不碰 `refs/0x808/`**（`RULES.md` F6–F8）。`refs/0x808` 只作为将来的 UI 壳。
 
 ```
 cli/
@@ -718,7 +718,7 @@ cmake --build cli/build
 
 | 依赖 | 状态 |
 |---|---|
-| libvgm 三个 `.a` | ✅ 已编出（`libvgm/build/bin/`） |
+| libvgm 三个 `.a` | ✅ 已编出（`refs/libvgm/build/bin/`） |
 | nlohmann/json | ✅ MSYS2 自带 |
 | zlib | ✅ MSYS2 自带（`.fur` 是 zlib 压缩的） |
 | Furnace `instrument.cpp` | ✅ 只复制 4 个文件进 `cli/third_party/furnace/`，不拉整个工程 |

@@ -19,12 +19,14 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # ── libvgm ────────────────────────────────────────────────────────────────────
-set(VGMSTUDIO_LIBVGM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../libvgm/build")
+# 外部参考工程统一放在 refs/ 下（各自带 .git，不进本仓库的版本控制）。
+set(VGMSTUDIO_LIBVGM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../refs/libvgm/build")
 if(NOT EXISTS "${VGMSTUDIO_LIBVGM_DIR}/libvgmConfig.cmake")
     message(FATAL_ERROR
         "libvgm 还没编译。先跑：\n"
-        "  cmake -S libvgm -B libvgm/build -G Ninja -DCMAKE_BUILD_TYPE=Release "
-        "-DBUILD_LIBAUDIO=OFF -DBUILD_PLAYER=OFF -DBUILD_VGM2WAV=OFF -DUSE_SANITIZERS=OFF")
+        "  cmake -S refs/libvgm -B refs/libvgm/build -G Ninja -DCMAKE_BUILD_TYPE=Release "
+        "-DBUILD_LIBAUDIO=OFF -DBUILD_PLAYER=OFF -DBUILD_VGM2WAV=ON -DUSE_SANITIZERS=OFF\n"
+        "（BUILD_PLAYER 必须 OFF：player.cpp 会要 WavWrt_SetFileName）")
 endif()
 find_package(libvgm CONFIG REQUIRED PATHS "${VGMSTUDIO_LIBVGM_DIR}" NO_DEFAULT_PATH)
 

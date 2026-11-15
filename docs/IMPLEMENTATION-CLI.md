@@ -35,7 +35,7 @@ cmake -S cli -B cli/build -G Ninja -DCMAKE_BUILD_TYPE=Release
 ninja -C cli/build
 ```
 
-依赖实测可用：`libvgm/build/bin/libvgm-{player,emu,utils}.a`、MSYS2 的 `nlohmann_json 3.12.0`。
+依赖实测可用：`refs/libvgm/build/bin/libvgm-{player,emu,utils}.a`、MSYS2 的 `nlohmann_json 3.12.0`。
 
 ---
 
@@ -152,7 +152,7 @@ ch0 327  ch1 240  ch2 327  ch3 291  ch4 388  ch5 291  ch6 326  ch7 325
 
 | # | 坑 | 现象 | 修法 |
 |---|---|---|---|
-| 1 | 把代码先放进 `0x808/src/vgm/` | 违反"CLI 独立工程" | 全部删除，迁到 `cli/` |
+| 1 | 把代码先放进 `refs/0x808/src/vgm/` | 违反"CLI 独立工程" | 全部删除，迁到 `cli/` |
 | 2 | 影子设备 `Start()` 没回填 `retDevInf->devDef` | `ImportVgm` 段错误 | 回填 `&g_shadowDefs[I]`（真实核靠 `INIT_DEVINF`） |
 | 3 | 影子上下文没带 `vgmChipType` | 所有写都被标成 chipType=0，`IsChannelReg` 全落空，音符数为 0 | 注册影子设备时把 `sd.vgmChipType` / `sd.instance` 写进 ctx |
 | 4 | 寄存器分类只枚举了 `(reg & 0xF8)` 的十个值 | 10000+ 条写被判"未分类" | 改成 `reg == 0x08 \|\| reg >= 0x20`（与 libvgm `write()` 的 case 分支等价） |

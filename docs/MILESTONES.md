@@ -25,7 +25,7 @@ ninja sequencer_gui
 原因：静态库顺序（`libimgui.a` 排在 `libSDL2.dll.a` 之前，单趟解析）+ `-static -mwindows` 与 `SDL2.dll` 混用。
 
 修法（按优先级）：
-1. `0x808/CMakeLists.txt` 的 `sequencer_gui` 链接段，调成 `sq_gui sq_midi imgui ${SDL2_LIBRARIES} ${SQ_OPENGL_LIB}`（SDL2 在引用者之后）；
+1. `refs/0x808/CMakeLists.txt` 的 `sequencer_gui` 链接段，调成 `sq_gui sq_midi imgui ${SDL2_LIBRARIES} ${SQ_OPENGL_LIB}`（SDL2 在引用者之后）；
 2. 或加 `-Wl,--start-group ${SDL2_LIBRARIES} imgui -Wl,--end-group`；
 3. 去掉 MINGW 分支的 `-static`，或改用静态 `libSDL2.a`。
 

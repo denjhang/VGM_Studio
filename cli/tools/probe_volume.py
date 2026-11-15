@@ -47,7 +47,7 @@ def opll(a, d):
 
 def render(vgm, wav):
     subprocess.run(
-        ["libvgm/build/bin/vgm2wav.exe", "--loops", "0", vgm, wav],
+        ["refs/libvgm/build/bin/vgm2wav.exe", "--loops", "0", vgm, wav],
         check=True, capture_output=True,
     )
 

@@ -22,8 +22,10 @@
 |---|---|
 | [`cli/`](cli/) | **本项目自己的代码**：导入、结构化、跨芯片转换、输出、音高验证 |
 | [`docs/`](docs/) | 设计文档（每个主题一个文件，见 [`docs/README.md`](docs/README.md)） |
-| [`out/`](out/) | **全部生成物**，一个版本一个子目录（`v1/`…`v5/`），见 [`out/README.md`](out/README.md) |
-| `0x808/` `libvgm/` `furnace/` 等 | 外部参考工程（各自带 `.git`，不纳入本仓库） |
+| [`out/`](out/) | **全部生成物**，按 `游戏/曲目` 分类，见 [`out/README.md`](out/README.md) |
+| [`refs/`](refs/) | **外部参考工程**（0x808 / libvgm / furnace / grauw / …），各自带 `.git`，不进本仓库；清单见 [`refs/README.md`](refs/README.md) |
+| `vgm/` | 输入用的原始 VGM，按游戏分目录 |
+| `.work/` | 临时试验目录，不入库 |
 
 ---
 
@@ -32,14 +34,19 @@
 ### 构建
 
 ```bash
+export PATH="/d/msys64/mingw64/bin:$PATH"   # 少了这个 c++ 会缺 DLL 静默失败
+
 # 依赖：libvgm（需先编出静态库）、nlohmann/json、CMake + Ninja（MSYS2）
-cmake -S libvgm -B libvgm/build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+cmake -S refs/libvgm -B refs/libvgm/build -G Ninja -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_LIBAUDIO=OFF -DBUILD_PLAYER=OFF -DBUILD_VGM2WAV=ON -DUSE_SANITIZERS=OFF
-cmake --build libvgm/build --target vgm2wav
+cmake --build refs/libvgm/build        # 出 libvgm-{emu,player,utils}.a + vgm2wav.exe
 
 cmake -S cli -B cli/build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build cli/build
 ```
+
+`BUILD_PLAYER` 必须 OFF（`player.cpp` 要 `WavWrt_SetFileName`，关掉 LIBAUDIO 时没有）。
+`libvgmTargets.cmake` 里是绝对路径，**挪动 `refs/` 后必须删掉 build 目录重配**。
 
 ### 跑通全链路
 
@@ -55,7 +62,7 @@ $B/json2mid.exe  out/song.json -o out/03_original_OPM.mid --report
 $B/opm2opll.exe  out/song.json -o out/song.ym2413.json \
                  --vgm=out/song.ym2413.vgm           # JSON → JSON + 试听 VGM
 $B/json2mid.exe  out/song.ym2413.json -o out/04_converted_OPLL.mid --report
-libvgm/build/bin/vgm2wav.exe out/song.ym2413.vgm out/02_converted_OPLL_YM2413.wav
+refs/libvgm/build/bin/vgm2wav.exe out/song.ym2413.vgm out/02_converted_OPLL_YM2413.wav
 ```
 
 ### 音色（`.fui`）
@@ -140,5 +147,6 @@ print(Counter(round(x) for x in delta).most_common(10))
 ## 许可
 
 本仓库自有代码（`cli/`、`docs/`）见 [LICENSE](LICENSE)。
-`0x808` 为 MIT，`libvgm` 为其原许可，`furnace` 为 GPL-2.0+（**只作参考，未链接**）。
+`refs/` 下的工程各自沿用上游许可，且不进本仓库：
+`0x808` 为 MIT，`libvgm` 为其原许可，`furnace` 为 GPL-2.0+（**只复制 4 个文件，不链接整个工程**）。
 `cli/third_party/midifile` 为 Craig Sapp `midifile`（从 Denjhang Music Player 复制，原许可随目录）。

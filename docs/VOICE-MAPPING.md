@@ -404,7 +404,7 @@ std::unordered_map<std::string, VoiceMapEntry> g_voiceMap;
 
 ## 8. 待办
 
-- [ ] 把这 150 行 C++ 实现写进 `0x808/src/vgm/lib/FmVoice.{h,cpp}`
+- [ ] 把这 150 行 C++ 实现写进 `refs/0x808/src/vgm/lib/FmVoice.{h,cpp}`
 - [ ] 用 vgm-conv 生成的 `.opm` 文件验证 OPM 音符解码
 - [ ] 验证 `patch_ym2413[]`（Nuked-OPLL）与 `_OPLL_ROM_PATCHES`（ym-voice）的 8 字节编码是否一致
 - [ ] 把 vgm-conv 的 voice-table 格式支持成 `fuitool` 的一个子命令（`fuitool import-voice-table`）

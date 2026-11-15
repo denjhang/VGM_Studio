@@ -43,7 +43,7 @@ def build_vgm(cmd_byte, clock_off, clock_val, events, samples, path):
 
 def render(vgm, wav):
     subprocess.run(
-        ["libvgm/build/bin/vgm2wav.exe", "--loops", "0", vgm, wav],
+        ["refs/libvgm/build/bin/vgm2wav.exe", "--loops", "0", vgm, wav],
         check=True, capture_output=True,
     )
 

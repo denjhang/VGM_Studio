@@ -214,13 +214,13 @@ cDev->write8(..., (port << 1) | 1, data);
 ### 7.1 正确的编译命令
 
 ```bash
-cmake -S libvgm -B libvgm/build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+cmake -S refs/libvgm -B refs/libvgm/build -G Ninja -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_LIBAUDIO=OFF -DBUILD_PLAYER=OFF -DBUILD_VGM2WAV=OFF \
       -DUSE_SANITIZERS=OFF \
       -DSNDEMU__ALL=OFF -DSNDEMU_YM2151_NUKED=ON
 ```
 
-产物：`libvgm/build/bin/libvgm-{emu,player,utils}.a`
+产物：`refs/libvgm/build/bin/libvgm-{emu,player,utils}.a`
 
 ### 7.2 坑（全部实测）
 

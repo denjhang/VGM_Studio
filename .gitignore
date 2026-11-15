@@ -1,14 +1,16 @@
-# 只提交本项目自己的代码与文档；外部参考工程各自带 .git，不纳入
-0x808/
-FamiStudio/
-Gridline/
-/furnace/
-grauw/
-libmidi/
-libvgm/
-nanotracker/
-tks/
-studio/
+# 外部参考工程统一收在 refs/（各自带 .git，不进本仓库）
+refs/0x808/
+refs/FamiStudio/
+refs/Gridline/
+refs/furnace/
+refs/grauw/
+refs/libmidi/
+refs/libvgm/
+refs/nanotracker/
+refs/tks/
+refs/studio/
+refs/_archives/
+!refs/README.md
 
 # 构建产物
 cli/build/
